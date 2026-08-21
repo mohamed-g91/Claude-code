@@ -45,10 +45,10 @@ Whenever you reformat `Answer` or `MRCP Pearl`, always output it as Telegram-tra
 
 ## Fixed Pearl layout (use this every time)
 
-One idea per paragraph, written as literal escaped HTML:
+One idea per paragraph, written as literal escaped HTML. `[chapter/subtopic]` is the subtopic the Pearl's own content is actually about — not the row's full `Topic` field. A row's `Topic` field can legitimately list more than one subtopic when the Pearl and Question are intentionally cross-paired on different topics (a known pattern in this database); in that case use only the subtopic matching the Pearl's own content, never append the Question's unrelated topic as a third item. No memory hook line.
 
 ```
-\<p>💡\</p> \<p>\<b>Topic: Cardiology, [chapter/subtopic]\</b>\</p> \<p />\</p> \<p>\<b>💎 The Pearl\</b>\</p> \<p>\<b>Core rule\</b> — [1 sentence takeaway.]\</p> \<p>\<b>Do\</b> — [Best next step / first-line.]\</p> \<p>\<b>Avoid / trap\</b> — [Common pitfall.]\</p> \<p>\<b>Memory hook\</b> — [Optional mnemonic.]\</p> \<p>#MRCP #Pearl\</p>
+\<p>💡\</p> \<p>\<b>Topic: Cardiology, [chapter/subtopic]\</b>\</p> \<p />\</p> \<p>\<b>💎 The Pearl\</b>\</p> \<p>\<b>Core rule\</b> — [1 sentence takeaway.]\</p> \<p>\<b>Do\</b> — [Best next step / first-line.]\</p> \<p>\<b>Avoid / trap\</b> — [Common pitfall.]\</p> \<p>#MRCP #Pearl\</p>
 ```
 
 ## Answer text formatting
