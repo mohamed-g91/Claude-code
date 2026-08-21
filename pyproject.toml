@@ -1,0 +1,20 @@
+[project]
+name = "token-tracker"
+version = "0.1.0"
+description = "Token usage tracker for Claude sessions -- Claude Code transcripts and live API calls, with per-model/session/day breakdowns and an offline HTML dashboard."
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+api = ["anthropic>=0.40.0"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+token-tracker = "token_tracker.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["token_tracker"]
