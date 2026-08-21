@@ -196,6 +196,10 @@ _TEMPLATE = r"""<!doctype html>
 
   <div class="panel">
     <h2>Tokens per day</h2>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--input-color)"></i>Input</span>
+      <span><i class="swatch" style="background:var(--output-color)"></i>Output</span>
+    </div>
     <svg class="line-chart" id="day-chart"></svg>
   </div>
 
@@ -381,37 +385,44 @@ function renderModelChart(records) {
 
 function renderDayChart(records) {
   const svg = document.getElementById("day-chart");
-  const buckets = new Map();
+  const buckets = new Map(); // day -> {input, output}
   for (const r of records) {
     const day = (r.timestamp || "").slice(0, 10) || "unknown";
-    buckets.set(day, (buckets.get(day) || 0) + r.input_tokens + r.output_tokens + r.cache_creation_input_tokens + r.cache_read_input_tokens);
+    if (!buckets.has(day)) buckets.set(day, { input: 0, output: 0 });
+    const b = buckets.get(day);
+    b.input += r.input_tokens;
+    b.output += r.output_tokens;
   }
   const days = [...buckets.keys()].sort();
   const w = Math.max(svg.parentElement.clientWidth - 20, 400);
   const h = 200, leftPad = 60, rightPad = 20, topPad = 10, bottomPad = 30;
-  const maxVal = Math.max(1, ...days.map(d => buckets.get(d)));
+  const maxVal = Math.max(1, ...days.map(d => Math.max(buckets.get(d).input, buckets.get(d).output)));
   const plotW = w - leftPad - rightPad, plotH = h - topPad - bottomPad;
   const xStep = days.length > 1 ? plotW / (days.length - 1) : 0;
-  const points = days.map((d, i) => {
-    const x = leftPad + i * xStep;
-    const y = topPad + plotH - (buckets.get(d) / maxVal) * plotH;
-    return [x, y];
-  });
+
+  const seriesPoints = key => days.map((d, i) => [
+    leftPad + i * xStep,
+    topPad + plotH - (buckets.get(d)[key] / maxVal) * plotH,
+  ]);
+  const drawLine = (points, color) => {
+    if (!points.length) return "";
+    const linePath = "M" + points.map(p => p.join(",")).join(" L");
+    let s = `<path d="${linePath}" fill="none" stroke="${color}" stroke-width="2"></path>`;
+    for (const [x, y] of points) s += `<circle cx="${x}" cy="${y}" r="2.5" fill="${color}"></circle>`;
+    return s;
+  };
+
   let parts = [];
   parts.push(`<line x1="${leftPad}" y1="${topPad}" x2="${leftPad}" y2="${topPad + plotH}" stroke="var(--border)"></line>`);
   parts.push(`<line x1="${leftPad}" y1="${topPad + plotH}" x2="${leftPad + plotW}" y2="${topPad + plotH}" stroke="var(--border)"></line>`);
-  if (points.length) {
-    const areaPath = `M${leftPad},${topPad + plotH} ` + points.map(p => `L${p[0]},${p[1]}`).join(" ") + ` L${points[points.length - 1][0]},${topPad + plotH} Z`;
-    parts.push(`<path d="${areaPath}" fill="var(--accent-soft)" stroke="none"></path>`);
-    const linePath = "M" + points.map(p => p.join(",")).join(" L");
-    parts.push(`<path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2"></path>`);
-    points.forEach(([x, y], i) => {
-      parts.push(`<circle cx="${x}" cy="${y}" r="2.5" fill="var(--accent)"></circle>`);
-      if (i === 0 || i === points.length - 1 || days.length < 10) {
-        parts.push(`<text x="${x}" y="${topPad + plotH + 16}" text-anchor="middle" class="axis-label">${days[i].slice(5)}</text>`);
-      }
-    });
-  }
+  parts.push(drawLine(seriesPoints("input"), "var(--input-color)"));
+  parts.push(drawLine(seriesPoints("output"), "var(--output-color)"));
+  days.forEach((d, i) => {
+    if (i === 0 || i === days.length - 1 || days.length < 10) {
+      const x = leftPad + i * xStep;
+      parts.push(`<text x="${x}" y="${topPad + plotH + 16}" text-anchor="middle" class="axis-label">${d.slice(5)}</text>`);
+    }
+  });
   parts.push(`<text x="${leftPad - 8}" y="${topPad + 4}" text-anchor="end" class="axis-label">${fmtInt(maxVal)}</text>`);
   parts.push(`<text x="${leftPad - 8}" y="${topPad + plotH}" text-anchor="end" class="axis-label">0</text>`);
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
