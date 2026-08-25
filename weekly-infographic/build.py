@@ -6,7 +6,7 @@ unattended; with no arguments it falls back to the committed sample so a human
 can still run it by hand. Everything you'd want to tweak lives in CONFIG or in
 that JSON. Everything below it is mechanics.
 """
-import argparse, datetime as dt, json, pathlib, random, sys, qrcode
+import argparse, datetime as dt, json, os, pathlib, random, sys, qrcode
 
 # ============================ CONFIG ============================
 # Defaults. A --content JSON may override brand, specialty, week_start and pearls.
@@ -19,6 +19,11 @@ BRAND = {
 SPECIALTY  = "Cardiology"
 WEEK_START = dt.date(2026, 8, 17)            # Monday of the week being summarised
 SERIES_EPOCH = dt.date(2026, 8, 10)          # Monday of the FIRST posting week = week 1
+# Canvas height by pearl count. Seven pearls never fit 1350px at a size legible
+# on a phone - the fitter just shrank the text instead of saying so. Telegram
+# scales an image to the chat width and does not crop, so a taller canvas costs
+# nothing and keeps every pearl.
+CANVAS_H = {3: 1350, 4: 1400, 5: 1560, 6: 1800, 7: 1980, 8: 2180}
 ACCENTS = {                                  # per-card accent, per theme
   "dark":  ["#00E0B4","#5E7CFF","#FFB443","#FF6B8A","#3FC4FF","#A78BFA"],
   "light": ["#0B7A63","#3D51D6","#9A5D0F","#C92C55","#0A6A91","#6B3FD4"],
@@ -131,9 +136,12 @@ def build(theme, cfg):
     # Accents cycle, so a week with more pearls than colours still gets one each.
     accents = [ACCENTS[theme][i % len(ACCENTS[theme])] for i in range(len(pearls))]
     count = NUMBER_WORD.get(len(pearls), str(len(pearls)))
+    height = int(os.environ.get("CANVAS_H") or CANVAS_H.get(len(pearls), 1350))
     return f'''<meta charset="utf-8"><link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="weekly.css">
-<script>document.documentElement.setAttribute('data-theme','{theme}');
+<meta name="canvas-height" content="{height}">
+<script>document.documentElement.style.setProperty('--canvas-h','{height}px');
+document.documentElement.setAttribute('data-theme','{theme}');
 window.ACCENTS={json.dumps(accents)};window.CTX={json.dumps(ctx)};</script>
 {plate_svg()}
 {WATERMARK}
@@ -202,6 +210,8 @@ def main():
         (out / f"weekly_{theme}.html").write_text(build(theme, cfg))
         print(f"wrote {out / f'weekly_{theme}.html'}")
     end = cfg["week_start"] + dt.timedelta(days=6)
+    h = int(os.environ.get("CANVAS_H") or CANVAS_H.get(len(cfg["pearls"]), 1350))
+    print(f"canvas 1080x{h}")
     print(f"Week {series_week(cfg['week_start'])} (ISO {iso_week(cfg['week_start'])}) "
           f"\u00b7 {fmt_range(cfg['week_start'], end)} \u00b7 {len(cfg['pearls'])} pearls")
 

@@ -3,11 +3,11 @@
    Theme is entirely tokens; [data-theme] swaps them.
    ============================================================ */
 :root{
-  --tx:25px; --pad:19px;
+  --tx:28px; --pad:21px; --canvas-h:1350px;
   /* dark (default) */
-  --bg:#080C15; --ink:#EAF0F7; --ink-2:#DDE5EF; --ink-3:#6B7B93; --ink-4:#8496AD;
+  --bg:#080C15; --ink:#F2F6FA; --ink-2:#E6EDF5; --ink-3:#6B7B93; --ink-4:#8496AD;
   --hair:rgba(255,255,255,.10);
-  --card-bg:rgba(255,255,255,.05); --card-bd:rgba(255,255,255,.10); --card-sh:none;
+  --card-bg:rgba(255,255,255,.065); --card-bd:rgba(255,255,255,.14); --card-sh:none;
   --accent-1:#00E0B4; --accent-2:#5E7CFF;
   --chip-bg:rgba(0,224,180,.13); --chip-bd:rgba(0,224,180,.35); --chip-fg:#00E0B4;
   --wm:#00E0B4; --wm-op:.07;
@@ -32,7 +32,7 @@
   --body-glow-1:transparent; --body-glow-2:transparent;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:1080px;height:1350px}
+html,body{width:1080px;height:var(--canvas-h)}
 body{background:var(--bg);color:var(--ink);
   font-family:'Space Grotesk','DejaVu Sans',sans-serif;
   background-image:radial-gradient(90% 55% at 12% 0%, var(--body-glow-1) 0%, transparent 62%),
@@ -60,15 +60,16 @@ h1 span{background:linear-gradient(96deg,var(--accent-1) 0%,var(--accent-2) 100%
 svg.ecg{display:block;width:100%;height:78px;margin-top:14px;flex:0 0 78px}
 /* cards */
 .list{margin-top:22px;flex:0 0 auto;display:flex;flex-direction:column;gap:calc(var(--pad) * .68)}
-.card{background:var(--card-bg);border:1px solid var(--card-bd);border-radius:19px;box-shadow:var(--card-sh);
-  padding:var(--pad) 22px;display:grid;grid-template-columns:5px 42px 1fr;gap:18px;align-items:center}
+.card{background:var(--card-bg);border:1px solid var(--card-bd);border-radius:22px;box-shadow:var(--card-sh);
+  padding:var(--pad) 26px;display:grid;
+  grid-template-columns:6px calc(var(--tx) * 1.6) 1fr;gap:calc(var(--tx) * .72);align-items:center}
 .accent{border-radius:99px;align-self:stretch}
-.ico{width:42px;height:42px}
+.ico{width:calc(var(--tx) * 1.6);height:calc(var(--tx) * 1.6)}
 .ico svg{width:100%;height:100%;display:block}
-.topic{font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:7px}
-.txt{font-family:'Inter','DejaVu Sans',sans-serif;font-size:var(--tx);line-height:1.36;color:var(--ink-2);font-weight:400}
+.topic{font-size:calc(var(--tx) * .53);letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:calc(var(--tx) * .3)}
+.txt{font-family:'Inter','DejaVu Sans',sans-serif;font-size:var(--tx);line-height:1.46;color:var(--ink-2);font-weight:400}
 .txt b{font-weight:700;color:var(--ink)}
-.src{font-size:13px;color:var(--ink-3);margin-top:6px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.src{font-size:calc(var(--tx) * .49);color:var(--ink-4);margin-top:7px;letter-spacing:.07em;text-transform:uppercase;font-weight:600}
 /* brand footer */
 footer{margin-top:auto;padding-top:18px;border-top:1px solid var(--hair);
   display:flex;justify-content:space-between;align-items:center;gap:20px}

@@ -23,7 +23,12 @@ function findChrome() {
   throw new Error('no Chromium found — set CHROME_PATH');
 }
 const CHROME = findChrome();
-const W = 1080, H = 1350, DSF = 2;
+const W = 1080, DSF = 2;
+// The floor matters more than the ceiling. Text that shrinks to fit is text
+// nobody can read: this image is viewed as a photo in a Telegram feed at about
+// 400px wide, so a 19px body renders around 7px on a phone. Below MIN_TX the
+// build fails and the canvas grows instead.
+const MIN_TX = 28, MAX_TX = 34;
 const files = process.argv.slice(2);
 const port = 9222 + (process.pid % 900);
 
@@ -47,9 +52,9 @@ function conn(url){
       ws.send(JSON.stringify({id:i, method, params})); }) };
 }
 
-const FIT = `(async () => {
+const FIT = h => `(async () => {
   await document.fonts.ready;
-  const H=${H}, r=document.documentElement;
+  const H=${h}, r=document.documentElement;
   const deepest=()=>{let m=0;document.querySelectorAll('body *').forEach(e=>{
     if(e.closest('[data-decor]'))return;               // decorative art bleeds by design
     const b=e.getBoundingClientRect();
@@ -59,10 +64,10 @@ const FIT = `(async () => {
   const set=()=>{r.style.setProperty('--tx',tx.toFixed(2)+'px');
                  r.style.setProperty('--pad',Math.max(pd,3).toFixed(2)+'px');};
   // grow into unused canvas first, then shrink back until it fits
-  while(deepest()<H-8 && g++<250 && tx<34){ tx+=0.3; pd+=0.28; set(); }
-  while(deepest()>H   && g++<500 && tx>11){ tx-=0.3; pd-=0.28; set(); }
+  while(deepest()<H-8 && g++<250 && tx<${MAX_TX}){ tx+=0.3; pd+=0.28; set(); }
+  while(deepest()>H   && g++<500 && tx>${MIN_TX}){ tx-=0.3; pd-=0.28; set(); }
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  return JSON.stringify({bottom:deepest(), tx:+tx.toFixed(1), fits:deepest()<=H});
+  return JSON.stringify({bottom:deepest(), tx:+tx.toFixed(1), fits:deepest()<=H, floored:tx<=${MIN_TX}+0.01});
 })()`;
 
 let bad = 0;
@@ -70,14 +75,21 @@ for (const f of files) {
   const t = await (await fetch(`http://127.0.0.1:${port}/json/new?file://${process.cwd()}/${f}.html`,{method:'PUT'})).json();
   const c = conn(t.webSocketDebuggerUrl); await c.ready;
   await c.send('Page.enable');
-  await c.send('Emulation.setDeviceMetricsOverride',{width:W,height:H,deviceScaleFactor:DSF,mobile:false});
+  await c.send('Emulation.setDeviceMetricsOverride',{width:W,height:1350,deviceScaleFactor:DSF,mobile:false});
   await c.send('Page.navigate',{url:`file://${process.cwd()}/${f}.html`});
-  await sleep(1800);
-  const r = await c.send('Runtime.evaluate',{expression:FIT, awaitPromise:true, returnByValue:true});
+  await sleep(1200);
+  // Each week declares its own canvas height, so read it rather than assume one.
+  const hr = await c.send('Runtime.evaluate',{returnByValue:true, expression:
+    `+(document.querySelector('meta[name=canvas-height]')||{}).content || 1350`});
+  const H = hr.result.value;
+  await c.send('Emulation.setDeviceMetricsOverride',{width:W,height:H,deviceScaleFactor:DSF,mobile:false});
+  await sleep(600);
+  const r = await c.send('Runtime.evaluate',{expression:FIT(H), awaitPromise:true, returnByValue:true});
   const info = JSON.parse(r.result.value);
   const shot = await c.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
   writeFileSync(`${f}.png`, Buffer.from(shot.data,'base64'));
-  console.log(`${info.fits?'OK  ':'FAIL'} ${f}  bottom=${info.bottom}  tx=${info.tx}`);
+  console.log(`${info.fits?'OK  ':'FAIL'} ${f}  1080x${H}  bottom=${info.bottom}  tx=${info.tx}`
+    + (info.floored ? `  (at the ${MIN_TX}px floor - canvas needs to be taller)` : ''));
   if(!info.fits) bad++;
   await fetch(`http://127.0.0.1:${port}/json/close/${t.id}`); c.ws.close();
 }
