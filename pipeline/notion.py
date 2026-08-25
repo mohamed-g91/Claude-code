@@ -7,11 +7,20 @@ turns a Saturday morning job into a failure nobody is awake to fix.
 import datetime as dt
 import json
 import os
+import urllib.error
 import urllib.request
 
 API = "https://api.notion.com/v1"
-VERSION = "2022-06-28"
+
+# Notion has two query endpoints. The 2025 API addresses a *data source*; the
+# older one addresses the *database* that contains it, and the two carry
+# different ids - passing a data source id to /v1/databases 404s. Which one an
+# integration answers on depends on when it was created, so try the newer and
+# fall back rather than guessing.
 DATA_SOURCE = os.environ.get("NOTION_DATA_SOURCE", "f414ac8e-de76-825a-a2cb-07e5e023e6bc")
+DATABASE = os.environ.get("NOTION_DATABASE", "9d24ac8e-de76-8245-aa9f-01887e322640")
+ENDPOINTS = [(f"/data_sources/{DATA_SOURCE}/query", "2025-09-03"),
+             (f"/databases/{DATABASE}/query", "2022-06-28")]
 
 
 def last_complete_week(today):
@@ -25,13 +34,26 @@ def last_complete_week(today):
     return start, start + dt.timedelta(days=6)
 
 
-def _post(path, body, token):
+def _post(path, body, token, version):
     req = urllib.request.Request(
         f"{API}{path}", data=json.dumps(body).encode(),
-        headers={"Authorization": f"Bearer {token}", "Notion-Version": VERSION,
+        headers={"Authorization": f"Bearer {token}", "Notion-Version": version,
                  "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
+
+
+def _query(body, token):
+    """Post the query to whichever endpoint this integration answers on."""
+    errors = []
+    for path, version in ENDPOINTS:
+        try:
+            return _post(path, body, token, version), path, version
+        except urllib.error.HTTPError as e:
+            if e.code not in (400, 404):
+                raise                      # auth, rate limit, outage: do not mask it
+            errors.append(f"{path} ({version}): {e.code} {e.read()[:200].decode(errors='replace')}")
+    raise RuntimeError("Notion query failed on every endpoint:\n  " + "\n  ".join(errors))
 
 
 def fetch_raw(start, end, token=None):
@@ -42,11 +64,14 @@ def fetch_raw(start, end, token=None):
         {"property": "Post date", "date": {"on_or_after": start.isoformat()}},
         {"property": "Post date", "date": {"on_or_before": end.isoformat()}},
     ]}, "sorts": [{"property": "Post date", "direction": "ascending"}]}
-    results, cursor = [], None
+    results, cursor, path, version = [], None, None, None
     while True:
         if cursor:
             body["start_cursor"] = cursor
-        page = _post(f"/databases/{DATA_SOURCE}/query", body, token)
+        if path is None:
+            page, path, version = _query(body, token)
+        else:
+            page = _post(path, body, token, version)
         results.extend(page["results"])
         if not page.get("has_more"):
             return {"results": results}

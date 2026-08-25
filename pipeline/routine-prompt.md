@@ -7,8 +7,12 @@ needs these set on the environment (once — they persist across every firing):
 |---|---|
 | `NOTION_TOKEN` | Notion internal integration token with access to `Cardio V3` |
 | `TELEGRAM_BOT_TOKEN` | the bot that posts to @mrcp_gafar |
-| `TELEGRAM_REVIEW_CHAT_ID` | your private chat, where the preview lands |
-| `TELEGRAM_CHANNEL_ID` | `-1004455886951`, only used after approval |
+| `TELEGRAM_REVIEW_CHAT_ID` | optional — defaults to `7515421307`, the private chat |
+| `TELEGRAM_CHANNEL_ID` | optional — defaults to `-1004455886951`, @mrcp_gafar |
+
+Only the two tokens have to be supplied; the chat ids have defaults in
+`weekly.py`. `NOTION_DATABASE` / `NOTION_DATA_SOURCE` can override the Notion
+ids if the database moves workspaces.
 
 Cron: `0 6 * * 6` — Saturday 06:00 UTC, 09:00 Africa/Cairo, summarising the week
 that ended the previous Sunday.

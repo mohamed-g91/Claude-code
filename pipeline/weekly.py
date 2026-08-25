@@ -32,6 +32,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RENDERER = ROOT / "weekly-infographic"
 MIN_CARDS = 3
 
+# Chat ids are addresses, not secrets - a bot token is what grants the ability
+# to post. Keeping them here means deployment only has to supply the two tokens.
+REVIEW_CHAT = "7515421307"          # Mohamed's private chat, where previews land
+CHANNEL_CHAT = "-1004455886951"     # @mrcp_gafar, only after approval
+
 # The week number on the image counts the series, not the calendar. The epoch
 # lives in the renderer's CONFIG so there is one definition of week 1.
 sys.path.insert(0, str(RENDERER))
@@ -134,10 +139,8 @@ def cmd_send(args):
         print(f"{png} does not exist — run render first", file=sys.stderr)
         return 1
     review = args.to == "review"
-    chat = os.environ.get("TELEGRAM_REVIEW_CHAT_ID" if review else "TELEGRAM_CHANNEL_ID", "")
-    if not chat:
-        print("no chat id: set TELEGRAM_REVIEW_CHAT_ID / TELEGRAM_CHANNEL_ID", file=sys.stderr)
-        return 2
+    chat = (os.environ.get("TELEGRAM_REVIEW_CHAT_ID") or REVIEW_CHAT) if review else \
+           (os.environ.get("TELEGRAM_CHANNEL_ID") or CHANNEL_CHAT)
     caption = (f"<b>Week {plan['week']}</b> · {plan['start']} to {plan['end']} · "
                f"{len(json.loads((work / 'cards.json').read_text()))} pearls")
     if review:
