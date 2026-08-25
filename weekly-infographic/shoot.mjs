@@ -1,13 +1,34 @@
 import { spawn } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, existsSync, readdirSync } from 'node:fs';
 
-const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+// Chromium location differs per host (CI runner, container, laptop). Resolve it
+// at run time instead of pinning one path, or the job only works where it was written.
+function findChrome() {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const roots = [process.env.PLAYWRIGHT_BROWSERS_PATH, '/opt/pw-browsers',
+                 `${process.env.HOME}/.cache/ms-playwright`].filter(Boolean);
+  for (const root of roots) {
+    if (!existsSync(root)) continue;
+    for (const d of readdirSync(root).filter(d => d.startsWith('chromium')).sort().reverse()) {
+      for (const rel of ['chrome-linux/chrome', 'chrome-linux/headless_shell',
+                         'chrome-mac/Chromium.app/Contents/MacOS/Chromium']) {
+        const c = `${root}/${d}/${rel}`;
+        if (existsSync(c)) return c;
+      }
+    }
+    if (existsSync(`${root}/chromium`)) return `${root}/chromium`;
+  }
+  for (const c of ['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome',
+                   '/usr/bin/google-chrome-stable']) if (existsSync(c)) return c;
+  throw new Error('no Chromium found — set CHROME_PATH');
+}
+const CHROME = findChrome();
 const W = 1080, H = 1350, DSF = 2;
 const files = process.argv.slice(2);
-const port = 9333;
+const port = 9222 + (process.pid % 900);
 
 const chrome = spawn(CHROME, ['--headless=new','--disable-gpu','--no-sandbox','--hide-scrollbars',
-  `--remote-debugging-port=${port}`,'--user-data-dir=/tmp/cdp-prof','about:blank'],{stdio:'ignore'});
+  `--remote-debugging-port=${port}`,`--user-data-dir=/tmp/cdp-prof-${process.pid}`,'about:blank'],{stdio:'ignore'});
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let ver;
