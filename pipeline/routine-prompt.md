@@ -1,11 +1,13 @@
 # The weekly routine
 
-Create this from the web form at claude.ai/code/routines → **New routine**.
+Configure this at claude.ai/code/routines.
 
-Do NOT create it with the `create_trigger` MCP tool. A routine minted that way
-has no `sources` field, so its sessions start with nothing cloned, and it does
-not appear in the web routines list, so it cannot be edited afterwards to add
-one. That was found the hard way: two runs failed at the repository preflight.
+A routine created with the `create_trigger` MCP tool has no `sources` field, so
+its sessions start with nothing cloned and every run fails at the repository
+preflight. The tool has no parameter for repositories, so they have to be added
+afterwards in the web form — open the routine, add the repository, save. Either
+create it in the form to begin with, or remember to attach the repository if you
+mint it from a session.
 
 ## Form settings
 
