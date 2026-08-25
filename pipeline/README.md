@@ -10,7 +10,8 @@ python3 pipeline/weekly.py render   # verify every card, then build + screenshot
 python3 pipeline/weekly.py send --to review   # dry run unless --send
 ```
 
-`--today YYYY-MM-DD` pins the run date, `--fixture` reads a saved Notion
+The week number on the image counts the series — week 1 is the week of the first
+post — not the ISO week of the year. `--today YYYY-MM-DD` pins the run date, `--fixture` reads a saved Notion
 response instead of querying live, and `--work DIR` moves the scratch directory.
 
 ## Why it is three commands
@@ -40,11 +41,20 @@ only guarantees that no number, drug or term was *invented*.
 
 ## Writing a card
 
-`lead` is the bolded claim, `rest` continues it. The template joins them with a
-plain space, so **`rest` must carry its own connector** — start it with `—`, `;`
-or a lower-case continuation, or the card reads as two collided sentences.
+A card is one `text` field carrying its own emphasis as `**spans**`. Emphasis
+marks what is worth remembering — the threshold, the dose, the drug — and can
+fall anywhere in the sentence, as many as five times.
 
-Limits are 48 / 96 / 118 characters (lead / rest / total).
+The gate enforces that emphasis means something rather than measuring something:
+a span may not exceed 34 characters, may not cross a clause break, may not begin
+or end on a connective, and may not separate a number from its unit
+(`**20** mg`). A card with no emphasis at all is rejected too.
+
+This replaced a `lead` + `rest` pair where `lead` was always bold and always
+first — in practice the first 48 characters, which made every card's bold run
+the same width. Legacy `lead`/`rest` cards still verify and render.
+
+The whole card is capped at 118 visible characters.
 
 ## Known gaps
 
@@ -57,6 +67,9 @@ Limits are 48 / 96 / 118 characters (lead / rest / total).
   topic containing a comma would split wrongly.
 - **No idempotency marker yet.** Nothing records that a week was published, so
   re-running publishes again.
+- **Emphasis placement is only checked, not chosen well.** The proposer marks
+  measures and the source's own bold runs; whether that is the *most examinable*
+  fact on the card is a judgement the gate cannot make.
 
 ## Layout
 

@@ -32,6 +32,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RENDERER = ROOT / "weekly-infographic"
 MIN_CARDS = 3
 
+# The week number on the image counts the series, not the calendar. The epoch
+# lives in the renderer's CONFIG so there is one definition of week 1.
+sys.path.insert(0, str(RENDERER))
+import build as renderer
+
 
 def _load_rows(args):
     start, end = notion.last_complete_week(args.today)
@@ -45,8 +50,9 @@ def _load_rows(args):
 def cmd_plan(args):
     start, end, rows = _load_rows(args)
     work = pathlib.Path(args.work); work.mkdir(parents=True, exist_ok=True)
-    plan = {"week": start.isocalendar()[1], "start": start.isoformat(),
-            "end": end.isoformat(), "rows": rows, "cards": [], "needs_writing": []}
+    plan = {"week": renderer.series_week(start), "iso_week": start.isocalendar()[1],
+            "start": start.isoformat(), "end": end.isoformat(),
+            "rows": rows, "cards": [], "needs_writing": []}
     for row in rows:
         card, problems = cards_mod.propose(row)
         plan["cards"].append(card)
@@ -57,7 +63,8 @@ def cmd_plan(args):
     (work / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1))
     if not (work / "cards.json").exists() or args.reset_cards:
         (work / "cards.json").write_text(json.dumps(plan["cards"], ensure_ascii=False, indent=1))
-    print(f"ISO week {plan['week']} · {start} to {end} · {len(rows)} posted rows")
+    print(f"Week {plan['week']} (ISO {plan['iso_week']}) · {start} to {end} · "
+          f"{len(rows)} posted rows")
     print(f"{len(rows) - len(plan['needs_writing'])} cards proposed cleanly, "
           f"{len(plan['needs_writing'])} need writing")
     for n in plan["needs_writing"]:
@@ -100,7 +107,10 @@ def cmd_render(args):
         return 3
 
     content = {"week_start": plan["start"], "specialty": args.specialty,
-               "pearls": [{k: c[k] for k in ("topic", "lead", "rest", "src")} for c in cards]}
+               "pearls": [{"topic": c["topic"], "src": c.get("src", ""),
+                           "text": c.get("text") or
+                                   f"**{c.get('lead', '')}** {c.get('rest', '')}".strip()}
+                          for c in cards]}
     content_path = work / "week.json"
     content_path.write_text(json.dumps(content, ensure_ascii=False, indent=1))
 

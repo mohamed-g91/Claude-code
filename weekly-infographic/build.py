@@ -18,6 +18,7 @@ BRAND = {
 }
 SPECIALTY  = "Cardiology"
 WEEK_START = dt.date(2026, 8, 17)            # Monday of the week being summarised
+SERIES_EPOCH = dt.date(2026, 8, 10)          # Monday of the FIRST posting week = week 1
 ACCENTS = {                                  # per-card accent, per theme
   "dark":  ["#00E0B4","#5E7CFF","#FFB443","#FF6B8A","#3FC4FF","#A78BFA"],
   "light": ["#0B7A63","#3D51D6","#9A5D0F","#C92C55","#0A6A91","#6B3FD4"],
@@ -27,21 +28,35 @@ MIN_PEARLS, MAX_PEARLS = 3, 8                # fewer than MIN is not worth a pos
 
 # The sample week, used when no --content is given.
 SAMPLE = [
-  {"topic":"Heart failure","lead":"NT-proBNP > 2000 ng/L","rest":"\u2192 specialist assessment and echo within 2 weeks.","src":"NICE NG106"},
-  {"topic":"Pre-eclampsia","lead":"Aspirin 75\u2013150 mg daily","rest":"from 12 weeks \u2014 one high-risk or two moderate-risk factors.","src":"NICE NG133"},
-  {"topic":"Hyperlipidaemia","lead":"QRISK3 \u2265 10%","rest":"\u2192 atorvastatin 20 mg for primary prevention.","src":"NICE NG238"},
-  {"topic":"Atrial fibrillation","lead":"CHA\u2082DS\u2082-VASc \u2265 2 in men","rest":"\u2265 3 in women \u2014 offer anticoagulation.","src":"NICE NG196"},
-  {"topic":"Aortic stenosis","lead":"Severe: area < 1.0 cm\u00b2","rest":"mean gradient > 40 mmHg, peak velocity > 4 m/s.","src":"ESC 2021"},
-  {"topic":"Torsades de pointes","lead":"Magnesium sulfate 2 g IV","rest":"over 10 minutes \u2014 regardless of serum magnesium.","src":"RCUK"},
+  {"topic":"Heart failure","src":"NICE NG106",
+   "text":"**NT-proBNP > 2000 ng/L** \u2192 specialist assessment and echo within **2 weeks**."},
+  {"topic":"Pre-eclampsia","src":"NICE NG133",
+   "text":"**Aspirin 75\u2013150 mg** daily from **12 weeks** \u2014 one high-risk or two moderate-risk factors."},
+  {"topic":"Hyperlipidaemia","src":"NICE NG238",
+   "text":"**QRISK3 \u2265 10%** \u2192 **atorvastatin 20 mg** for primary prevention."},
+  {"topic":"Atrial fibrillation","src":"NICE NG196",
+   "text":"**CHA\u2082DS\u2082-VASc \u2265 2** in men, **\u2265 3** in women \u2014 offer anticoagulation."},
+  {"topic":"Aortic stenosis","src":"ESC 2021",
+   "text":"Severe: **area < 1.0 cm\u00b2**, mean gradient **> 40 mmHg**, peak velocity **> 4 m/s**."},
+  {"topic":"Torsades de pointes","src":"RCUK",
+   "text":"**Magnesium sulfate 2 g IV** over **10 minutes** \u2014 regardless of serum magnesium."},
 ]
 
 # The headline names the count, so it has to agree with what is on the canvas.
 NUMBER_WORD = {3:"three", 4:"four", 5:"five", 6:"six", 7:"seven", 8:"eight"}
 
-# Week number rule: ISO-8601. Week 1 is the week containing the first Thursday
-# of the year, weeks run Monday-Sunday. Same rule Python, Postgres and n8n use,
-# so the number never has to be maintained by hand.
-def iso_week(d): return d.isocalendar()[1]
+# Week number rule: weeks of the channel, not weeks of the year. Week 1 is the
+# week of the first post (SERIES_EPOCH), so the number on the image counts the
+# series and keeps counting past New Year, where an ISO week number resets to 1.
+def series_week(d):
+    if d < SERIES_EPOCH:
+        sys.exit(f"{d} is before the series epoch {SERIES_EPOCH}")
+    return ((d - SERIES_EPOCH).days // 7) + 1
+
+
+def iso_week(d):
+    """Still used as a stable key for records - it never collides across years."""
+    return d.isocalendar()[1]
 
 def fmt_range(a, b):
     if a.month == b.month: return f"{a.day} – {b.day} {b:%B %Y}"
@@ -112,7 +127,7 @@ WATERMARK = (f'<div class="bgart" data-decor><svg class="watermark" viewBox="0 0
 def build(theme, cfg):
     brand, pearls = cfg["brand"], cfg["pearls"]
     start = cfg["week_start"]; end = start + dt.timedelta(days=6)
-    ctx = {"n": iso_week(start), "range": fmt_range(start, end), **brand}
+    ctx = {"n": series_week(start), "range": fmt_range(start, end), **brand}
     # Accents cycle, so a week with more pearls than colours still gets one each.
     accents = [ACCENTS[theme][i % len(ACCENTS[theme])] for i in range(len(pearls))]
     count = NUMBER_WORD.get(len(pearls), str(len(pearls)))
@@ -165,9 +180,10 @@ def load_config(path):
     for i, pearl in enumerate(cfg["pearls"]):
         # src is optional: the bank carries no guideline reference, and the card
         # hides the line rather than printing an empty one.
-        missing = [k for k in ("topic", "lead", "rest") if not pearl.get(k)]
-        if missing:
-            sys.exit(f"pearl {i}: missing {', '.join(missing)}")
+        if not pearl.get("topic"):
+            sys.exit(f"pearl {i}: missing topic")
+        if not pearl.get("text") and not (pearl.get("lead") and pearl.get("rest")):
+            sys.exit(f"pearl {i}: needs text (or legacy lead + rest)")
         pearl.setdefault("src", "")
     return cfg
 
@@ -186,7 +202,8 @@ def main():
         (out / f"weekly_{theme}.html").write_text(build(theme, cfg))
         print(f"wrote {out / f'weekly_{theme}.html'}")
     end = cfg["week_start"] + dt.timedelta(days=6)
-    print(f"ISO week {iso_week(cfg['week_start'])} \u00b7 {fmt_range(cfg['week_start'], end)} \u00b7 {len(cfg['pearls'])} pearls")
+    print(f"Week {series_week(cfg['week_start'])} (ISO {iso_week(cfg['week_start'])}) "
+          f"\u00b7 {fmt_range(cfg['week_start'], end)} \u00b7 {len(cfg['pearls'])} pearls")
 
 
 if __name__ == "__main__":
