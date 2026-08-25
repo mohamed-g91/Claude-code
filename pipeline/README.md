@@ -71,6 +71,21 @@ The whole card is capped at 118 visible characters.
   measures and the source's own bold runs; whether that is the *most examinable*
   fact on the card is a judgement the gate cannot make.
 
+## Running it in a cloud routine
+
+Two things the base image does not give you, both found by a routine run rather
+than by reading:
+
+- **`qrcode` is not installed.** `build.py` imports it, so the routine runs
+  `pip install -r weekly-infographic/requirements.txt` first. Package registries
+  are inside the Trusted network allowlist, so this works before anything else
+  is opened up.
+- **`api.notion.com` and `api.telegram.org` are not in the Trusted allowlist.**
+  Both are refused with a 403 at the CONNECT tunnel, which shows up as
+  `connect_rejected` in the agent proxy's `recentRelayFailures`. The
+  environment's Network access has to be Custom with both hosts added. Nothing
+  in the pipeline can work around this, and nothing should try.
+
 ## Layout
 
 | file | does |

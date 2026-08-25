@@ -31,8 +31,11 @@ and these added:
 - `api.notion.com`
 - `api.telegram.org`
 
-Neither is in the Trusted allowlist, and a blocked request fails with
-`403 x-deny-reason: host_not_allowed`.
+Neither is in the Trusted allowlist. A blocked request is refused with a 403 at
+the CONNECT tunnel, which appears as `connect_rejected` in the agent proxy's
+`recentRelayFailures` log — not as a DNS or TLS error, so it is easy to
+misread as the API being down. Make the edit on the environment the routine
+actually uses.
 
 Environment variables (`.env` format, one per line):
 
