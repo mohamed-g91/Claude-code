@@ -6,4 +6,4 @@ list.innerHTML = PEARLS.map((p,i)=>`<div class="card">
   <div class="ico" style="color:${AC[i]}">${ICON_WRAP(p.topic)}</div>
   <div><div class="topic" style="color:${AC[i]}">${p.topic}</div>
   <div class="txt"><b>${p.lead}</b> ${p.rest}</div>
-  <div class="src">${p.src}</div></div></div>`).join('');
+  ${p.src ? `<div class="src">${p.src}</div>` : ''}</div></div>`).join('');

@@ -163,9 +163,12 @@ def load_config(path):
     if not MIN_PEARLS <= n <= MAX_PEARLS:
         sys.exit(f"{n} pearls: need {MIN_PEARLS}-{MAX_PEARLS}")
     for i, pearl in enumerate(cfg["pearls"]):
-        missing = [k for k in ("topic", "lead", "rest", "src") if not pearl.get(k)]
+        # src is optional: the bank carries no guideline reference, and the card
+        # hides the line rather than printing an empty one.
+        missing = [k for k in ("topic", "lead", "rest") if not pearl.get(k)]
         if missing:
             sys.exit(f"pearl {i}: missing {', '.join(missing)}")
+        pearl.setdefault("src", "")
     return cfg
 
 
