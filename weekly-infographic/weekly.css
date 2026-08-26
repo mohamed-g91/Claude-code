@@ -41,7 +41,13 @@ body{background:var(--bg);color:var(--ink);
 .bgart{position:absolute;inset:0;z-index:0;pointer-events:none}
 .bgart svg{position:absolute}
 .watermark{right:-190px;bottom:-170px;width:820px;height:820px;color:var(--wm);opacity:var(--wm-op)}
-.plate{position:absolute;top:0;left:0;right:0;height:470px;z-index:0;pointer-events:none;overflow:hidden}
+/* The plate's scrim ends on an opaque background colour, which hides the body's
+   glow gradients; below the plate they reappear, so its bottom edge showed as a
+   hard line across the first card. Masking the whole layer to nothing means it
+   contributes zero at the boundary, so there is no edge to see. */
+.plate{position:absolute;top:0;left:0;right:0;height:470px;z-index:0;pointer-events:none;overflow:hidden;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 56%,rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 56%,rgba(0,0,0,0) 100%)}
 .plate .scrim{position:absolute;inset:0;
   background:linear-gradient(180deg,var(--scrim-0) 0%,var(--scrim-1) 62%,var(--scrim-2) 100%)}
 body > *:not(.bgart):not(.plate){position:relative;z-index:1}
