@@ -72,7 +72,7 @@ svg.ecg{display:block;width:100%;height:78px;margin-top:14px;flex:0 0 78px}
 .accent{border-radius:99px;align-self:stretch}
 .ico{width:calc(var(--tx) * 1.6);height:calc(var(--tx) * 1.6)}
 .ico svg{width:100%;height:100%;display:block}
-.topic{font-size:calc(var(--tx) * .68);letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:calc(var(--tx) * .3)}
+.topic{font-size:calc(var(--tx) * .78);letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:calc(var(--tx) * .3)}
 .txt{font-family:'Inter','DejaVu Sans',sans-serif;font-size:var(--tx);line-height:1.46;color:var(--ink-2);font-weight:400}
 .txt b{font-weight:700;color:var(--ink)}
 .src{font-size:calc(var(--tx) * .49);color:var(--ink-4);margin-top:7px;letter-spacing:.07em;text-transform:uppercase;font-weight:600}
