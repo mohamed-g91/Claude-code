@@ -164,6 +164,12 @@ def check_deps():
                 f"fix: pip install -r weekly-infographic/requirements.txt")
 
 
+# Where a Chromium may live, besides CHROME_PATH. A module constant so the
+# failure path is testable - an environment variable cannot hide a literal.
+CHROMIUM_ROOTS = ["/opt/pw-browsers"]
+CHROMIUM_NAMES = ["chromium", "chromium-browser", "google-chrome", "google-chrome-stable"]
+
+
 def check_chromium():
     """Resolve Chromium the same way shoot.mjs does, and fail with what was tried."""
     tried = []
@@ -172,7 +178,7 @@ def check_chromium():
         tried.append(env)
         if pathlib.Path(env).exists():
             return env
-    roots = [os.environ.get("PLAYWRIGHT_BROWSERS_PATH"), "/opt/pw-browsers",
+    roots = [os.environ.get("PLAYWRIGHT_BROWSERS_PATH"), *CHROMIUM_ROOTS,
              str(pathlib.Path.home() / ".cache/ms-playwright")]
     for root in filter(None, roots):
         tried.append(f"{root}/chromium*/chrome-linux/chrome")
@@ -183,7 +189,7 @@ def check_chromium():
             for rel in ("chrome-linux/chrome", "chrome-linux/headless_shell"):
                 if (d / rel).exists():
                     return str(d / rel)
-    for name in ("chromium", "chromium-browser", "google-chrome", "google-chrome-stable"):
+    for name in CHROMIUM_NAMES:
         tried.append(name)
         found = shutil.which(name)
         if found:

@@ -73,3 +73,21 @@ def test_missing_token_names_the_variable(monkeypatch):
     with pytest.raises(state.PreflightError) as e:
         state.check_tokens()
     assert e.value.code == state.TOKENS_MISSING and "NOTION_TOKEN" in str(e.value)
+
+
+def test_chromium_found_here():
+    assert state.check_chromium()
+
+
+def test_missing_chromium_reports_what_it_searched(monkeypatch, tmp_path):
+    """The failure path, which no environment variable can provoke: the search
+    roots include a literal, so they have to be patched to test it."""
+    monkeypatch.setattr(state, "CHROMIUM_ROOTS", [str(tmp_path / "nowhere")])
+    monkeypatch.setattr(state, "CHROMIUM_NAMES", ["definitely-not-a-browser"])
+    monkeypatch.delenv("CHROME_PATH", raising=False)
+    monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    with pytest.raises(state.PreflightError) as e:
+        state.check_chromium()
+    assert e.value.code == state.CHROMIUM_MISSING
+    assert "searched:" in str(e.value)
