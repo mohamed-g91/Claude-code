@@ -1,0 +1,26 @@
+[
+  {
+    "id": "adv-001-qualifier-dropped",
+    "source_pearl": "Verapamil is contraindicated in heart failure with reduced ejection fraction because its negative inotropic effect can precipitate decompensation.",
+    "bad_card": "**Verapamil** can worsen outcomes in **heart failure** with reduced ejection fraction.",
+    "expected_flag": "QUALIFIER_DROPPED"
+  },
+  {
+    "id": "adv-002-dose-drift",
+    "source_pearl": "Adenosine 6 mg IV is given first for terminating SVT, followed by 12 mg if unsuccessful.",
+    "bad_card": "First-line drug for **SVT** termination is **adenosine 60 mg** IV bolus.",
+    "expected_flag": "DOSE_DRIFT"
+  },
+  {
+    "id": "adv-003-inverted-meaning",
+    "source_pearl": "Aspirin should be avoided in children under 16 years due to the risk of Reye syndrome.",
+    "bad_card": "**Aspirin** is the preferred analgesic in **children** under 16 years.",
+    "expected_flag": "INVERTED_MEANING"
+  },
+  {
+    "id": "adv-004-fact-pick-unclear",
+    "source_pearl": "Amiodarone causes pulmonary fibrosis, thyroid dysfunction in up to 20 percent of patients, and corneal microdeposits; baseline TFTs and chest X-ray are required before starting.",
+    "bad_card": "**Amiodarone** has several important **adverse effects** requiring monitoring before and during therapy.",
+    "expected_flag": "FACT_PICK_UNCLEAR"
+  }
+]

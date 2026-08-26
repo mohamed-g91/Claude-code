@@ -1,0 +1,34 @@
+[
+  {
+    "page_id": "test-pearl-001",
+    "name": "Beta-blocker in asthma",
+    "post_date": "2026-08-24",
+    "pearl_text": "Non-selective beta blockers such as propranolol are contraindicated in asthma because they can trigger severe bronchospasm; cardioselective agents like bisoprolol are safer if a beta blocker is essential.",
+    "topic": "Cardiology",
+    "subtopic": "Pharmacology"
+  },
+  {
+    "page_id": "test-pearl-002",
+    "name": "Atrial fibrillation rate control",
+    "post_date": "2026-08-25",
+    "pearl_text": "In atrial fibrillation, a lenient resting heart rate target of less than 110 bpm is as effective as strict rate control below 80 bpm in symptomatic patients with preserved left ventricular function.",
+    "topic": "Cardiology",
+    "subtopic": "Arrhythmias"
+  },
+  {
+    "page_id": "test-pearl-003",
+    "name": "Infective endocarditis echo",
+    "post_date": "2026-08-26",
+    "pearl_text": "Transthoracic echocardiography is the first-line investigation in suspected infective endocarditis, but transoesophageal echo is required when prosthetic valves are present or TTE is technically difficult.",
+    "topic": "Cardiology",
+    "subtopic": "Valvular"
+  },
+  {
+    "page_id": "test-pearl-004",
+    "name": "Statin myopathy risk",
+    "post_date": "2026-08-27",
+    "pearl_text": "Simvastatin at 80 mg carries the highest risk of myopathy and interacts dangerously with amlodipine through CYP3A4 inhibition, raising plasma statin levels.",
+    "topic": "Cardiology",
+    "subtopic": "Lipids"
+  }
+]

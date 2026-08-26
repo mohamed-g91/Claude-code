@@ -242,16 +242,6 @@ def _check_span_boundaries(visible: str, spans: list[Span]) -> None:
                 )
 
 
-def _check_no_hallucinated_emphasis(visible: str, source_pearl: str) -> None:
-    """Rule 6: every emphasized term must appear in the source pearl."""
-    _, spans = extract_spans(visible)  # idempotent
-    # Re-extract on the original visible, but we already have them. Just
-    # use the passed-in spans. If called standalone, re-derive.
-    # (The wrapper passes them in via _check_spans; this function is the
-    # pure version for the standalone check below.)
-    raise NotImplementedError  # see validate() for the combined path
-
-
 def _check_emphasis_in_source(spans: list[Span], source_pearl: str) -> None:
     """Rule 6: every emphasized term must appear in the source pearl."""
     src_lower = source_pearl.lower()

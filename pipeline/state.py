@@ -292,8 +292,15 @@ def check_telegram_reachable() -> None:
 
 
 def check_deps() -> None:
-    """All required packages must be importable."""
-    required = ["qrcode", "jinja2", "playwright", "httpx", "notion_client"]
+    """Required packages must be importable — scoped to the subcommand.
+
+    Base set every subcommand needs; playwright only for `render` (the only
+    command that launches Chromium).
+    """
+    subcommand = sys.argv[1] if len(sys.argv) > 1 else ""
+    required = ["qrcode", "jinja2", "httpx", "notion_client"]
+    if subcommand == "render":
+        required.append("playwright")
     missing = []
     for pkg in required:
         try:

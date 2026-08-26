@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ title }} — Week {{ week }}</title>
+<style>
+  :root {
+    --bg: #0f172a;         /* slate-900 */
+    --panel: #1e293b;      /* slate-800 */
+    --accent: #38bdf8;     /* sky-400 */
+    --accent2: #f43f5e;    /* rose-500 (heart) */
+    --text: #f1f5f9;       /* slate-100 */
+    --muted: #94a3b8;      /* slate-400 */
+    --review: #fbbf24;     /* amber-400 */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  .banner {
+    padding: 56px 60px 40px;
+    background: linear-gradient(135deg, #0c4a6e 0%, var(--bg) 70%);
+    border-bottom: 3px solid var(--accent);
+  }
+  .banner .series {
+    color: var(--accent);
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .banner h1 {
+    font-size: 64px;
+    font-weight: 800;
+    margin-top: 8px;
+  }
+  .banner .week {
+    margin-top: 10px;
+    font-size: 30px;
+    color: var(--muted);
+  }
+  .cards { padding: 44px 60px 60px; display: flex; flex-direction: column; gap: 28px; }
+  .card {
+    background: var(--panel);
+    border-radius: 20px;
+    border-left: 10px solid var(--accent);
+    padding: 34px 38px;
+  }
+  .card.review { border-left-color: var(--review); }
+  .card .num {
+    display: inline-block;
+    background: var(--accent);
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 24px;
+    border-radius: 999px;
+    width: 44px; height: 44px;
+    text-align: center; line-height: 44px;
+    margin-bottom: 14px;
+  }
+  .card.review .num { background: var(--review); }
+  .card p {
+    font-size: 33px;
+    line-height: 1.45;
+  }
+  .card p strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .card.review p strong { color: var(--review); }
+  .card .flag {
+    margin-top: 14px;
+    font-size: 20px;
+    color: var(--review);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .footer {
+    padding: 0 60px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 22px;
+  }
+  .footer .tag { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="banner">
+    <div class="series">{{ title }}</div>
+    <h1>Weekly Pearls</h1>
+    <div class="week">Week {{ week }} &middot; {{ cards|length }} pearls</div>
+  </div>
+
+  <div class="cards">
+    {% for c in cards %}
+    <div class="card{% if c.flags %} review{% endif %}">
+      <span class="num">{{ c.index }}</span>
+      <p>{{ c.html | safe }}</p>
+      {% if c.flags %}
+      <div class="flag">&#91;REVIEW&#93; {{ c.flags | join(', ') }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="footer">
+    <span><span class="tag">#MRCP</span> &middot; Cardio V3 series</span>
+    <span>Week {{ week }}</span>
+  </div>
+</body>
+</html>
