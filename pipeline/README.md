@@ -4,11 +4,18 @@ Turns last week's posted pearls in the `Cardio V3` Notion database into the
 1080×1350 recap image for **@mrcp_gafar**, unattended.
 
 ```bash
-python3 pipeline/weekly.py plan     # select the week, propose a card per pearl
+python3 pipeline/weekly.py preflight  # check the environment; changes nothing
+python3 pipeline/weekly.py plan       # select the week, propose a card per pearl
 #   ... write any card the proposal could not ...
-python3 pipeline/weekly.py render   # verify every card, then build + screenshot
-python3 pipeline/weekly.py send --to review   # dry run unless --send
+python3 pipeline/weekly.py render     # verify every card, then build + screenshot
+python3 pipeline/weekly.py preview    # post to the review chat; dry run unless --send
+python3 pipeline/weekly.py publish --i-have-reviewed-the-preview   # never on cron
 ```
+
+`preview` and `publish` are separate subcommands rather than one command with a
+destination flag. A flag is one keystroke away from posting a draft to the
+channel; choosing the wrong subcommand is a deliberate act. Destinations come
+from `state/series.json`, never from the command line.
 
 The week number on the image counts the series — week 1 is the week of the first
 post — not the ISO week of the year. `--today YYYY-MM-DD` pins the run date, `--fixture` reads a saved Notion
@@ -56,6 +63,41 @@ the same width. Legacy `lead`/`rest` cards still verify and render.
 
 The whole card is capped at 118 visible characters.
 
+## Preflight exit codes
+
+`preflight` runs the same checks the other commands run, and reports the first
+failure as an exit code so the routine names it the same way every time instead
+of depending on how carefully a prompt was read.
+
+| Code | Meaning |
+|---|---|
+| 0 | success |
+| 3 | fewer than three pearls this week — nothing to post |
+| 11 | `state/series.json` missing or malformed |
+| 12 | `NOTION_TOKEN` / `TELEGRAM_BOT_TOKEN` missing |
+| 13 | api.notion.com unreachable (usually the network allowlist) |
+| 14 | api.telegram.org unreachable (same) |
+| 15 | a required Python package is not importable |
+| 16 | no Chromium found |
+| 17 | week already published, or these cards were never previewed |
+
+Preflight never fixes anything. It reports and exits.
+
+## State
+
+- `state/series.json` — the anchor. Week 1 is the week of the first published
+  infographic, so the number counts the series rather than the ISO calendar,
+  which resets to 1 each January.
+- `state/sent_weeks.json` — written by `publish`. A week in this file cannot be
+  published again.
+- `state/preview_log.json` — written by `preview`. `publish` refuses unless the
+  cards it is about to send are byte-identical to the ones previewed, so an edit
+  after review cannot slip out.
+
+**These files must be committed.** Each run happens in a fresh container that
+clones the repo, so a ledger that is not pushed does not exist next week, and
+the double-publish guard silently stops working.
+
 ## Known gaps
 
 - **No source references.** `Cardio V3` has no property holding the guideline a
@@ -67,6 +109,11 @@ The whole card is capped at 118 visible characters.
   topic containing a comma would split wrongly.
 - **No idempotency marker yet.** Nothing records that a week was published, so
   re-running publishes again.
+- **Soft flags are heuristic.** `gate.warnings()` catches a dropped polarity
+  word that governs a term the card uses. It cannot catch a meaning shift with
+  no such word in it, and it never blocks a render.
+- **The ledger is only as good as the last push.** Nothing in the pipeline
+  commits `state/`; that is on whoever runs `publish`.
 - **Emphasis placement is only checked, not chosen well.** The proposer marks
   measures and the source's own bold runs; whether that is the *most examinable*
   fact on the card is a judgement the gate cannot make.

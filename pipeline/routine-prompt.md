@@ -53,75 +53,57 @@ only `Cardio V3` with it.
 
 ## Prompt
 
-Paste this into the form's Instructions box verbatim.
+Paste this into the routine's Instructions box.
 
 ```
 Build and send this week's MRCP pearls infographic for review.
 
-PREFLIGHT — check each of these before doing anything else. If one fails, stop
-and report it with the named fix. Do not work around a failed preflight: a run
-that improvises past one produces an infographic nobody can trust.
+Work in mohamed-g91/Claude-code on branch
+`archive/pre-rewrite-origin-implementation`. Routines clone the default branch,
+so fetch and check that branch out first, then confirm `pipeline/weekly.py`
+exists.
 
-a. REPOSITORY. This job lives in mohamed-g91/Claude-code, on the branch
-   `claude/weekly-mrcp-infographic-automation-m8sjxa` — NOT on the default
-   branch, which holds only a README. Routines clone the repositories configured
-   on the routine itself.
-   - If no clone is present, stop and say: "this routine has no repository
-     attached — add mohamed-g91/Claude-code to it at claude.ai/code/routines".
-     Do not clone it by some other route.
-   - If a clone is present, run:
-       git fetch origin claude/weekly-mrcp-infographic-automation-m8sjxa
-       git checkout claude/weekly-mrcp-infographic-automation-m8sjxa
-     then confirm `pipeline/weekly.py` exists before continuing.
-
-b. NETWORK. The Default environment's Trusted policy allows package registries
-   and GitHub, and does NOT include api.notion.com or api.telegram.org. A
-   blocked request fails with 403 and `x-deny-reason: host_not_allowed`. If you
-   see that, stop and say which host was refused, and that the fix is to set the
-   environment's Network access to Custom with that host in Allowed domains
-   (keeping the default list checked).
-
-c. TOKENS. NOTION_TOKEN and TELEGRAM_BOT_TOKEN come from the environment. If
-   NOTION_TOKEN is missing, stop and say so. If only TELEGRAM_BOT_TOKEN is
-   missing, still run steps 1-3, then stop and say the send was skipped.
+Install dependencies every run: `pip install -r weekly-infographic/requirements.txt`.
 
 Then:
 
-1. Run `python3 pipeline/weekly.py plan`.
-   If it exits 3 there were fewer than three posted pearls that week: say so and
-   stop. Do not send anything.
-   If the Notion query succeeds but returns zero rows, that usually means the
-   integration has not been shared with the Cardio V3 database — say that
-   explicitly rather than reporting a quiet week.
+1. `python3 pipeline/weekly.py preflight`
+   If it exits non-zero, report the exit code and the message and STOP. The
+   codes are documented in pipeline/README.md; each names its own fix. Do not
+   fix the environment yourself, and never disable TLS verification.
 
-2. Open `work/plan.json` and `work/cards.json`. For every card listed under
-   "need writing", and for any proposed card that reads badly, rewrite its
-   `text` field yourself. A card is one sentence carrying its own emphasis as
-   `**spans**`.
-   - Build each card out of its source pearl's own words. The gate rejects any
-     term that does not appear in the source, so a paraphrase will fail.
-   - Emphasise what is worth remembering — the threshold, the dose, the drug —
-     wherever it falls in the sentence. Do not emphasise a fixed opening run:
-     a span may not exceed 34 characters, cross a clause break, begin or end on
-     a connective, or separate a number from its unit. Up to five spans.
-   - Keep the clinical meaning intact. Dropping a qualifier such as
-     "contraindicated" leaves every word present and inverts the advice; the
-     gate cannot catch that, so it is on you.
-   - Pick the single most examinable fact from a multi-fact pearl rather than
-     cramming. The whole card is capped at 118 visible characters.
+2. `python3 pipeline/weekly.py plan`
+   Exit 3 means fewer than three pearls that week: say so and stop.
+   A successful query returning zero rows means the Notion integration was
+   never shared with the Cardio V3 database - say that, do not report a quiet
+   week.
 
-3. Run `python3 pipeline/weekly.py render`. If it rejects a card, rewrite that
-   card and run it again. Never edit `gate.py` to make a card pass, and never
-   lower a limit or a minimum to get a week over the line.
+3. Rewrite `work/cards.json` for every card listed under "need writing", and
+   for any proposed card that reads badly. A card is one sentence carrying its
+   own emphasis as `**spans**`.
+   - Build it from the source pearl's own words; the gate rejects any term that
+     is not in the source, so a paraphrase fails.
+   - Emphasise the threshold, the dose, the drug - wherever it falls. A span may
+     not exceed 34 characters, cross a clause break, begin or end on a
+     connective, or separate a number from its unit. Up to five spans.
+   - Keep the meaning. Dropping a qualifier like "contraindicated" leaves every
+     word present and inverts the advice. `gate.warnings()` catches some of
+     these and reports them as [REVIEW]; it will not catch all of them.
+   - Pick one fact from a multi-fact pearl rather than cramming. 118 chars max.
 
-4. Run `python3 pipeline/weekly.py send --to review --send`.
-   Send only to the review chat. Never send to the channel — publishing to
-   @mrcp_gafar is Mohamed's decision, made after seeing the preview.
+4. `python3 pipeline/weekly.py render`
+   If it rejects a card, rewrite that card and run again. Never edit gate.py to
+   make a card pass, and never lower a limit to get a week over the line.
 
-5. Reply with the week number, how many pearls made it, and any pearl you
-   dropped along with the reason. The week number counts the series (week 1 is
-   the week of the first post), not the ISO week of the year.
+5. `python3 pipeline/weekly.py preview --send`
+   This posts to the private review chat. It is the only thing you ever send.
 
-Do not commit or push anything unless you changed code to fix a genuine bug, in
-which case commit it to that branch with a short explanation of the bug.
+NEVER run `publish`. Publishing to @mrcp_gafar is Mohamed's decision, made after
+he has seen the preview, in a session he is present for.
+
+Reply with the week number, how many pearls made it, every [REVIEW] flag, and
+any pearl you dropped with the reason.
+
+Do not commit or push unless you fixed a genuine bug, in which case commit it to
+that branch with a short explanation.
 ```

@@ -154,3 +154,51 @@ def check(text, source, topic=""):
     if "**" in EMPH.sub("", text or ""):
         problems.append("unclosed ** in card text")
     return problems
+
+
+# --------------------------------------------------------------------------
+# Soft flags: meaning the hard rules cannot see
+# --------------------------------------------------------------------------
+#
+# check() proves no term was invented. It cannot prove the card still means
+# what the pearl meant: "prasugrel contraindicated after stroke/TIA" reduced to
+# "prasugrel after stroke/TIA" passes every hard rule with every word present,
+# and inverts the advice.
+#
+# The canonical rebuild answers this with an LLM-as-judge. The same idea works
+# deterministically for the case that actually bites - a dropped polarity word -
+# and a rule with no API key behind it runs on every card, every week, for free.
+#
+# These are WARNINGS, never blocks. A heuristic that stops a week is worse than
+# one that asks a human to look.
+
+POLARITY = {
+    "not", "no", "never", "without", "unless", "except", "rather", "instead",
+    "contraindicated", "avoid", "avoided", "cannot", "withhold",
+    "exclude", "excluded", "insufficient", "inadequate",
+}
+
+# A polarity word governs its own clause and no further. These pearls are
+# mostly multi-fact lists, so a window measured in words leaks across the
+# semicolon into a neighbouring fact and flags the wrong card.
+_CLAUSE_SPLIT = re.compile(r"[.;:]|\s-\s|\u2014|\u2013")
+
+
+def warnings(text, source):
+    """Soft flags for a card that passes check() but may have shifted meaning."""
+    flags = []
+    card_words = set(re.findall(r"[a-z0-9\'/-]+", normalise(strip_emphasis(text))))
+
+    for clause in _CLAUSE_SPLIT.split(normalise(source)):
+        words = re.findall(r"[a-z0-9\'/-]+", clause)
+        dropped = sorted({w for w in words if w in POLARITY} - card_words)
+        if not dropped:
+            continue
+        governed = sorted({w for w in words
+                           if w in card_words and len(w) >= 4 and w not in GLUE})
+        if governed:
+            flags.append(
+                "source says " + ", ".join(repr(d) for d in dropped) +
+                " of " + ", ".join(repr(g) for g in governed) +
+                " and the card drops it - check the meaning did not invert")
+    return flags
