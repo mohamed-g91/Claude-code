@@ -91,3 +91,87 @@ def test_missing_chromium_reports_what_it_searched(monkeypatch, tmp_path):
         state.check_chromium()
     assert e.value.code == state.CHROMIUM_MISSING
     assert "searched:" in str(e.value)
+
+
+# --------------------------------------------------------------------------
+# Reachability probes
+#
+# The first version of check_telegram_reachable() probed https://api.telegram.org,
+# which 302s to core.telegram.org. urllib followed the redirect, the second
+# CONNECT was refused because nobody allowlists that host, and preflight told the
+# operator to allowlist api.telegram.org - the host it had just reached. These
+# tests pin both halves: a redirect counts as reached, a refusal still fails.
+# --------------------------------------------------------------------------
+
+class _FakeOpener:
+    def __init__(self, exc):
+        self.exc = exc
+        self.opened = []
+        self.handlers = []
+
+    def open(self, req, *args, **kwargs):
+        self.opened.append(getattr(req, "full_url", req))
+        raise self.exc
+
+
+def _with_opener(monkeypatch, exc):
+    fake = _FakeOpener(exc)
+
+    def build_opener(*handlers):
+        fake.handlers.extend(handlers)
+        return fake
+
+    monkeypatch.setattr(state.urllib.request, "build_opener", build_opener)
+    return fake
+
+
+def test_probe_refuses_to_follow_redirects(monkeypatch):
+    """The opener must carry _NoRedirect, or a 302 walks off the allowlist."""
+    fake = _with_opener(monkeypatch, state.urllib.error.HTTPError(
+        "x", 401, "Unauthorized", {}, None))
+    state.check_telegram_reachable()
+    assert any(h is state._NoRedirect or isinstance(h, state._NoRedirect)
+               for h in fake.handlers), "reachability probe follows redirects"
+
+
+def test_redirect_counts_as_reachable(monkeypatch):
+    """A 3xx proves the host answered; it is a pass, not a failure."""
+    _with_opener(monkeypatch, state.urllib.error.HTTPError(
+        "https://api.telegram.org/", 302, "Found",
+        {"Location": "https://core.telegram.org/bots"}, None))
+    state.check_telegram_reachable()          # must not raise
+
+
+def test_refused_tunnel_still_fails(monkeypatch):
+    """A genuine policy denial must keep failing, with its own exit code."""
+    _with_opener(monkeypatch, state.urllib.error.URLError(
+        "Tunnel connection failed: 403 Forbidden"))
+    with pytest.raises(state.PreflightError) as e:
+        state.check_telegram_reachable()
+    assert e.value.code == state.TELEGRAM_UNREACHABLE
+    assert "api.telegram.org" in str(e.value)
+
+
+def test_no_redirect_handler_declines(monkeypatch):
+    """redirect_request returning None is what makes urllib surface the 3xx."""
+    assert state._NoRedirect().redirect_request(
+        None, None, 302, "Found", {}, "https://core.telegram.org/bots") is None
+
+
+def test_telegram_probe_is_not_the_redirecting_root(monkeypatch):
+    """Probe a path the API answers itself, not the root that redirects away."""
+    fake = _with_opener(monkeypatch, state.urllib.error.HTTPError(
+        "x", 401, "Unauthorized", {}, None))
+    state.check_telegram_reachable()
+    url = fake.opened[0]
+    assert url.startswith("https://api.telegram.org/")
+    assert url.rstrip("/") != "https://api.telegram.org"
+
+
+def test_probe_carries_no_real_token(monkeypatch):
+    """The probe must never put the live bot token in a URL."""
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "8964793566:AAELsecretsecretsecret")
+    fake = _with_opener(monkeypatch, state.urllib.error.HTTPError(
+        "x", 401, "Unauthorized", {}, None))
+    state.check_telegram_reachable()
+    assert "AAELsecret" not in fake.opened[0]

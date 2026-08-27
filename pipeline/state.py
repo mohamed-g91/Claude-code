@@ -200,13 +200,28 @@ def check_chromium():
         ". fix: set CHROME_PATH, or install chromium. Never install one mid-run.")
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse to follow redirects during a reachability probe.
+
+    Returning None means "do not redirect", so urllib surfaces the 3xx as an
+    HTTPError, which _reachable already reads as proof the host answered.
+    Following it instead can walk off the allowlist - https://api.telegram.org/
+    redirects to core.telegram.org, which no one allowlists, so the probe used
+    to fail at that second CONNECT and blame the host we had just reached.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def _reachable(url, code, host):
     """A blocked host fails at the CONNECT tunnel, which reads like an outage."""
     try:
+        opener = urllib.request.build_opener(_NoRedirect)
         req = urllib.request.Request(url, method="GET")
-        urllib.request.urlopen(req, timeout=15)
+        opener.open(req, timeout=15)
     except urllib.error.HTTPError:
-        return              # a 4xx from the service means we reached it
+        return              # any status from the service means we reached it
     except Exception as e:
         raise PreflightError(
             code,
@@ -220,7 +235,10 @@ def check_notion_reachable():
 
 
 def check_telegram_reachable():
-    _reachable("https://api.telegram.org", TELEGRAM_UNREACHABLE, "api.telegram.org")
+    # Not the bare root: it 302s to core.telegram.org. This path is answered
+    # by the API itself (401), needs no token, and never redirects.
+    _reachable("https://api.telegram.org/bot0:0/getMe",
+               TELEGRAM_UNREACHABLE, "api.telegram.org")
 
 
 def preflight(need_telegram=True, need_render=True, network=True):
