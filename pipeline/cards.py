@@ -47,9 +47,21 @@ def _trim(s, limit):
     return (cut[:sp] if sp > limit * 0.6 else cut[:limit]).rstrip(" ,;:-—–"), True
 
 
+def _is_lead_in(fact):
+    """A colon-terminated line introduces a list; it states nothing itself.
+
+    "Amiodarone toxicity - organ by organ:" passes every gate check - each word
+    is in the source, it carries emphasis, it is under the length cap - and
+    tells the reader nothing. The facts it introduces are the content.
+    """
+    return fact.rstrip().endswith(":")
+
+
 def _best_fact(parsed):
     """The fact a card should be built from: prefer one carrying a threshold."""
-    facts = [f for f in parsed["facts"] if len(f) > 25]
+    facts = [f for f in parsed["facts"] if len(f) > 25 and not _is_lead_in(f)]
+    if not facts:
+        facts = [f for f in parsed["facts"] if len(f) > 25]
     if not facts:
         facts = parsed["facts"]
     if not facts:
@@ -115,6 +127,9 @@ def propose(row):
     if truncated:
         problems.append(
             "the source fact was cut to fit; rewrite it as a whole sentence")
+    if _is_lead_in(fact):
+        problems.append(
+            "this only introduces a list; build the card from one of its items")
     return card, problems
 
 

@@ -13,10 +13,10 @@ mint it from a session.
 
 | field | value |
 |---|---|
-| Name | Weekly MRCP pearls infographic |
+| Name | Weekly MRCP pearls infographic (Fri 22:00 Cairo) |
 | Repositories | `mohamed-g91/Claude-code` |
 | Environment | Default |
-| Schedule | Weekly, Saturday 09:00 Africa/Cairo (`0 6 * * 6` UTC) |
+| Schedule | Weekly, Friday 22:00 Africa/Cairo (`0 19 * * 5` UTC) |
 | Connectors | none needed — the pipeline uses REST, not the Notion connector |
 
 Routines always clone the **default branch**, which here holds only a README.
@@ -118,3 +118,21 @@ any pearl you dropped with the reason.
 Do not commit or push unless you fixed a genuine bug, in which case commit it to
 that branch with a short explanation.
 ```
+
+
+## The posting week, and the clock
+
+Weeks run **Friday to Thursday**. The routine fires on Friday night, so the week
+it summarises ended the previous evening. `notion.WEEK_STARTS_ON` is the single
+definition; `state/series.json` anchors the numbering to the Friday of week 1
+(`2026-08-21`), and `state.Series` refuses an anchor that is not a Friday.
+
+The week number reaches the image through the content JSON. `build.py` used to
+recompute it from a second epoch constant of its own, which meant the number
+printed on the infographic could disagree with the number in the ledgers and in
+the callback data. It now takes `week` from the JSON and has no epoch.
+
+**The cron is UTC and Egypt observes DST.** `0 19 * * 5` is 22:00 in Cairo while
+Egypt is on UTC+3. When DST ends (last Friday of October) Cairo becomes UTC+2
+and the same cron fires at 21:00 local. Change it to `0 20 * * 5` then, and back
+in the spring. Nothing detects this automatically.

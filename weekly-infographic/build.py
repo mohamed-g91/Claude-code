@@ -17,8 +17,8 @@ BRAND = {
     "author":  "Dr. Mohamed Gafar, MRCP UK", # <-- your name, other side
 }
 SPECIALTY  = "Cardiology"
-WEEK_START = dt.date(2026, 8, 17)            # Monday of the week being summarised
-SERIES_EPOCH = dt.date(2026, 8, 10)          # Monday of the FIRST posting week = week 1
+WEEK_START = dt.date(2026, 8, 21)            # Friday of the week being summarised
+WEEK_NUMBER = 1                              # only used by the built-in sample
 # Canvas height by pearl count. Seven pearls never fit 1350px at a size legible
 # on a phone - the fitter just shrank the text instead of saying so. Telegram
 # scales an image to the chat width and does not crop, so a taller canvas costs
@@ -49,15 +49,6 @@ SAMPLE = [
 
 # The headline names the count, so it has to agree with what is on the canvas.
 NUMBER_WORD = {3:"three", 4:"four", 5:"five", 6:"six", 7:"seven", 8:"eight"}
-
-# Week number rule: weeks of the channel, not weeks of the year. Week 1 is the
-# week of the first post (SERIES_EPOCH), so the number on the image counts the
-# series and keeps counting past New Year, where an ISO week number resets to 1.
-def series_week(d):
-    if d < SERIES_EPOCH:
-        sys.exit(f"{d} is before the series epoch {SERIES_EPOCH}")
-    return ((d - SERIES_EPOCH).days // 7) + 1
-
 
 def iso_week(d):
     """Still used as a stable key for records - it never collides across years."""
@@ -132,7 +123,10 @@ WATERMARK = (f'<div class="bgart" data-decor><svg class="watermark" viewBox="0 0
 def build(theme, cfg):
     brand, pearls = cfg["brand"], cfg["pearls"]
     start = cfg["week_start"]; end = start + dt.timedelta(days=6)
-    ctx = {"n": series_week(start), "range": fmt_range(start, end), **brand}
+    # The week number comes from state/series.json via the content JSON.
+    # It used to be recomputed here from a second epoch constant, which
+    # meant the number on the image could disagree with everything else.
+    ctx = {"n": cfg["week"], "range": fmt_range(start, end), **brand}
     # Accents cycle, so a week with more pearls than colours still gets one each.
     accents = [ACCENTS[theme][i % len(ACCENTS[theme])] for i in range(len(pearls))]
     count = NUMBER_WORD.get(len(pearls), str(len(pearls)))
@@ -170,7 +164,7 @@ def load_config(path):
     Fails loudly on anything the renderer cannot honour, because a silent
     fallback here would publish last week's sample under this week's number.
     """
-    cfg = {"brand": dict(BRAND), "specialty": SPECIALTY,
+    cfg = {"brand": dict(BRAND), "specialty": SPECIALTY, "week": WEEK_NUMBER,
            "week_start": WEEK_START, "pearls": list(SAMPLE)}
     if path:
         raw = json.loads(pathlib.Path(path).read_text())
@@ -180,8 +174,12 @@ def load_config(path):
             cfg["week_start"] = dt.date.fromisoformat(raw["week_start"])
         if "pearls" in raw:
             cfg["pearls"] = raw["pearls"]
-    if cfg["week_start"].weekday() != 0:
-        sys.exit(f"week_start {cfg['week_start']} is not a Monday")
+        if "week" in raw:
+            cfg["week"] = int(raw["week"])
+    if cfg["week_start"].weekday() != 4:
+        sys.exit(f"week_start {cfg['week_start']} is not a Friday")
+    if cfg["week"] < 1:
+        sys.exit(f"week {cfg['week']} is not a positive series week number")
     n = len(cfg["pearls"])
     if not MIN_PEARLS <= n <= MAX_PEARLS:
         sys.exit(f"{n} pearls: need {MIN_PEARLS}-{MAX_PEARLS}")
@@ -212,7 +210,7 @@ def main():
     end = cfg["week_start"] + dt.timedelta(days=6)
     h = int(os.environ.get("CANVAS_H") or CANVAS_H.get(len(cfg["pearls"]), 1350))
     print(f"canvas 1080x{h}")
-    print(f"Week {series_week(cfg['week_start'])} (ISO {iso_week(cfg['week_start'])}) "
+    print(f"Week {cfg['week']} (ISO {iso_week(cfg['week_start'])}) "
           f"\u00b7 {fmt_range(cfg['week_start'], end)} \u00b7 {len(cfg['pearls'])} pearls")
 
 

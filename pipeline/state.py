@@ -19,8 +19,12 @@ import json
 import os
 import pathlib
 import shutil
+import sys
 import urllib.error
 import urllib.request
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import notion                      # noqa: E402  (same directory)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE_DIR = REPO_ROOT / "state"
@@ -68,10 +72,10 @@ class Series:
         except (KeyError, TypeError, ValueError) as e:
             raise PreflightError(ANCHOR_MISSING, f"{SERIES_FILE} is malformed: {e}")
         self.specialty = raw.get("specialty", "Cardiology")
-        if self.anchor_date.weekday() != 0:
+        if self.anchor_date.weekday() != notion.WEEK_STARTS_ON:
             raise PreflightError(
                 ANCHOR_MISSING,
-                f"anchor_date {self.anchor_date} is not a Monday; weeks run Mon-Sun")
+                f"anchor_date {self.anchor_date} is not a Friday; weeks run Fri-Thu")
 
     def week_for(self, monday):
         """Series week number for a week starting on `monday`."""

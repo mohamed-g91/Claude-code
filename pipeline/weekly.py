@@ -69,7 +69,8 @@ def cmd_plan(args):
                                           "problems": problems,
                                           "source": parse_pearl(row["pearl"])["text"]})
     (work / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1))
-    if not (work / "cards.json").exists() or args.reset_cards:
+    kept = (work / "cards.json").exists() and not args.reset_cards
+    if not kept:
         (work / "cards.json").write_text(json.dumps(plan["cards"], ensure_ascii=False, indent=1))
     print(f"Week {plan['week']} (ISO {plan['iso_week']}) · {start} to {end} · "
           f"{len(rows)} posted rows")
@@ -77,6 +78,13 @@ def cmd_plan(args):
           f"{len(plan['needs_writing'])} need writing")
     for n in plan["needs_writing"]:
         print(f"  · {n['topic']}: {'; '.join(n['problems'])}")
+    if kept:
+        # Hand-written cards are worth protecting, but silence here means the
+        # summary above describes freshly proposed cards while the file on disk
+        # still holds the previous run's text.
+        print(f"NOTE: kept the existing {work / 'cards.json'} - the list above "
+              f"describes freshly proposed cards, not what is in that file. "
+              f"Pass --reset-cards to regenerate it.", file=sys.stderr)
     if len(rows) < MIN_CARDS:
         print(f"only {len(rows)} pearls this week (minimum {MIN_CARDS}) — nothing to post")
         return 3
@@ -104,17 +112,27 @@ def cmd_render(args):
         problems = cards_mod.verify(card, row)
         if problems:
             failed.append((card["topic"], problems))
+            continue
+        # Recompute the soft flags against the card as it stands now. They were
+        # written by `plan` against the *proposed* card, so a card rewritten by
+        # hand kept the proposal's flags - both reporting warnings that no
+        # longer apply and, worse, never running the inversion check on the
+        # hand-written cards it exists to check.
+        card["flags"] = gate.warnings(card.get("text", ""),
+                                      parse_pearl(row["pearl"])["text"])
     if failed:
         for topic, problems in failed:
             print(f"REJECT {topic}: {'; '.join(problems)}", file=sys.stderr)
         print(f"{len(failed)} card(s) failed verification — not rendering", file=sys.stderr)
         return 1
+    (work / "cards.json").write_text(json.dumps(cards, ensure_ascii=False, indent=1))
     if len(cards) < MIN_CARDS:
         print(f"only {len(cards)} verified cards (minimum {MIN_CARDS}) — not rendering",
               file=sys.stderr)
         return 3
 
-    content = {"week_start": plan["start"], "specialty": args.specialty,
+    content = {"week_start": plan["start"], "week": plan["week"],
+               "specialty": args.specialty,
                "pearls": [{"topic": c["topic"], "src": c.get("src", ""),
                            "text": c.get("text") or
                                    f"**{c.get('lead', '')}** {c.get('rest', '')}".strip()}

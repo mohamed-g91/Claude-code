@@ -23,14 +23,20 @@ ENDPOINTS = [(f"/data_sources/{DATA_SOURCE}/query", "2025-09-03"),
              (f"/databases/{DATABASE}/query", "2022-06-28")]
 
 
-def last_complete_week(today):
-    """Monday..Sunday of the most recently *finished* ISO week.
+# The posting week runs Friday..Thursday, and the routine fires Friday night,
+# so the week it summarises ended the previous evening.
+WEEK_STARTS_ON = 4          # Monday is 0, so Friday is 4
 
-    Run on any day, it names the week before the one containing `today`, so a
-    Saturday run summarises a week that is over rather than one still in progress.
+
+def last_complete_week(today):
+    """Friday..Thursday of the most recently *finished* posting week.
+
+    Run on any day, it names the week before the one containing `today`. On a
+    Friday - when the routine runs - that is the seven days ending yesterday.
     """
-    monday_this_week = today - dt.timedelta(days=today.weekday())
-    start = monday_this_week - dt.timedelta(days=7)
+    days_in = (today.weekday() - WEEK_STARTS_ON) % 7
+    this_week_start = today - dt.timedelta(days=days_in)
+    start = this_week_start - dt.timedelta(days=7)
     return start, start + dt.timedelta(days=6)
 
 

@@ -13,21 +13,21 @@ def series(tmp_path, monkeypatch):
     monkeypatch.setattr(state, "SENT_FILE", tmp_path / "sent_weeks.json")
     monkeypatch.setattr(state, "PREVIEW_FILE", tmp_path / "preview_log.json")
     (tmp_path / "series.json").write_text(json.dumps({
-        "anchor_date": "2026-08-10", "anchor_week": 1,
+        "anchor_date": "2026-08-21", "anchor_week": 1,
         "review_chat_id": "111", "channel_chat_id": "-222"}))
     return state.load_series()
 
 
-@pytest.mark.parametrize("monday,week", [
-    ("2026-08-10", 1),
-    ("2026-08-17", 2),
+@pytest.mark.parametrize("friday,week", [
+    ("2026-08-21", 1),
+    ("2026-08-28", 2),
     # The reason the anchor exists: an ISO week number resets to 1 in January,
     # which would restart the series mid-run. This must keep counting.
-    ("2026-12-28", 21),
-    ("2027-01-04", 22),
+    ("2027-01-01", 20),
+    ("2027-01-08", 21),
 ])
-def test_week_counts_the_series_not_the_calendar(series, monday, week):
-    assert series.week_for(dt.date.fromisoformat(monday)) == week
+def test_week_counts_the_series_not_the_calendar(series, friday, week):
+    assert series.week_for(dt.date.fromisoformat(friday)) == week
 
 
 def test_week_before_the_anchor_is_refused(series):
@@ -36,14 +36,14 @@ def test_week_before_the_anchor_is_refused(series):
     assert e.value.code == state.ANCHOR_MISSING
 
 
-def test_anchor_must_be_a_monday(tmp_path, monkeypatch):
+def test_anchor_must_be_a_friday(tmp_path, monkeypatch):
     monkeypatch.setattr(state, "SERIES_FILE", tmp_path / "series.json")
     (tmp_path / "series.json").write_text(json.dumps({
         "anchor_date": "2026-08-11", "anchor_week": 1,
         "review_chat_id": "1", "channel_chat_id": "-2"}))
     with pytest.raises(state.PreflightError) as e:
         state.load_series()
-    assert "not a Monday" in str(e.value)
+    assert "not a Friday" in str(e.value)
 
 
 def test_missing_anchor_reports_its_own_exit_code(tmp_path, monkeypatch):
