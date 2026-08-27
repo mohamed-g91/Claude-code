@@ -31,13 +31,20 @@ _LABEL = re.compile(r"([A-Z]{2,}|[A-Za-z]{5,})\s*$")
 
 
 def _trim(s, limit):
-    """Cut to `limit` on a word boundary, without leaving dangling punctuation."""
+    """Cut to `limit` on a word boundary, without leaving dangling punctuation.
+
+    Returns (text, truncated). The flag matters: trimming strips the trailing
+    punctuation, so a cut sentence reads as a finished one, and every word it
+    still contains is genuinely in the source - so the gate passes it. Losing a
+    trailing "is contraindicated" that way would ship a card that inverts the
+    pearl. A truncated card is therefore never proposed as clean.
+    """
     s = s.strip()
     if len(s) <= limit:
-        return s
+        return s, False
     cut = s[:limit + 1]
     sp = cut.rfind(" ")
-    return (cut[:sp] if sp > limit * 0.6 else cut[:limit]).rstrip(" ,;:-—–")
+    return (cut[:sp] if sp > limit * 0.6 else cut[:limit]).rstrip(" ,;:-—–"), True
 
 
 def _best_fact(parsed):
@@ -99,12 +106,16 @@ def propose(row):
     """Return (card, problems). `card` is always shaped; problems empty = usable."""
     parsed = parse_pearl(row["pearl"])
     topic = parse_topic(row["topic"])
-    fact = _trim(_best_fact(parsed), gate.MAX_TOTAL)
+    fact, truncated = _trim(_best_fact(parsed), gate.MAX_TOTAL)
     text = _mark(fact, _measure_spans(fact) + _bold_spans(fact, parsed["bolds"]))
 
     card = {"topic": topic, "text": text, "src": row.get("src", ""),
             "id": row["id"], "post_date": row["post_date"]}
-    return card, gate.check(text, parsed["text"], topic)
+    problems = gate.check(text, parsed["text"], topic)
+    if truncated:
+        problems.append(
+            "the source fact was cut to fit; rewrite it as a whole sentence")
+    return card, problems
 
 
 def verify(card, row):
