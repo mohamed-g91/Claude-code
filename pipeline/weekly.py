@@ -140,15 +140,31 @@ def _cards_hash(work):
     return hashlib.sha256(raw).hexdigest()[:16]
 
 
-def _caption(plan, cards, kind):
+def _span(start, end):
+    """Human date range. Mirrors the footer format in weekly-infographic/build.py,
+    which a test pins, so the caption and the image never disagree."""
+    a = dt.date.fromisoformat(start)
+    b = dt.date.fromisoformat(end)
+    if a.month == b.month:
+        return f"{a.day} – {b.day} {b:%B %Y}"
+    return f"{a.day} {a:%b} – {b.day} {b:%b} {b:%Y}"
+
+
+def _caption(plan, cards, kind, specialty="Cardiology"):
+    """The review caption is diagnostic; the channel caption is for readers."""
+    if kind == "publish":
+        tag = specialty.replace(" ", "")
+        return (f"<b>Week {plan['week']}</b> · {_span(plan['start'], plan['end'])}\n"
+                f"{len(cards)} {specialty.lower()} pearls from this week's posts.\n\n"
+                f"#MRCP #{tag}")
+
     flagged = [c for c in cards if c.get("flags")]
     caption = (f"<b>Week {plan['week']}</b> · {plan['start']} to {plan['end']} · "
                f"{len(cards)} pearls")
     if flagged:
         caption += f"\n[REVIEW] {len(flagged)} card(s) flagged: " + \
                    "; ".join(c["topic"] for c in flagged)
-    if kind == "preview":
-        caption += "\nPreview. Nothing has been published."
+    caption += "\nPreview. Nothing has been published."
     return caption
 
 
@@ -161,13 +177,19 @@ def _sent_summary(out, kind):
     the field you could not see.
     """
     if out.get("dry_run"):
+        what = (f"copy of message {out['message_id']}" if out.get("method") == "copyMessage"
+                else f"{out.get('photo_bytes')} bytes")
         return (f"DRY RUN {kind}: would post to {out['chat_id']}, "
-                f"{out['photo_bytes']} bytes, "
+                f"{what}, "
                 f"buttons={'yes' if out.get('reply_markup') else 'no'}, "
                 f"token={'present' if out['token_present'] else 'MISSING'}")
     if not out.get("ok"):
         return f"{kind} FAILED: {json.dumps(out)[:400]}"
     r = out["result"]
+    # copyMessage returns a bare MessageId - just {"message_id": n} - where
+    # sendPhoto returns a full Message. Do not assume the richer shape.
+    if "chat" not in r:
+        return f"{kind} sent · message {r['message_id']} (copied)"
     kb = r.get("reply_markup", {}).get("inline_keyboard") or []
     labels = [b["text"] for row in kb for b in row]
     return (f"{kind} sent · chat {r['chat']['id']} · message {r['message_id']} · "
@@ -221,9 +243,17 @@ def cmd_publish(args):
               f"run `approval` to collect the tap.", file=sys.stderr)
         return state.NOT_APPROVED
 
-    out = telegram.send_photo(str(png), series.channel_chat_id,
-                              _caption(plan, cards, "publish"),
-                              dry_run=not args.send, buttons=False)
+    caption = _caption(plan, cards, "publish", series.specialty)
+    previewed = state.load_preview_log().get(str(week), {}).get("message_id")
+    if previewed:
+        # Publish the message that was approved, not a file that merely hashes
+        # the same. Nothing can have been re-rendered in between.
+        out = telegram.copy_message(series.review_chat_id, previewed,
+                                    series.channel_chat_id, caption,
+                                    dry_run=not args.send)
+    else:
+        out = telegram.send_photo(str(png), series.channel_chat_id, caption,
+                                  dry_run=not args.send, buttons=False)
     if args.send:
         state.record_published(week, digest, out.get("result", {}).get("message_id", 0))
     print(_sent_summary(out, "publish"))

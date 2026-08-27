@@ -91,6 +91,27 @@ def settle_message(chat_id, message_id, caption, token=None):
         raise
 
 
+def copy_message(from_chat_id, message_id, to_chat_id, caption, token=None,
+                 dry_run=True):
+    """Republish the approved message itself, rather than re-uploading a file.
+
+    The photo already lives on Telegram's servers, so this publishes the exact
+    bytes that were reviewed and approved - it cannot drift from what was on
+    screen, and it does not depend on a PNG still existing in some container.
+    copyMessage sends a fresh post with no "forwarded from" header, and takes
+    its own caption, so the preview disclaimer does not travel with it.
+    """
+    if dry_run:
+        return {"dry_run": True, "method": "copyMessage", "chat_id": str(to_chat_id),
+                "from_chat_id": str(from_chat_id), "message_id": message_id,
+                "caption": caption, "reply_markup": None,
+                "token_present": bool(token or os.environ.get("TELEGRAM_BOT_TOKEN"))}
+    return _call("copyMessage",
+                 {"chat_id": str(to_chat_id), "from_chat_id": str(from_chat_id),
+                  "message_id": message_id, "caption": caption,
+                  "parse_mode": "HTML"}, token)
+
+
 def send_photo(png_path, chat_id, caption, token=None, dry_run=True, buttons=None):
     """Post the PNG. Returns the API response, or the planned request if dry.
 
