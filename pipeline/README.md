@@ -145,3 +145,36 @@ than by reading:
 | `gate.py` | the check described above |
 | `telegram.py` | `sendPhoto`, dry run by default |
 | `fixtures/posted_rows.json` | nine real posted rows, for offline runs |
+
+## Publishing to the channel
+
+The channel post is the image alone, with no caption. Publishing republishes the
+photo that was reviewed - by `copyMessage` from the Python side, by `file_id`
+from n8n - so the channel gets the exact image that was approved rather than a
+re-render that merely hashes the same.
+
+Two things can pull the trigger, and only one should be live at a time.
+
+### The repo (`publish`)
+
+`approval` collects a tap through `getUpdates`, then `publish --send` copies the
+previewed message to the channel. It refuses a week already in `sent_weeks.json`,
+refuses cards that were never previewed (17), and refuses cards that were never
+approved (18).
+
+### n8n (`MRCP Weekly Infographic - Approve to Publish`, workflow `LxcFS4GsJPiyFqtx`)
+
+A Telegram Trigger on `callback_query`, restricted to the review chat, parses the
+`wk:<week>:<hash>:<verdict>` payload that `review_keyboard()` writes, and on
+approval sends the reviewed `file_id` to the channel with no caption. The
+`weekly_infographic_published` data table (`SrUsmj5uyC02e6KZ`) is the
+double-publish guard: an approved tap looks the week up first and answers
+"already on the channel" instead of posting twice.
+
+**Activating it sets a webhook on the bot, and a webhook disables `getUpdates`** -
+so the repo's `approval` command stops collecting taps the moment n8n goes live.
+That is the trade: instant, always-on publishing, at the cost of the repo no
+longer being able to see a tap. Run one or the other, not both.
+
+The workflow is created **inactive**. Activating it means the next Approve tap
+posts to @mrcp_gafar for real.

@@ -150,22 +150,23 @@ def _span(start, end):
     return f"{a.day} {a:%b} – {b.day} {b:%b} {b:%Y}"
 
 
-def _caption(plan, cards, kind, specialty="Cardiology"):
-    """The review caption is diagnostic; the channel caption is for readers."""
-    if kind == "publish":
-        tag = specialty.replace(" ", "")
-        return (f"<b>Week {plan['week']}</b> · {_span(plan['start'], plan['end'])}\n"
-                f"{len(cards)} {specialty.lower()} pearls from this week's posts.\n\n"
-                f"#MRCP #{tag}")
+REVIEW_PREFIX = "[REVIEW]"
+PREVIEW_PREFIX = "[PREVIEW]"
 
+
+def _preview_caption(plan, cards, specialty="Cardiology"):
+    """Context for the reviewer. The channel post carries no caption at all,
+    so nothing here has to be safe to publish - it never travels."""
+    lines = [f"Week {plan['week']} · {_span(plan['start'], plan['end'])}",
+             f"{len(cards)} {specialty.lower()} pearls · "
+             f"{plan['start']} to {plan['end']}"]
     flagged = [c for c in cards if c.get("flags")]
-    caption = (f"<b>Week {plan['week']}</b> · {plan['start']} to {plan['end']} · "
-               f"{len(cards)} pearls")
     if flagged:
-        caption += f"\n[REVIEW] {len(flagged)} card(s) flagged: " + \
-                   "; ".join(c["topic"] for c in flagged)
-    caption += "\nPreview. Nothing has been published."
-    return caption
+        lines.append(f"{REVIEW_PREFIX} {len(flagged)} card(s) flagged: "
+                     + "; ".join(c["topic"] for c in flagged))
+    lines.append(f"{PREVIEW_PREFIX} Nothing has been published. "
+                 f"Approve to post it to the channel.")
+    return "\n".join(lines)
 
 
 def _sent_summary(out, kind):
@@ -212,7 +213,7 @@ def cmd_preview(args):
     work, plan, cards, png = _load_for_send(args)
     digest = _cards_hash(work)
     out = telegram.send_photo(str(png), series.review_chat_id,
-                              _caption(plan, cards, "preview"),
+                              _preview_caption(plan, cards, series.specialty),
                               dry_run=not args.send,
                               buttons=telegram.review_keyboard(plan["week"], digest))
     if args.send:
@@ -243,7 +244,11 @@ def cmd_publish(args):
               f"run `approval` to collect the tap.", file=sys.stderr)
         return state.NOT_APPROVED
 
-    caption = _caption(plan, cards, "publish", series.specialty)
+    # The channel post is the image alone - Mohamed wants no caption on it.
+    # copyMessage keeps the source caption unless one is supplied, and an
+    # empty string is a supplied caption, so this clears it rather than
+    # inheriting the preview text.
+    caption = ""
     previewed = state.load_preview_log().get(str(week), {}).get("message_id")
     if previewed:
         # Publish the message that was approved, not a file that merely hashes

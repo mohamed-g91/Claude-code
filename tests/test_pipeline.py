@@ -128,31 +128,34 @@ def test_settle_message_still_raises_other_errors(monkeypatch):
         telegram.settle_message("123", 5, "done")
 
 
-def test_caption_span_matches_the_image_footer():
-    """The caption and the infographic footer must not print dates differently."""
-    import importlib.util
-    build = pathlib.Path(__file__).resolve().parent.parent / "weekly-infographic" / "build.py"
-    src = build.read_text()
-    spec = importlib.util.spec_from_loader("b", loader=None)
-    mod = importlib.util.module_from_spec(spec)
-    exec(compile(src.split("def main")[0], "build.py", "exec"), mod.__dict__)
-    import datetime as dt
-    for a, b in [("2026-08-17", "2026-08-23"), ("2026-12-28", "2027-01-03")]:
-        da, db = dt.date.fromisoformat(a), dt.date.fromisoformat(b)
-        assert weekly._span(a, b) == mod.fmt_range(da, db)
-
-
-def test_channel_caption_carries_no_review_noise():
-    plan = {"week": 2, "start": "2026-08-17", "end": "2026-08-23"}
-    cards = [{"topic": "X", "flags": ["something"]}] * 7
-    pub = weekly._caption(plan, cards, "publish", "Cardiology")
-    assert "[REVIEW]" not in pub and "Preview." not in pub
-    assert "17 – 23 August 2026" in pub
-    prev = weekly._caption(plan, cards, "preview")
-    assert "[REVIEW]" in prev and "Preview." in prev
-
-
 def test_summary_handles_a_copied_message():
     """copyMessage returns {"message_id": n} with no chat, unlike sendPhoto."""
     assert "138" in weekly._sent_summary({"ok": True, "result": {"message_id": 138}},
                                          "publish")
+
+
+def test_channel_post_has_no_caption():
+    """Mohamed wants the image alone on the channel. copyMessage keeps the
+    source caption unless one is supplied, so publish must supply an empty one."""
+    src = (pathlib.Path(__file__).resolve().parent.parent / "pipeline" / "weekly.py").read_text()
+    publish = src[src.index("def cmd_publish"):src.index("def cmd_approval")]
+    assert 'caption = ""' in publish
+    assert "_preview_caption" not in publish
+
+
+def test_preview_caption_still_tells_the_reviewer_what_is_flagged():
+    plan = {"week": 2, "start": "2026-08-17", "end": "2026-08-23"}
+    cap = weekly._preview_caption(plan, [{"topic": "PE", "flags": ["f"]}] * 2, "Cardiology")
+    assert "[REVIEW]" in cap and "[PREVIEW]" in cap and "17 – 23 August 2026" in cap
+
+
+def test_caption_span_matches_the_image_footer():
+    """The preview caption and the infographic footer print dates the same way."""
+    import importlib.util, datetime as dt
+    build = pathlib.Path(__file__).resolve().parent.parent / "weekly-infographic" / "build.py"
+    spec = importlib.util.spec_from_loader("b", loader=None)
+    mod = importlib.util.module_from_spec(spec)
+    exec(compile(build.read_text().split("def main")[0], "build.py", "exec"), mod.__dict__)
+    for a, b in [("2026-08-17", "2026-08-23"), ("2026-12-28", "2027-01-03")]:
+        assert weekly._span(a, b) == mod.fmt_range(dt.date.fromisoformat(a),
+                                                   dt.date.fromisoformat(b))
