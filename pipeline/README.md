@@ -176,5 +176,16 @@ so the repo's `approval` command stops collecting taps the moment n8n goes live.
 That is the trade: instant, always-on publishing, at the cost of the repo no
 longer being able to see a tap. Run one or the other, not both.
 
-The workflow is created **inactive**. Activating it means the next Approve tap
-posts to @mrcp_gafar for real.
+The workflow is **active** as of 2026-08-27. The webhook is registered with
+`allowed_updates: ["callback_query"]`, so only button taps are routed to it -
+the daily drip, which only sends, is unaffected.
+
+While it is active, `approval` fails with:
+
+    getUpdates failed: 409 Conflict: can't use getUpdates method while webhook
+    is active; use deleteWebhook to delete the webhook first
+
+and because `publish` requires a recorded approval (18), the repo cannot post to
+the channel at all. That is the intended state, not a fault: n8n owns the
+channel while it is live. To hand it back, deactivate the workflow - n8n calls
+`deleteWebhook`, and `approval` starts collecting again on the next run.
