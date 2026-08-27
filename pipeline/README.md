@@ -80,6 +80,7 @@ of depending on how carefully a prompt was read.
 | 15 | a required Python package is not importable |
 | 16 | no Chromium found |
 | 17 | week already published, or these cards were never previewed |
+| 18 | these cards were previewed but never approved |
 
 Preflight never fixes anything. It reports and exits.
 

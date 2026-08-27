@@ -152,6 +152,28 @@ def _caption(plan, cards, kind):
     return caption
 
 
+def _sent_summary(out, kind):
+    """One line saying what actually happened.
+
+    This used to dump the raw API response truncated to 900 characters. The
+    photo-size array is long enough to push reply_markup past the cut, so the
+    one field worth checking - whether the review buttons were attached - was
+    the field you could not see.
+    """
+    if out.get("dry_run"):
+        return (f"DRY RUN {kind}: would post to {out['chat_id']}, "
+                f"{out['photo_bytes']} bytes, "
+                f"buttons={'yes' if out.get('reply_markup') else 'no'}, "
+                f"token={'present' if out['token_present'] else 'MISSING'}")
+    if not out.get("ok"):
+        return f"{kind} FAILED: {json.dumps(out)[:400]}"
+    r = out["result"]
+    kb = r.get("reply_markup", {}).get("inline_keyboard") or []
+    labels = [b["text"] for row in kb for b in row]
+    return (f"{kind} sent · chat {r['chat']['id']} · message {r['message_id']} · "
+            f"buttons: {', '.join(labels) if labels else 'none'}")
+
+
 def _load_for_send(args):
     work = pathlib.Path(args.work)
     plan = json.loads((work / "plan.json").read_text())
@@ -169,13 +191,14 @@ def cmd_preview(args):
     digest = _cards_hash(work)
     out = telegram.send_photo(str(png), series.review_chat_id,
                               _caption(plan, cards, "preview"),
-                              dry_run=not args.send, buttons=False)
+                              dry_run=not args.send,
+                              buttons=telegram.review_keyboard(plan["week"], digest))
     if args.send:
         state.record_preview(plan["week"], digest, out.get("result", {}).get("message_id", 0))
     for c in cards:
         for f in c.get("flags", []):
             print(f"[REVIEW] {c['topic']}: {f}", file=sys.stderr)
-    print(json.dumps(out, ensure_ascii=False, indent=1)[:900])
+    print(_sent_summary(out, "preview"))
     return 0
 
 
@@ -193,14 +216,76 @@ def cmd_publish(args):
         print(f"these exact cards have not been previewed. Run `preview --send` and "
               f"look at it before publishing.", file=sys.stderr)
         return state.ALREADY_PUBLISHED
+    if not state.approved(week, digest):
+        print(f"week {week} has not been approved. Tap Approve on the preview, then "
+              f"run `approval` to collect the tap.", file=sys.stderr)
+        return state.NOT_APPROVED
 
     out = telegram.send_photo(str(png), series.channel_chat_id,
                               _caption(plan, cards, "publish"),
                               dry_run=not args.send, buttons=False)
     if args.send:
         state.record_published(week, digest, out.get("result", {}).get("message_id", 0))
-    print(json.dumps(out, ensure_ascii=False, indent=1)[:900])
+    print(_sent_summary(out, "publish"))
     return 0
+
+
+def cmd_approval(args):
+    """Collect a button tap from the review chat and record what it said.
+
+    The tap is not seen as it happens: there is no webhook, so it waits in
+    Telegram's update queue (24 hours) until this runs. --wait long-polls, so
+    running it straight after preview catches a prompt tap; otherwise the next
+    run picks it up.
+    """
+    series = state.load_series()
+    offset = state.load_update_offset()
+    res = telegram.get_updates(offset=offset, wait=args.wait).get("result", [])
+
+    seen = 0
+    for u in res:
+        state.record_update_offset(u["update_id"] + 1)
+        cb = u.get("callback_query")
+        if not cb:
+            continue
+        parts = (cb.get("data") or "").split(":")
+        if len(parts) != 4 or parts[0] != "wk":
+            continue
+        _, week, digest, verdict = parts
+        if str(cb["message"]["chat"]["id"]) != series.review_chat_id:
+            continue                       # only this chat decides
+        who = cb.get("from", {}).get("first_name")
+        state.record_approval(week, digest, "ok" if verdict == "ok" else "no",
+                              by=who, update_id=u["update_id"])
+        settled = ("✅ Approved - ready to publish." if verdict == "ok"
+                   else "✍️ Marked as needing changes. Nothing was published.")
+        # The decision is already recorded. Telling Telegram about it is
+        # cosmetic and can legitimately fail - a callback id expires, so a tap
+        # collected hours later cannot be acknowledged. Never lose the decision
+        # over the acknowledgement.
+        for label, fn in (("answerCallbackQuery",
+                           lambda: telegram.answer_callback(cb["id"], settled)),
+                          ("editMessageCaption",
+                           lambda: telegram.settle_message(
+                               series.review_chat_id, cb["message"]["message_id"],
+                               _settled_caption(cb["message"].get("caption", ""), settled)))):
+            try:
+                fn()
+            except Exception as e:
+                print(f"note: {label} failed ({e}); the decision still stands",
+                      file=sys.stderr)
+        print(f"week {week}: {verdict} (by {who})")
+        seen += 1
+
+    if not seen:
+        print("no new taps" + (f" after waiting {args.wait}s" if args.wait else ""))
+    return 0
+
+
+def _settled_caption(old, verdict):
+    """Keep the original caption, replace the trailing preview disclaimer."""
+    body = old.split("\nPreview. Nothing has been published.")[0]
+    return f"{body}\n{verdict}"
 
 
 def cmd_preflight(args):
@@ -237,6 +322,11 @@ def main():
     p.set_defaults(fn=cmd_preview)
     p.add_argument("--theme", choices=["dark", "light"], default="dark")
     p.add_argument("--send", action="store_true", help="actually call Telegram")
+
+    p = sub.add_parser("approval", help="collect an Approve / Needs-changes tap")
+    p.set_defaults(fn=cmd_approval)
+    p.add_argument("--wait", type=int, default=0, metavar="SECONDS",
+                   help="long-poll this long for a tap (0 = take what is queued)")
 
     p = sub.add_parser("publish", help="post to the channel; requires a matching preview")
     p.set_defaults(fn=cmd_publish)

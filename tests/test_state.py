@@ -175,3 +175,35 @@ def test_probe_carries_no_real_token(monkeypatch):
         "x", 401, "Unauthorized", {}, None))
     state.check_telegram_reachable()
     assert "AAELsecret" not in fake.opened[0]
+
+
+# --------------------------------------------------------------------------
+# Approval ledger
+# --------------------------------------------------------------------------
+
+def test_approval_is_bound_to_the_cards_that_were_shown(tmp_path, monkeypatch):
+    monkeypatch.setattr(state, "APPROVAL_FILE", tmp_path / "approvals.json")
+    state.record_approval(2, "aaaaaaaaaaaaaaaa", "ok", by="Mohamed")
+    assert state.approved(2, "aaaaaaaaaaaaaaaa")
+    # a card rewritten after the tap must invalidate it
+    assert not state.approved(2, "bbbbbbbbbbbbbbbb")
+
+
+def test_needs_changes_is_not_an_approval(tmp_path, monkeypatch):
+    monkeypatch.setattr(state, "APPROVAL_FILE", tmp_path / "approvals.json")
+    state.record_approval(2, "aaaaaaaaaaaaaaaa", "no")
+    assert not state.approved(2, "aaaaaaaaaaaaaaaa")
+
+
+def test_unapproved_week_is_not_approved(tmp_path, monkeypatch):
+    monkeypatch.setattr(state, "APPROVAL_FILE", tmp_path / "approvals.json")
+    assert not state.approved(2, "aaaaaaaaaaaaaaaa")
+
+
+def test_offset_survives_alongside_approvals(tmp_path, monkeypatch):
+    """The update offset shares the file; it must not read as a week."""
+    monkeypatch.setattr(state, "APPROVAL_FILE", tmp_path / "approvals.json")
+    state.record_approval(2, "aaaaaaaaaaaaaaaa", "ok")
+    state.record_update_offset(12345)
+    assert state.load_update_offset() == 12345
+    assert state.approved(2, "aaaaaaaaaaaaaaaa")

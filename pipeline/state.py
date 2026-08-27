@@ -27,6 +27,7 @@ STATE_DIR = REPO_ROOT / "state"
 SERIES_FILE = STATE_DIR / "series.json"
 SENT_FILE = STATE_DIR / "sent_weeks.json"
 PREVIEW_FILE = STATE_DIR / "preview_log.json"
+APPROVAL_FILE = STATE_DIR / "approvals.json"
 
 # Exit codes. A number here is a contract with the routine: it reports the code
 # and stops, rather than interpreting a failure it cannot see.
@@ -40,6 +41,7 @@ TELEGRAM_UNREACHABLE = 14
 DEPS_MISSING = 15
 CHROMIUM_MISSING = 16
 ALREADY_PUBLISHED = 17
+NOT_APPROVED = 18
 
 
 class PreflightError(RuntimeError):
@@ -134,6 +136,36 @@ def record_preview(week, cards_hash, message_id):
     data[str(week)] = {"cards_hash": cards_hash, "message_id": message_id,
                        "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
     _write(PREVIEW_FILE, data)
+
+
+def load_approvals():
+    return _read(APPROVAL_FILE)
+
+
+def record_approval(week, cards_hash, decision, by=None, update_id=None):
+    """Remember a button tap. Keyed by week; the hash binds it to those cards."""
+    data = load_approvals()
+    data[str(week)] = {"cards_hash": cards_hash, "decision": decision, "by": by,
+                       "update_id": update_id,
+                       "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    _write(APPROVAL_FILE, data)
+
+
+def approved(week, cards_hash):
+    """Was *this* set of cards approved? A rewrite since the tap does not count."""
+    entry = load_approvals().get(str(week))
+    return bool(entry) and entry.get("decision") == "ok" \
+        and entry.get("cards_hash") == cards_hash
+
+
+def load_update_offset():
+    return load_approvals().get("_offset")
+
+
+def record_update_offset(offset):
+    data = load_approvals()
+    data["_offset"] = offset
+    _write(APPROVAL_FILE, data)
 
 
 def preview_matches(week, cards_hash):

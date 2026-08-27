@@ -96,7 +96,18 @@ Then:
    make a card pass, and never lower a limit to get a week over the line.
 
 5. `python3 pipeline/weekly.py preview --send`
-   This posts to the private review chat. It is the only thing you ever send.
+   This posts to the private review chat with Approve / Needs-changes buttons.
+   It is the only thing you ever send. The summary line names the buttons that
+   were attached; if it says `buttons: none`, say so.
+
+6. `python3 pipeline/weekly.py approval --wait 120`
+   Optional, and only worth it if Mohamed is likely to be looking. A tap is not
+   delivered live - there is no webhook, so it waits in Telegram's update queue
+   for 24 hours until an `approval` run collects it. Report what it says.
+   Collecting a tap never publishes anything; it only records the decision.
+
+NEVER run `publish`, approved or not. An approval only unlocks the command; it
+is not an instruction to run it.
 
 NEVER run `publish`. Publishing to @mrcp_gafar is Mohamed's decision, made after
 he has seen the preview, in a session he is present for.

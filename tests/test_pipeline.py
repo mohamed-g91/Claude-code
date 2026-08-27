@@ -5,6 +5,7 @@ import pathlib
 
 import cards as cards_mod
 import notion
+import telegram
 import pytest
 
 FIXTURE = pathlib.Path(__file__).resolve().parent.parent / "pipeline/fixtures/posted_rows.json"
@@ -82,3 +83,45 @@ def test_short_fact_is_untouched():
            "pearl": "<p><b>Give adrenaline 1 mg IV as soon as possible.</b></p>"}
     card, problems = cards_mod.propose(row)
     assert not any("cut to fit" in p for p in problems)
+
+
+def test_review_keyboard_carries_week_and_hash_within_telegram_limits():
+    """callback_data is capped at 64 bytes, and must bind to these cards."""
+    kb = telegram.review_keyboard(2, "69e69d5db7e9ea14")
+    datas = [b["callback_data"] for b in kb["inline_keyboard"][0]]
+    assert datas == ["wk:2:69e69d5db7e9ea14:ok", "wk:2:69e69d5db7e9ea14:no"]
+    for d in datas:
+        assert len(d.encode()) <= 64
+
+
+def test_channel_post_carries_no_buttons():
+    """Approval belongs to the private review chat, never to the channel."""
+    src = pathlib.Path(__file__).resolve().parent.parent / "pipeline" / "weekly.py"
+    body = src.read_text()
+    publish = body[body.index("def cmd_publish"):body.index("def cmd_approval")]
+    assert "buttons=False" in publish
+    assert "review_keyboard" not in publish
+
+
+def test_settle_message_makes_one_call(monkeypatch):
+    """editMessageCaption drops the keyboard; a second edit is a no-op 400."""
+    calls = []
+    monkeypatch.setattr(telegram, "_call",
+                        lambda m, p, *a, **k: (calls.append(m), {"ok": True})[1])
+    telegram.settle_message("123", 5, "done")
+    assert calls == ["editMessageCaption"]
+
+
+def test_settle_message_tolerates_an_unchanged_message(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("editMessageCaption failed: 400 message is not modified")
+    monkeypatch.setattr(telegram, "_call", boom)
+    assert telegram.settle_message("123", 5, "done")["ok"] is True
+
+
+def test_settle_message_still_raises_other_errors(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("editMessageCaption failed: 400 chat not found")
+    monkeypatch.setattr(telegram, "_call", boom)
+    with pytest.raises(RuntimeError):
+        telegram.settle_message("123", 5, "done")
