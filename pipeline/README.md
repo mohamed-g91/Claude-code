@@ -201,7 +201,35 @@ deactivate and reactivate the workflow to force the production webhook back.
 Check which one holds the slot with `preview`'s `listener:` line, or directly:
 a URL containing `/webhook-test/` is the editor, `/webhook/` is production.
 
-**Known fault (2026-08-28): the n8n listener does not stay registered.** After
+### One bot has one update consumer
+
+Resolved 2026-08-28. The webhook kept disappearing within 20-45 seconds because
+**another agent (Hermes) was polling the same bot.** Polling and webhooks are
+mutually exclusive on a Telegram bot, so a polling client clears the webhook to
+receive; every cycle wiped the registration. It also ate the taps - which is
+why `approval` reported "no new taps" and n8n logged no executions. The update
+was delivered, just not to us.
+
+It was not n8n: the webhook died just the same with the workflow deactivated
+and with the registration set by hand, straight to Telegram.
+
+The fix is a separate bot per consumer. Hermes moved to its own; this bot keeps
+the drip, the preview and the publish. Note that `file_id`s are bot-scoped - the
+publish step resends the reviewed photo by `file_id`, so whichever bot sends the
+preview must be the one that publishes.
+
+**Do not call `setWebhook` by hand.** n8n registers a `secret_token` and rejects
+any delivery that arrives without the matching header - a hand-registered
+webhook holds the slot and every delivery fails `403 Forbidden`. If the
+registration needs replacing: deactivate, `deleteWebhook`, reactivate, and let
+n8n set it.
+
+To diagnose this class of problem: `getWebhookInfo` reports `url`,
+`pending_update_count`, and `last_error_message`. A URL containing
+`/webhook-test/` is the n8n editor holding the slot; `/webhook/` is production.
+A registration that vanishes on a cycle means another consumer is polling.
+
+**Superseded (2026-08-28): the n8n listener does not stay registered.** After
 `publish`, `getWebhookInfo` shows the webhook for roughly 15 seconds and it is
 gone by 45 - reproducibly, every time - while n8n continues to report the
 workflow as `active: true` with `triggerCount: 1` and records no executions.
