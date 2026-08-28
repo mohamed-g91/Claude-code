@@ -162,7 +162,7 @@ previewed message to the channel. It refuses a week already in `sent_weeks.json`
 refuses cards that were never previewed (17), and refuses cards that were never
 approved (18).
 
-### n8n (`MRCP Weekly Infographic - Approve to Publish`, workflow `LxcFS4GsJPiyFqtx`)
+### n8n (`MRCP Weekly Infographic - Approve to Publish`, workflow `Yix5C9nejcbRW5wS`)
 
 A Telegram Trigger on `callback_query`, restricted to the review chat, parses the
 `wk:<week>:<hash>:<verdict>` payload that `review_keyboard()` writes, and on
@@ -258,3 +258,36 @@ and because `publish` requires a recorded approval (18), the repo cannot post to
 the channel at all. That is the intended state, not a fault: n8n owns the
 channel while it is live. To hand it back, deactivate the workflow - n8n calls
 `deleteWebhook`, and `approval` starts collecting again on the next run.
+
+
+## What the buttons do
+
+**Approve is a one-time action.** The buttons live on the preview message, and
+the Telegram node cannot edit a photo's reply markup - `editMessageReplyMarkup`
+is not one of its operations, and Telegram authenticates by URL path, so an HTTP
+Request node cannot supply the token from a credential without putting it in
+plaintext the way the drip's `Send Poll` node does. So after any decision the
+preview is **deleted**, which takes the buttons with it. The delete is marked
+`continueRegularOutput`: it is cosmetic, and must never fail a publish that has
+already happened.
+
+| Tap | What happens |
+|---|---|
+| Approve, first time | Publishes to the channel, records the week in `weekly_infographic_published`, answers the tap, deletes the preview, confirms in the review chat |
+| Approve, week already in the ledger | Answers "already on the channel", publishes nothing |
+| Needs changes | Answers the tap, deletes the preview, reposts the image without buttons for reference, then asks for a written comment with `force_reply` |
+
+The comment prompt carries a `#wk<N>` tag. The reply comes back through the same
+trigger (which is why it listens for `message` as well as `callback_query`), the
+week is read back out of the tag, and the comment is filed in
+`weekly_infographic_feedback` (`XhVdZJ9cdByVxipg`). Nothing is held between
+executions - the tag is the whole mechanism. Only a reply to the bot's own
+prompt counts; anything else typed in the chat is ignored.
+
+Read the feedback before building the next week: it is keyed by week number, and
+says what was wrong with the version that was rejected.
+
+One consequence of deleting the preview: `state/preview_log.json` still holds
+that message id, and the repo's `publish` copies from it. That path is already
+unusable while n8n holds the webhook, but if the two are ever swapped back, a
+week whose preview was deleted has to be previewed again.
