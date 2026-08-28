@@ -176,13 +176,37 @@ so the repo's `approval` command stops collecting taps the moment n8n goes live.
 That is the trade: instant, always-on publishing, at the cost of the repo no
 longer being able to see a tap. Run one or the other, not both.
 
+### The editor's test listener steals the webhook
+
+**A Telegram bot has exactly one webhook slot.** n8n says so in the trigger
+node: *"Due to Telegram API limitations, you can use just one Telegram trigger
+for each bot at a time."* That limit is not only about two workflows - the
+editor competes with production for the same slot.
+
+Pressing **Execute step** / **Execute workflow** on the Telegram Trigger puts
+the node into "Listening for test event" and registers the **test** URL
+(`/webhook-test/...`). That evicts the production registration. When listening
+stops - Stop Listening, a timeout, or closing the tab - n8n calls
+`deleteWebhook` and does **not** restore production. The workflow still reports
+`active: true`, so nothing looks wrong, and every tap is silently dropped.
+
+This is what happened on 2026-08-28: publishes registered the webhook, and it
+was gone within 15-45 seconds each time, because the editor was open and
+listening.
+
+**To run in production:** Stop Listening, close the workflow tab, and only then
+activate. Never leave the trigger's test panel listening. After any test run,
+deactivate and reactivate the workflow to force the production webhook back.
+
+Check which one holds the slot with `preview`'s `listener:` line, or directly:
+a URL containing `/webhook-test/` is the editor, `/webhook/` is production.
+
 **Known fault (2026-08-28): the n8n listener does not stay registered.** After
 `publish`, `getWebhookInfo` shows the webhook for roughly 15 seconds and it is
 gone by 45 - reproducibly, every time - while n8n continues to report the
 workflow as `active: true` with `triggerCount: 1` and records no executions.
-Something in n8n tears the registration down without clearing the active flag.
-Until that is diagnosed in the n8n UI and logs, the workflow is left
-**unpublished** and the repo's `approval` + `publish` path is the only route to
+The cause is the editor test listener described above, not a fault in the
+workflow. While that is not ruled out, the repo's `approval` + `publish` path is the only route to
 the channel. Do not run both: each keeps its own ledger, so a week published
 through one is invisible to the other's double-publish guard.
 
