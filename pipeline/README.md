@@ -314,3 +314,41 @@ Note the two ledgers answer different questions and both are needed:
 `weekly_infographic_decisions` is per version and stops contradictory taps;
 `weekly_infographic_published` is per week and stops the channel getting the
 same week twice, whatever the version.
+
+
+## The feedback loop
+
+A "needs changes" reply has to reach a Claude session that can rebuild. It gets
+there by a detour, for a reason worth writing down: **routine sessions cannot
+use the n8n connector** (`connectors` is disabled for this organisation), so a
+routine cannot read the n8n data table the comment is stored in. And n8n cannot
+wake a Claude session either - firing a routine goes through OAuth, not an API
+key n8n could hold.
+
+So the comment is mirrored into Notion, which both sides can already reach:
+
+    Telegram reply
+      -> n8n: Record Feedback (data table, the operational record)
+      -> n8n: Mirror Feedback To Notion (the bridge)
+      -> routine `MRCP infographic revision`: reads it over api.notion.com,
+         rebuilds the week, sends a fresh preview with new buttons
+
+Two Notion integrations need access to `Weekly infographic feedback`
+(data source `9d04c968-7855-4a82-982d-9f3b570b80b4`): the one behind n8n's
+Notion credential, to write; and the one behind `NOTION_TOKEN`, to read. The
+routine stops with a plain message if its read 404s, rather than treating an
+unshared database as "no feedback".
+
+The mirror node is `continueRegularOutput`: the comment is already safe in the
+data table, so a Notion failure must not cost the acknowledgement.
+
+**There is no "handled" flag.** The routine has read-only Notion access, so it
+cannot mark a row Applied. Instead it compares the row's `Received at` against
+the `at` recorded for that week in `state/preview_log.json`, and acts only when
+the feedback is newer than the last preview. That is why step 7 commits
+preview_log.json - skip the commit and the next run rebuilds the same week.
+
+**Cadence.** Hourly is the platform minimum for a routine, so a revised preview
+arrives within the hour, not instantly. That is 168 sessions a week, nearly all
+of them a single Notion query and an exit. If that proves expensive against the
+usage limit, widen the cron rather than removing it.
