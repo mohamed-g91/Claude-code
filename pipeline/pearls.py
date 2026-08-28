@@ -75,7 +75,10 @@ def parse_pearl(pearl_html):
     # Block-level tags become newlines so bullets and paragraphs stay separate.
     s = re.sub(r"<\s*(br|/p|/li|/ul|/ol|/div|/h[1-6])\s*/?\s*>", "\n", s, flags=re.I)
     s = re.sub(r"<\s*(p|li|div|h[1-6])\b[^>]*>", "\n", s, flags=re.I)
-    s = re.sub(r"<[^>]+>", "", s)
+    # Only strip things that look like real tags. The unbounded "<[^>]+>" swallows
+    # a literal threshold like "<55%" inside a <b> run as if it were a tag start,
+    # deleting the number up to the next ">" (the bold's own closing tag).
+    s = re.sub(r"</?[a-zA-Z][^<>]*>", "", s)
     s = html.unescape(s)
 
     for pat in _SCAFFOLD:
