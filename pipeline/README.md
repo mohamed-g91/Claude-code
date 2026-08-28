@@ -162,7 +162,7 @@ previewed message to the channel. It refuses a week already in `sent_weeks.json`
 refuses cards that were never previewed (17), and refuses cards that were never
 approved (18).
 
-### n8n (`MRCP Weekly Infographic - Approve to Publish`, workflow `Yix5C9nejcbRW5wS`)
+### n8n (`MRCP Weekly Infographic - Approve to Publish`, workflow `7FWAXu36SABqi4OY`)
 
 A Telegram Trigger on `callback_query`, restricted to the review chat, parses the
 `wk:<week>:<hash>:<verdict>` payload that `review_keyboard()` writes, and on
@@ -291,3 +291,26 @@ One consequence of deleting the preview: `state/preview_log.json` still holds
 that message id, and the repo's `publish` copies from it. That path is already
 unusable while n8n holds the webhook, but if the two are ever swapped back, a
 week whose preview was deleted has to be previewed again.
+
+
+## One decision per version
+
+`weekly_infographic_decisions` (`5VIROTM7a6JPd03Y`) is the authority on what has
+been decided, keyed by `cards_hash` - the version, not the week. Every tap is
+checked against it before anything happens:
+
+- Approve on a version already marked "needs changes" is refused.
+- Needs-changes on a version already approved is refused.
+- Either way the reply names the earlier decision and nothing is acted on.
+
+This does not rely on the buttons being gone. Deleting the preview is what
+normally removes them, but that delete is `continueRegularOutput` - if it fails,
+the buttons survive, and this ledger is what still holds the line.
+
+A revised preview has different cards, so a different hash, so it is decidable
+again. The rejected version stays on record as rejected for good.
+
+Note the two ledgers answer different questions and both are needed:
+`weekly_infographic_decisions` is per version and stops contradictory taps;
+`weekly_infographic_published` is per week and stops the channel getting the
+same week twice, whatever the version.
