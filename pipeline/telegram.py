@@ -112,6 +112,34 @@ def copy_message(from_chat_id, message_id, to_chat_id, caption, token=None,
                   "parse_mode": "HTML"}, token)
 
 
+def listener(token=None):
+    """Describe what, if anything, will receive a button tap.
+
+    A tap is delivered one of two ways and never both: pushed to a registered
+    webhook (the n8n listener), or pulled with getUpdates (the repo's own
+    `approval`). Nothing in Telegram reports a webhook that has quietly gone
+    away - n8n can hold a workflow "active" while its registration is missing,
+    and then the buttons render, the tap goes nowhere, and no error is raised
+    anywhere. Print this after sending so the state is on the record.
+    """
+    try:
+        info = _call("getWebhookInfo", {}, token)["result"]
+    except Exception as e:
+        return f"unknown ({type(e).__name__}: {e})"
+    url = info.get("url") or ""
+    if not url:
+        return ("none registered - a tap queues for 24h and is collected by "
+                "`approval`; the n8n listener is NOT attached")
+    host = url.split("/")[2] if "//" in url else url
+    note = f"webhook -> {host}"
+    if info.get("last_error_message"):
+        note += (f" (LAST DELIVERY FAILED: {info['last_error_message']} at "
+                 f"{info.get('last_error_date')})")
+    if info.get("pending_update_count"):
+        note += f" ({info['pending_update_count']} update(s) pending)"
+    return note
+
+
 def send_photo(png_path, chat_id, caption, token=None, dry_run=True, buttons=None):
     """Post the PNG. Returns the API response, or the planned request if dry.
 

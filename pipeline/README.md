@@ -176,7 +176,24 @@ so the repo's `approval` command stops collecting taps the moment n8n goes live.
 That is the trade: instant, always-on publishing, at the cost of the repo no
 longer being able to see a tap. Run one or the other, not both.
 
-The workflow is **active** as of 2026-08-27. The webhook is registered with
+**Known fault (2026-08-28): the n8n listener does not stay registered.** After
+`publish`, `getWebhookInfo` shows the webhook for roughly 15 seconds and it is
+gone by 45 - reproducibly, every time - while n8n continues to report the
+workflow as `active: true` with `triggerCount: 1` and records no executions.
+Something in n8n tears the registration down without clearing the active flag.
+Until that is diagnosed in the n8n UI and logs, the workflow is left
+**unpublished** and the repo's `approval` + `publish` path is the only route to
+the channel. Do not run both: each keeps its own ledger, so a week published
+through one is invisible to the other's double-publish guard.
+
+`preview` now prints a `listener:` line after sending, naming the webhook host
+or saying none is registered. That line is the only thing that makes this
+failure visible - it is silent everywhere else.
+
+The paragraph below describes the intended arrangement, once n8n holds its
+registration.
+
+The workflow was **active** as of 2026-08-27. The webhook is registered with
 `allowed_updates: ["callback_query"]`, so only button taps are routed to it -
 the daily drip, which only sends, is unaffected.
 

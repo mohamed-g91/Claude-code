@@ -213,3 +213,34 @@ def test_warnings_catch_a_dropped_polarity_word():
     # A card that keeps the polarity word in place is not flagged for it.
     plain = "Amiodarone 300 mg is given after the third shock."
     assert gate.warnings(plain, "Amiodarone 300 mg is given after the third shock.") == []
+
+
+def test_listener_reports_a_missing_webhook(monkeypatch):
+    """n8n can hold a workflow active while its webhook registration is gone.
+    Nothing raises; the buttons just stop working. preview must say so."""
+    monkeypatch.setattr(telegram, "_call", lambda *a, **k: {"result": {"url": ""}})
+    assert "none registered" in telegram.listener()
+    assert "NOT attached" in telegram.listener()
+
+
+def test_listener_names_the_webhook_host(monkeypatch):
+    monkeypatch.setattr(telegram, "_call", lambda *a, **k: {
+        "result": {"url": "https://n8n.example.com/webhook/abc/webhook"}})
+    assert "n8n.example.com" in telegram.listener()
+
+
+def test_listener_surfaces_a_failed_delivery(monkeypatch):
+    monkeypatch.setattr(telegram, "_call", lambda *a, **k: {"result": {
+        "url": "https://n8n.example.com/webhook/abc/webhook",
+        "last_error_message": "Connection refused", "pending_update_count": 3}})
+    out = telegram.listener()
+    assert "LAST DELIVERY FAILED" in out and "Connection refused" in out
+    assert "3 update(s) pending" in out
+
+
+def test_listener_never_raises(monkeypatch):
+    """It runs after a successful send; it must not turn one into a failure."""
+    def boom(*a, **k):
+        raise RuntimeError("getWebhookInfo failed: 500")
+    monkeypatch.setattr(telegram, "_call", boom)
+    assert telegram.listener().startswith("unknown")

@@ -240,6 +240,8 @@ def cmd_preview(args):
         for f in c.get("flags", []):
             print(f"[REVIEW] {c['topic']}: {f}", file=sys.stderr)
     print(_sent_summary(out, "preview"))
+    if args.send:
+        print(f"listener: {telegram.listener()}")
     return 0
 
 
