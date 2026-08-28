@@ -348,7 +348,33 @@ the `at` recorded for that week in `state/preview_log.json`, and acts only when
 the feedback is newer than the last preview. That is why step 7 commits
 preview_log.json - skip the commit and the next run rebuilds the same week.
 
-**Cadence.** Hourly is the platform minimum for a routine, so a revised preview
-arrives within the hour, not instantly. That is 168 sessions a week, nearly all
-of them a single Notion query and an exit. If that proves expensive against the
-usage limit, widen the cron rather than removing it.
+
+## The review loop, and why it is not a poll
+
+Polling hourly forever to catch an event that matters for a few hours a week is
+the wrong shape, so nothing polls. The check is a single routine armed one
+firing at a time:
+
+    weekly build sends the preview
+      -> arms the check for +1h
+    check fires:
+      approved            -> report, do NOT re-arm. The loop ends here.
+      feedback, unapplied -> rebuild, resend with new buttons, commit, re-arm +1h
+      still undecided     -> re-arm +1h, quietly
+      undecided > 48h     -> stop without re-arming; Friday's build supersedes it
+
+So a week that is approved in ten minutes costs one check. A week that needs two
+revisions costs a handful. A week that is ignored costs 48 at most and then goes
+quiet by itself. Nothing runs while no week is under review.
+
+Re-arming is the loop. A firing that neither approves nor re-arms ends it
+silently, which is why the routine is told to say so loudly if the
+`update_trigger` tool is unavailable to it.
+
+The check reads Notion only, so n8n mirrors **both** outcomes there: a rejection
+as Status "New" with the comment, an approval as Status "Approved". Without the
+approval mirror the check could see a rejection but never an ending, and would
+re-arm for a week already on the channel.
+
+Two ledgers still answer their own questions inside n8n; Notion is only the
+bridge outward, because routine sessions cannot read n8n data tables.
