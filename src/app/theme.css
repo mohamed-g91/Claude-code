@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Calm clinical palette. Green/red are reserved strictly for answer
+   feedback — nowhere else in the UI. */
+:root {
+  --color-surface: 248 250 252; /* slate-50 */
+  --color-surface-alt: 255 255 255;
+  --color-ink: 15 23 42; /* slate-900 */
+  --color-ink-muted: 100 116 139; /* slate-500 */
+  --color-border: 226 232 240; /* slate-200 */
+  --color-accent: 37 99 235; /* blue-600 */
+  --color-accent-ink: 255 255 255;
+  --color-good: 22 163 74; /* green-600 */
+  --color-bad: 220 38 38; /* red-600 */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-surface: 2 6 23; /* slate-950 */
+    --color-surface-alt: 15 23 42; /* slate-900 */
+    --color-ink: 241 245 249; /* slate-100 */
+    --color-ink-muted: 148 163 184; /* slate-400 */
+    --color-border: 30 41 59; /* slate-800 */
+    --color-accent: 96 165 250; /* blue-400 */
+    --color-accent-ink: 2 6 23;
+    --color-good: 74 222 128;
+    --color-bad: 248 113 113;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-surface: 2 6 23;
+  --color-surface-alt: 15 23 42;
+  --color-ink: 241 245 249;
+  --color-ink-muted: 148 163 184;
+  --color-border: 30 41 59;
+  --color-accent: 96 165 250;
+  --color-accent-ink: 2 6 23;
+  --color-good: 74 222 128;
+  --color-bad: 248 113 113;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--color-surface));
+  color: rgb(var(--color-ink));
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+/* Sanitised question/answer HTML gets sensible spacing without a full
+   typography plugin. */
+.prose-content p {
+  margin: 0 0 0.6em 0;
+}
+.prose-content p:last-child {
+  margin-bottom: 0;
+}
+.prose-content ul {
+  margin: 0.4em 0 0.6em 1.2em;
+  list-style: disc;
+}
+.prose-content b,
+.prose-content strong {
+  font-weight: 600;
+}
