@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "generatedBy": "sync-notion.mjs --dry-run (fixture)",
+  "specialties": [
+    {
+      "specialty": "cardiology",
+      "label": "Cardiology",
+      "contentFile": "content/cardiology.v1.json",
+      "playFile": "content/cardiology.play.v1.json",
+      "questionCount": 86,
+      "groups": [
+        "Ischaemic",
+        "Arrhythmia",
+        "Valvular",
+        "Heart failure",
+        "Congenital",
+        "Cardiac pharmacology",
+        "Vascular & PE",
+        "Pericardial & myocardial"
+      ]
+    }
+  ]
+}

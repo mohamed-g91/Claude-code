@@ -1,0 +1,11 @@
+[
+  {
+    "specialty": "cardiology",
+    "label": "Cardiology",
+    "dataSourceUrl": "collection://f414ac8e-de76-825a-a2cb-07e5e023e6bc",
+    "databaseName": "Cardio V3",
+    "fixture": "scripts/fixtures/notion-raw.json",
+    "outputFile": "cardiology.v1.json",
+    "playOutputFile": "cardiology.play.v1.json"
+  }
+]
