@@ -100,6 +100,19 @@ function validate(rows, questions, unmappedTopics, sourceLabel) {
   console.log(`  missing keys:   ${missingKeys.length}`);
   console.log(`  unmapped topics:${unmappedTopics.length}`);
 
+  // Rows whose source text in Notion carries mangled auto-links. The normaliser
+  // repairs these for display, but the underlying Notion page is still wrong and
+  // is worth fixing at source — so name the rows rather than silently papering over.
+  const mangledInSource = rows
+    .filter((r) =>
+      ['Question', 'Answer', 'MRCP Pearl'].some((f) => typeof r[f] === 'string' && /\(\[https?:\/\//.test(r[f]))
+    )
+    .map((r) => r.Name);
+  if (mangledInSource.length > 0) {
+    console.log(`  mangled links in Notion source (repaired on import, fix at source): ${mangledInSource.length}`);
+    for (const name of mangledInSource) console.log(`    - ${name}`);
+  }
+
   return problems;
 }
 

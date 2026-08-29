@@ -123,7 +123,13 @@ export default function BucketMatchMode({ bundle, storage }: BucketMatchModeProp
         <p className="mb-3 text-sm text-ink-muted">
           Tap a tile, then tap a bucket — or drag it straight in.
         </p>
-        <div className="mb-5 flex flex-wrap gap-2" data-testid="tile-pool">
+        {/* The tile pool scrolls within a bounded area and the buckets stay pinned
+            below it, so a drop target is always on screen. Without this the nine
+            tiles push all three buckets below the fold and dragging is unusable. */}
+        <div
+          className="mb-3 flex max-h-[40vh] flex-wrap gap-2 overflow-y-auto overscroll-contain"
+          data-testid="tile-pool"
+        >
           {pool
             .filter((t) => !placements[t.id])
             .map((tile) => (
@@ -137,7 +143,7 @@ export default function BucketMatchMode({ bundle, storage }: BucketMatchModeProp
             ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        <div className="sticky bottom-0 grid grid-cols-3 gap-2 bg-surface pb-1 pt-2">
           {round.buckets.map((bucket) => (
             <DropBucket key={bucket.group} id={bucket.group} label={bucket.group} onTapPlace={() => handleTapBucket(bucket.group)}>
               {pool

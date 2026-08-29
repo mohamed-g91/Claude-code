@@ -13,8 +13,10 @@ export default function ExplanationPanel({ isCorrect, correctAnswerText, explana
       data-testid="explanation-panel"
       data-correct={isCorrect}
     >
+      {/* "Not quite — Cannon a waves" read as though the correct answer were the
+          wrong one. Name what the answer *is* on the miss path. */}
       <p className={`text-sm font-semibold ${isCorrect ? 'text-good' : 'text-bad'}`}>
-        {isCorrect ? 'Correct' : 'Not quite'} — {correctAnswerText}
+        {isCorrect ? `Correct — ${correctAnswerText}` : `Not quite. The answer is ${correctAnswerText}`}
       </p>
       <div
         className="prose-content mt-2 text-sm text-ink"

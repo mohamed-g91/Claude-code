@@ -55,6 +55,46 @@ export function stripAnswerPrefix(answerHtml) {
   return stripped.trim();
 }
 
+/**
+ * Repairs link mangling that is present in the Notion source itself (D070,
+ * D071, D081 as of this writing) — not introduced by extraction. An
+ * auto-linking pass there produced:
+ *
+ *   [text](url) ([url)CHUNK](url)CHUNK) rest…
+ *
+ * where CHUNK is a duplicated run of the HTML that followed. The backreference
+ * means this only rewrites when the chunk genuinely repeats, so well-formed
+ * content is never touched. Surviving markdown links become anchors, since the
+ * rest of the field is HTML. `repairedLinks` rows are reported by the sync so
+ * they can be fixed at source in Notion.
+ */
+export function repairMangledLinks(html) {
+  if (html === null || html === undefined) return html;
+  let out = String(html);
+  out = out.replace(/\s*\(\[https?:\/\/[^)\]]*\)([\s\S]*?)\]\([^)]*\)\1\)/g, '$1');
+  out = out.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+  return out;
+}
+
+/**
+ * Removes artifacts of the Telegram drip that the content was originally
+ * written for. These are posting furniture, not revision content, and they
+ * appear on nearly every row: a trailing "#MRCP #Question" / "#MRCP #Answer"
+ * / "#MRCP #Pearl" hashtag line, and a lone "❓" marker paragraph opening the
+ * vignette. Stripped here rather than in the fixture so the fixture stays a
+ * verbatim copy of Notion and re-syncing cannot reintroduce them.
+ */
+export function stripTelegramArtifacts(html) {
+  if (html === null || html === undefined) return html;
+  let out = String(html);
+  out = out.replace(/<p>\s*(?:#\w+\s*)+<\/p>\s*$/i, '');
+  out = out.replace(/^\s*<p>\s*(?:❓|💡|🏷️)\s*<\/p>\s*/u, '');
+  return out.trim();
+}
+
 function isBlank(value) {
   return value === null || value === undefined || String(value).trim() === '';
 }
@@ -93,13 +133,13 @@ export function normaliseRow(row, topicGroupMap = {}) {
     group,
     status: row.Status ?? '',
     questionStem: String(row['Question stem'] ?? '').trim(),
-    questionHtml: incomplete ? null : String(questionHtmlRaw).trim(),
+    questionHtml: incomplete ? null : stripTelegramArtifacts(repairMangledLinks(String(questionHtmlRaw))),
     incomplete,
     options,
     correctAnswer,
     correctAnswerText: correctOption ? correctOption.text : '',
-    explanationHtml: stripAnswerPrefix(row.Answer),
-    pearlHtml: String(row['MRCP Pearl'] ?? '').trim()
+    explanationHtml: stripTelegramArtifacts(repairMangledLinks(stripAnswerPrefix(row.Answer))),
+    pearlHtml: stripTelegramArtifacts(repairMangledLinks(String(row['MRCP Pearl'] ?? '')))
   };
 }
 

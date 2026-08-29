@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { parseTopicString, toPageId, stripAnswerPrefix, normaliseRow, normaliseAll } from './normalise.mjs';
+import { parseTopicString, toPageId, stripAnswerPrefix, stripTelegramArtifacts, repairMangledLinks, normaliseRow, normaliseAll } from './normalise.mjs';
 import topicGroups from '../topic-groups.json' with { type: 'json' };
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -157,5 +157,82 @@ describe('normaliseAll against the full 86-row fixture', () => {
 
   it('throws in strict mode if a topic is deliberately unmapped', () => {
     expect(() => normaliseAll(fixtureRows, {}, { strict: true })).toThrow(/unmapped/i);
+  });
+});
+
+// Regression: the Notion view-mode extraction path substituted a literal <br> for every
+// source newline, so `</p>\n<p>` arrived as `</p><br><p>` and rendered double-spaced.
+// Verified against a direct SQL query of the same rows, which returns real newlines.
+describe('fixture fidelity to the Notion source', () => {
+  it('carries no literal <br> tags — source newlines must stay newlines', () => {
+    const offenders = fixtureRows
+      .filter((r) =>
+        ['Question', 'Answer', 'MRCP Pearl', 'Question stem', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5']
+          .some((f) => typeof r[f] === 'string' && r[f].includes('<br>')),
+      )
+      .map((r) => r.Name);
+    expect(offenders).toEqual([]);
+  });
+
+  it('matches SQL-verified text for D019 and D021 byte for byte', () => {
+    expect(rowByName('D019').Answer).toContain(
+      '<p>✅ <b>Answer: E. Insert an inferior vena caval filter</b></p>\n<p><b>Why this is correct</b></p>',
+    );
+    expect(rowByName('D021').Answer).toContain(
+      '<p>✅ <b>Answer: C. Bradykinin</b></p>\n<p><b>Why this is correct</b></p>',
+    );
+  });
+
+  it('preserves HTML entities rather than unescaping them into stray tags', () => {
+    expect(rowByName('D016').Question).toContain('<b>CRP</b> 78 mg/L (&lt; 5)');
+  });
+});
+
+describe('Telegram artifact stripping', () => {
+  it('removes the trailing hashtag line and the lone marker paragraph', () => {
+    expect(stripTelegramArtifacts('<p>❓</p><p>A vignette.</p><p>#MRCP #Question</p>')).toBe('<p>A vignette.</p>');
+    expect(stripTelegramArtifacts('<p>Because X.</p><p>#MRCP #Answer</p>')).toBe('<p>Because X.</p>');
+  });
+
+  it('leaves a hashtag that is part of real prose alone', () => {
+    const kept = '<p>Grade #3 murmur on examination.</p>';
+    expect(stripTelegramArtifacts(kept)).toBe(kept);
+  });
+
+  it('clears every artifact across the whole bank', () => {
+    const { questions } = normaliseAll(fixtureRows, topicGroups.map, { strict: false });
+    const leaks = questions.filter((q) =>
+      ['questionHtml', 'explanationHtml', 'pearlHtml'].some((f) => (q[f] || '').includes('#MRCP')),
+    );
+    expect(leaks.map((q) => q.name)).toEqual([]);
+  });
+});
+
+// The Notion source itself carries mangled auto-links on D070/D071/D081, where a
+// markdown link is followed by a parenthesised duplicate of the HTML after it.
+describe('repairMangledLinks', () => {
+  it('collapses the duplicated chunk and keeps one copy', () => {
+    const mangled = '[t](http://x) ([http://x)</li></ul><p>#MRCP](http://x)</li></ul><p>#MRCP) #Answer</p>';
+    const out = repairMangledLinks(mangled);
+    expect(out).toBe('<a href="http://x" target="_blank" rel="noopener noreferrer">t</a></li></ul><p>#MRCP #Answer</p>');
+  });
+
+  it('does not rewrite a well-formed markdown link beyond turning it into an anchor', () => {
+    expect(repairMangledLinks('see [docs](https://e.com) now')).toBe(
+      'see <a href="https://e.com" target="_blank" rel="noopener noreferrer">docs</a> now',
+    );
+  });
+
+  it('leaves content with no links untouched', () => {
+    const plain = '<p>No links here (just parentheses).</p>';
+    expect(repairMangledLinks(plain)).toBe(plain);
+  });
+
+  it('leaves no raw markdown links anywhere in the bank', () => {
+    const { questions } = normaliseAll(fixtureRows, topicGroups.map, { strict: false });
+    const leaks = questions.filter((q) =>
+      ['questionHtml', 'explanationHtml', 'pearlHtml'].some((f) => (q[f] || '').includes('](http')),
+    );
+    expect(leaks.map((q) => q.name)).toEqual([]);
   });
 });
