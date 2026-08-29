@@ -1,0 +1,10 @@
+weekly-infographic/weekly_dark.html
+weekly-infographic/weekly_light.html
+weekly-infographic/weekly_dark.png
+weekly-infographic/weekly_light.png
+__pycache__/
+work/
+/content.js
+/weekly_*.html
+/weekly_*.png
+weekly-infographic/content.js

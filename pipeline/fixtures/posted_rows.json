@@ -1,0 +1,312 @@
+{
+ "object": "list",
+ "has_more": false,
+ "results": [
+  {
+   "object": "page",
+   "id": "9c34ac8e-de76-8291-bdb8-014d430d0afc",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-15"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Prosthetic heart valves,Pericarditis"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p><p><b>Mechanical valves require a vitamin K antagonist.</b> DOACs are contraindicated — they were inferior in trial and carry excess thrombosis and bleeding in this setting.</p><p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "6c54ac8e-de76-832b-b326-81b0d15241f6",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-17"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Pulmonary arterial hypertension,Prosthetic heart valves"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p><p><b>Pulmonary hypertension is now mean PAP &gt;20 mmHg at rest.</b> <p>Calling it arterial additionally requires</p> <b>PVR &gt;2 Wood units</b> and a <b>wedge pressure ≤15 mmHg</b>.</p><p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "5fc4ac8e-de76-83dc-939c-014eaf01cf37",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-18"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Pulmonary embolism,Pulmonary arterial hypertension"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p><p><b>Topic: Cardiology, Pulmonary embolism</b></p><p></p><p><b>💎 The Pearl</b></p><p><b>Apixaban or rivaroxaban are first-line</b> for confirmed PE and DVT — no lead-in heparin needed, unlike dabigatran and edoxaban which require 5 days of LMWH first.</p><p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "93b4ac8e-de76-83ad-81ef-01dc7d0cae4e",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-19"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Ventricular tachycardia,Pulmonary embolism"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p><p><b>Topic: Cardiology, Ventricular tachycardia</b></p><p></p><p><b>💎 The Pearl</b></p><p><b>Broad-complex tachycardia — features that mean ventricular, not aberrancy:</b></p><ul><li><b>AV dissociation</b> (independent P waves; cannon a waves)</li><li><b>Capture and fusion beats</b></li><li><b>Positive or negative concordance</b> across the chest leads</li><li>QRS <b>&gt;160 ms</b>, extreme axis</li></ul><p>Structural heart disease or previous MI makes VT overwhelmingly likely — treat broad-complex tachycardia as VT until proven otherwise.</p><p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "7444ac8e-de76-8337-a772-81406c6f4e19",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-20"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,ACE inhibitors,Ventricular tachycardia"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p>\n<p><b>Topic: Cardiology, ACE inhibitors</b></p>\n<p /></p>\n<p><b>💎 The Pearl</b></p>\n<p><b>Core rule</b> — ACE inhibitor cough (and angioedema) is <b>bradykinin‑mediated</b>.</p>\n<p><b>Do</b> — Stop the ACE inhibitor; switch to an <b>ARB</b> if RAAS blockade is still needed.</p>\n<p><b>Avoid / trap</b> — Don’t mis-treat it as allergy/asthma; it’s not histamine‑mediated.</p>\n<p><b>Memory hook</b> — “ACE breaks down bradykinin; block ACE → bradykinin builds up.”</p>\n<p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "cbd4ac8e-de76-82bc-be8c-01330f398cd1",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-21"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Adrenaline,ACE inhibitors"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p>\n<p><b>Topic: Cardiology, Adrenaline</b></p>\n<p></p>\n<p><b>💎 The Pearl</b></p>\n<p>Adrenaline timing in cardiac arrest depends on the rhythm:</p>\n<p>- <b>Non-shockable</b> — give <b>1 mg (10 mL of 1:10,000)</b> IV as soon as possible.</p>\n<p>- <b>Shockable</b> — hold until after the <b>3rd shock</b>.</p>\n<p>- Repeat every <b>3–5 minutes</b> in both cases.</p>\n<p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "dd64ac8e-de76-8329-9ff5-01e98a3b6a05",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-22"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Adenosine diphosphate (ADP) receptor inhibitors,Adrenaline"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p>\n<p><b>Topic: Cardiology, Adenosine diphosphate (ADP) receptor inhibitors</b></p>\n<p></p>\n<p><b>💎 The Pearl</b></p>\n<p>Three P2Y12 inhibitors, three distinguishing features:</p>\n<p>- <b>Clopidogrel</b> — a prodrug needing <b>CYP2C19</b> activation; loss-of-function variants blunt its effect.</p>\n<p>- <b>Ticagrelor</b> — reversible binding, not a prodrug; causes <b>dyspnoea</b> and <b>bradycardia</b>.</p>\n<p>- <b>Prasugrel</b> — contraindicated after <b>stroke/TIA</b>; caution from age 75 due to bleeding risk.</p>\n<p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "e134ac8e-de76-827b-a538-811a5380413a",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-23"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Adult advanced life support,Adenosine diphosphate (ADP) receptor inhibitors"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p> <p><b>Topic: Cardiology, Adult advanced life support</b></p> <p /></p> <p><b>💎 The Pearl</b></p> <p>- In refractory VF/pulseless VT, give <b>amiodarone 300 mg</b> after the <b>third shock</b>, with a further <b>150 mg</b> after the <b>fifth shock</b>.</p> <p>- <b>Lidocaine 100 mg</b> is the alternative if amiodarone is unavailable.</p> <p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  },
+  {
+   "object": "page",
+   "id": "a214ac8e-de76-82c6-b88c-01b8ac14a837",
+   "properties": {
+    "Post date": {
+     "type": "date",
+     "date": {
+      "start": "2026-08-24"
+     }
+    },
+    "Topic": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "Cardiology,Amiodarone,Adult advanced life support"
+      }
+     ]
+    },
+    "MRCP Pearl": {
+     "type": "rich_text",
+     "rich_text": [
+      {
+       "plain_text": "<p>💡</p> <p><b>Topic: Cardiology, Amiodarone toxicity</b></p> <p /></p> <p><b>💎 The Pearl</b></p> <p><b>Amiodarone toxicity</b> — organ by organ:</p> <p>- <b>Thyroid</b>: both hypo- and hyperthyroidism (it's an iodine-rich molecule)</p> <p>- <b>Lung</b>: pneumonitis progressing to fibrosis</p> <p>- <b>Liver</b>: transaminitis, occasionally hepatitis</p> <p>- <b>Eye</b>: corneal microdeposits (usually benign), optic neuropathy</p> <p>- <b>Skin</b>: photosensitivity, slate-grey discolouration</p> <p>Its half-life runs to <b>weeks</b>, so effects and interactions persist long after stopping.</p> <p>#MRCP #Pearl</p>"
+      }
+     ]
+    },
+    "Status": {
+     "type": "select",
+     "select": {
+      "name": "Posted"
+     }
+    }
+   }
+  }
+ ]
+}

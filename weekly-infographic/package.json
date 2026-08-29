@@ -1,0 +1,9 @@
+{
+  "name": "weekly-infographic",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "render": "python3 build.py --content week.json && node shoot.mjs weekly_dark weekly_light"
+  }
+}
