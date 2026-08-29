@@ -345,36 +345,75 @@ data table, so a Notion failure must not cost the acknowledgement.
 **There is no "handled" flag.** The routine has read-only Notion access, so it
 cannot mark a row Applied. Instead it compares the row's `Received at` against
 the `at` recorded for that week in `state/preview_log.json`, and acts only when
-the feedback is newer than the last preview. That is why step 7 commits
-preview_log.json - skip the commit and the next run rebuilds the same week.
+the feedback is newer than the last preview. That is why both routines push
+preview_log.json - skip the push and the next firing rebuilds the same week.
 
 
-## The review loop, and why it is not a poll
+## The review loop, and why it is a window rather than a chain
 
 Polling hourly forever to catch an event that matters for a few hours a week is
-the wrong shape, so nothing polls. The check is a single routine armed one
-firing at a time:
+the wrong shape. The right shape is a chain: the weekly build arms one check an
+hour after the preview, and each firing re-arms itself until the week is
+approved. A week approved in ten minutes costs one check; an ignored week stops
+on its own.
 
-    weekly build sends the preview
-      -> arms the check for +1h
-    check fires:
-      approved            -> report, do NOT re-arm. The loop ends here.
-      feedback, unapplied -> rebuild, resend with new buttons, commit, re-arm +1h
-      still undecided     -> re-arm +1h, quietly
-      undecided > 48h     -> stop without re-arming; Friday's build supersedes it
+That design cannot be built here, and the reason is worth recording because it
+is invisible from the outside. A routine-fired session is given this tool set
+and nothing else:
 
-So a week that is approved in ten minutes costs one check. A week that needs two
-revisions costs a handful. A week that is ignored costs 48 at most and then goes
-quiet by itself. Nothing runs while no week is under review.
+    preset:default, Task, Bash, Glob, Grep, Read, Edit, MultiEdit, Write,
+    NotebookEdit, WebFetch, TodoWrite, WebSearch, BashOutput, KillBash, Skill,
+    Tmux, Monitor, SendUserFile, REPL
 
-Re-arming is the loop. A firing that neither approves nor re-arms ends it
-silently, which is why the routine is told to say so loudly if the
-`update_trigger` tool is unavailable to it.
+No MCP servers are attached, so `update_trigger` is not reachable from inside a
+firing. Nothing a routine does can schedule the next one. This is visible in
+`list_triggers` under `job_config.ccr.session_context.allowed_tools`; the daily
+Cardio V3 routine does carry a Notion connector, so routines *can* hold MCP
+connections, but `claude-code-remote` is the harness's own server and is not
+attachable as one.
+
+So the check runs on a window instead:
+
+    0 20-23,6-16 * * 5,6
+
+    Friday build sends the preview at 19:00 UTC (20:00 once Cairo is UTC+2)
+    check fires hourly through the window:
+      approved            -> stop, one line. The resting state.
+      feedback, unapplied -> rebuild, resend with new buttons, commit, push
+      still undecided     -> stop quietly
+      undecided > 48h     -> stop; Friday's build supersedes it
+
+30 firings a week against 168 for a plain hourly poll, and nothing at all Sunday
+to Thursday. Cron cannot vary hours by day in one expression, so Friday daytime
+and Saturday night are covered too even though no decision arrives then; those
+firings reach the decision step, find the week settled, and stop in one line.
+The alternative was a second routine for the second window, but a trigger
+created through the MCP tool does not inherit the repository source the existing
+one carries, so that second window would have fired into a session with no
+clone. One proven trigger beats two where one is silently misconfigured.
+
+The window starts at 20:00 UTC, which is an hour after the preview in summer and
+an hour after it in winter too, so the DST shift needs no second edit.
+
+The procedure itself lives in `pipeline/REVIEW_CHECK.md` rather than in the
+trigger prompt, so it can be corrected with a commit instead of an API call, and
+so this README and the thing that actually runs cannot drift apart.
+
+**What replaces re-arming as the safety property.** In the chain design, a
+firing that neither approved nor re-armed ended the loop silently. On a window
+the failure mode inverts: the danger is not stopping but repeating, because
+every firing is unconditional. The guard is that a comment is applied only when
+its `Received at` is strictly later than the week's `at` in
+`state/preview_log.json`. Push the new timestamp after a resend and the same
+comment can never be applied twice; fail to push it and the week is resent every
+hour until the window closes. That is why both routines are told to confirm the
+push landed and to lead with it if it did not.
 
 The check reads Notion only, so n8n mirrors **both** outcomes there: a rejection
 as Status "New" with the comment, an approval as Status "Approved". Without the
-approval mirror the check could see a rejection but never an ending, and would
-re-arm for a week already on the channel.
+approval mirror the check could see a rejection but never an ending, and every
+firing in the window would keep looking for work on a week already on the
+channel.
 
 Two ledgers still answer their own questions inside n8n; Notion is only the
 bridge outward, because routine sessions cannot read n8n data tables.
