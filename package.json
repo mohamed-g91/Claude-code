@@ -5,15 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "sync": "node scripts/sync-notion.mjs",
     "sync:dry": "node scripts/sync-notion.mjs --dry-run",
-    "generate": "node scripts/lib/generate-play-items.mjs",
-    "lint": "eslint ."
+    "generate": "node scripts/lib/generate-play-items.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
