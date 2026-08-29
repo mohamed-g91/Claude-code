@@ -343,6 +343,49 @@ def _settled_caption(old, verdict):
     return f"{body}\n{verdict}"
 
 
+def cmd_record(args):
+    """Write a decision the check routine read in Notion into the local ledgers.
+
+    The routine learns the outcome from Notion, never from Telegram, and it must
+    not run `approval` to record it: that calls getUpdates, and a bot has one
+    update consumer, so polling would take the slot the n8n webhook needs and
+    swallow the taps. This records the same facts and touches Telegram not at
+    all.
+
+    An approval implies a publish. n8n mirrors an approval to Notion from the
+    node *after* `Confirm Published`, so an Approved row cannot exist unless the
+    channel post already succeeded. Recording the approval alone would leave
+    `approved()` true while `already_published()` stayed false - precisely the
+    state in which a stray `publish --send` puts a second copy on the channel.
+    So the two are written together or not at all.
+    """
+    entry = state.load_preview_log().get(str(args.week))
+    if not entry:
+        print(f"week {args.week} was never previewed, so there is no version for "
+              f"a decision to attach to.", file=sys.stderr)
+        return state.NOT_APPROVED
+    digest = entry["cards_hash"]
+
+    # Mutual exclusion, enforced locally as well as in n8n: a version that was
+    # rejected can never later be approved, and vice versa. A genuine change of
+    # mind arrives as a rebuild, which hashes differently and is a new version.
+    prior = state.load_approvals().get(str(args.week))
+    if prior and prior.get("cards_hash") == digest \
+            and prior.get("decision") != args.decision:
+        print(f"week {args.week} is already recorded as '{prior['decision']}' for "
+              f"these exact cards; refusing to flip it to '{args.decision}'. "
+              f"A different decision needs a new version.", file=sys.stderr)
+        return state.NOT_APPROVED
+
+    state.record_approval(args.week, digest, args.decision, by=args.by)
+    also = ""
+    if args.decision == "ok" and not state.already_published(args.week):
+        state.record_published(args.week, digest, args.channel_message_id)
+        also = " · recorded as published"
+    print(f"week {args.week}: {args.decision} (by {args.by}){also}")
+    return 0
+
+
 def cmd_preflight(args):
     """Run every environment check and report the first failure by exit code."""
     series = state.preflight(need_telegram=True, need_render=True, network=not args.offline)
@@ -382,6 +425,17 @@ def main():
     p.set_defaults(fn=cmd_approval)
     p.add_argument("--wait", type=int, default=0, metavar="SECONDS",
                    help="long-poll this long for a tap (0 = take what is queued)")
+
+    # `record` is how the unattended check writes down a decision it read in
+    # Notion. `approval` reads Telegram; this one never does.
+    p = sub.add_parser("record", help="write a decision read in Notion into the ledgers")
+    p.set_defaults(fn=cmd_record)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--decision", choices=["ok", "no"], required=True)
+    p.add_argument("--by", default="notion mirror")
+    p.add_argument("--channel-message-id", dest="channel_message_id",
+                   type=int, default=0,
+                   help="the channel post n8n made, if the mirror row names it")
 
     p = sub.add_parser("publish", help="post to the channel; requires a matching preview")
     p.set_defaults(fn=cmd_publish)

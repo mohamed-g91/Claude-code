@@ -1,6 +1,7 @@
 """The anchor and the ledgers - the state that has to survive between runs."""
 import datetime as dt
 import json
+import pathlib
 
 import pytest
 import state
@@ -207,3 +208,90 @@ def test_offset_survives_alongside_approvals(tmp_path, monkeypatch):
     state.record_update_offset(12345)
     assert state.load_update_offset() == 12345
     assert state.approved(2, "aaaaaaaaaaaaaaaa")
+
+
+# --------------------------------------------------------------------------
+# `record` - the check routine writing down what it read in Notion
+# --------------------------------------------------------------------------
+
+def _ledgers(tmp_path, monkeypatch):
+    """Point every ledger at a scratch dir and preview week 1."""
+    import weekly
+    monkeypatch.setattr(state, "PREVIEW_FILE", tmp_path / "preview_log.json")
+    monkeypatch.setattr(state, "APPROVAL_FILE", tmp_path / "approvals.json")
+    monkeypatch.setattr(state, "SENT_FILE", tmp_path / "sent_weeks.json")
+    state.record_preview(1, "hash-v1", 785)
+    return weekly
+
+
+def _args(**kw):
+    import argparse
+    base = {"week": 1, "decision": "ok", "by": "notion mirror",
+            "channel_message_id": 0}
+    base.update(kw)
+    return argparse.Namespace(**base)
+
+
+def test_recording_an_approval_also_records_the_publish(tmp_path, monkeypatch):
+    """approved() without already_published() is the double-post state.
+
+    n8n publishes before it mirrors the approval, so an Approved row means the
+    channel already has the image. Writing the approval alone would leave
+    publish's own guard open on a week that is already out.
+    """
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(channel_message_id=143)) == 0
+    assert state.approved(1, "hash-v1")
+    assert state.already_published(1)
+    assert state.load_sent_weeks()["1"]["message_id"] == 143
+
+
+def test_recording_a_rejection_does_not_mark_it_published(tmp_path, monkeypatch):
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(decision="no")) == 0
+    assert not state.approved(1, "hash-v1")
+    assert not state.already_published(1)
+
+
+def test_a_decision_cannot_be_flipped_on_the_same_cards(tmp_path, monkeypatch):
+    """Mutual exclusion, enforced locally too, not only in the n8n workflow."""
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(decision="no")) == 0
+    assert weekly.cmd_record(_args(decision="ok")) == state.NOT_APPROVED
+    assert not state.approved(1, "hash-v1")
+    assert not state.already_published(1)
+
+
+def test_a_rebuild_may_be_approved_after_its_predecessor_was_rejected(tmp_path,
+                                                                     monkeypatch):
+    """The revision is a new version, so the earlier 'no' does not bind it."""
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(decision="no")) == 0
+    state.record_preview(1, "hash-v2", 812)          # the resend
+    assert weekly.cmd_record(_args(decision="ok")) == 0
+    assert state.approved(1, "hash-v2")
+    assert not state.approved(1, "hash-v1")
+
+
+def test_recording_is_idempotent_when_a_push_was_lost(tmp_path, monkeypatch):
+    """A firing that recorded but failed to push is re-run by the next one."""
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(channel_message_id=143)) == 0
+    assert weekly.cmd_record(_args(channel_message_id=143)) == 0
+    assert state.load_sent_weeks()["1"]["message_id"] == 143
+
+
+def test_a_week_that_was_never_previewed_has_nothing_to_decide(tmp_path,
+                                                              monkeypatch):
+    weekly = _ledgers(tmp_path, monkeypatch)
+    assert weekly.cmd_record(_args(week=9)) == state.NOT_APPROVED
+    assert not state.load_approvals()
+
+
+def test_record_never_touches_telegram():
+    """`approval` polls getUpdates, which would fight the n8n webhook for the
+    bot's single update slot. `record` must reach the same ledgers without it."""
+    src = (pathlib.Path(__file__).resolve().parent.parent
+           / "pipeline" / "weekly.py").read_text()
+    body = src.split("def cmd_record(")[1].split("\ndef ")[0]
+    assert "telegram" not in body

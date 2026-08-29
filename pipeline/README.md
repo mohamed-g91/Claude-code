@@ -348,6 +348,29 @@ the `at` recorded for that week in `state/preview_log.json`, and acts only when
 the feedback is newer than the last preview. That is why both routines push
 preview_log.json - skip the push and the next firing rebuilds the same week.
 
+What it *can* write is the local ledger, with `weekly.py record`:
+
+    python3 pipeline/weekly.py record --week 1 --decision ok --channel-message-id 143
+
+`record` is how a decision read in Notion reaches `state/approvals.json` and
+`state/sent_weeks.json`. It exists because `approval`, the other way in, calls
+getUpdates - and a bot has one update consumer, so polling would take the slot
+the n8n webhook needs and swallow the taps it was meant to collect. `record`
+touches Telegram not at all; a test asserts the word does not appear in it.
+
+It writes the approval and the publish **together**. n8n mirrors an approval to
+Notion from the node after `Confirm Published`, so an Approved row cannot exist
+unless the channel post succeeded; recording the approval alone would leave
+`approved()` true while `already_published()` stayed false, which is exactly the
+state in which a stray `publish --send` puts a second copy on the channel. It
+also refuses to flip a decision on a version that already has one, so the mutual
+exclusion n8n enforces on the buttons holds locally too.
+
+This closes a real gap. n8n publishes through `copyMessage`, so before `record`
+existed nothing local ever learned a week had shipped: `sent_weeks.json` and
+`approvals.json` sat empty while week 1 was on the channel, and publish's own
+"already published" guard was blind to everything n8n had posted.
+
 
 ## The review loop, and why it is a window rather than a chain
 
