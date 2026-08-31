@@ -31,6 +31,11 @@ Two further rules the content follows:
 - **Marks persist.** Once you tap something it stays coloured, so the trail of
   what you tried is still on screen when you find the pivot. That trail is the
   useful part.
+- **The stem is prose.** Findings are clickable runs inside a flowing
+  paragraph, not a stacked list — a list of sentences reads as multiple choice,
+  which is the habit this is meant to break. Highlights use
+  `box-decoration-break: clone` so a sentence spanning two lines keeps one
+  unbroken highlight.
 
 ## Running it
 
@@ -42,6 +47,23 @@ npm run serve       # python3 -m http.server 8000
 ```
 
 then open http://127.0.0.1:8000.
+
+## Deploying
+
+`.github/workflows/pages.yml` builds and publishes to GitHub Pages. It runs the
+validator and the browser suite first, so a broken case cannot reach the live
+site. Only `index.html` and `src/` are published — the test harness is not.
+
+One setting has to be changed by hand, once:
+
+**Settings → Pages → Build and deployment → Source → GitHub Actions**
+
+The workflow then runs on every push to `main`, and can be triggered manually
+from any branch (Actions → Deploy to GitHub Pages → Run workflow) to preview
+before merging. The site lands at
+`https://mohamed-g91.github.io/Claude-code/`.
+
+All asset paths are relative, so the site works unchanged under that subpath.
 
 ## Content
 

@@ -18,7 +18,7 @@ const ROLE_LABEL = {
 const el = {
   meta: document.getElementById("meta"),
   prompt: document.getElementById("prompt"),
-  clauses: document.getElementById("clauses"),
+  stem: document.getElementById("stem"),
   feedback: document.getElementById("feedback"),
   resolution: document.getElementById("resolution"),
   next: document.getElementById("next"),
@@ -61,7 +61,7 @@ function renderCase() {
 
   // Reset every piece of per-case state. Forgetting the button here is how
   // the old version got permanently stuck on its end-of-deck label.
-  el.clauses.replaceChildren();
+  el.stem.replaceChildren();
   setFeedback("", null);
   el.resolution.replaceChildren();
   el.next.hidden = true;
@@ -71,13 +71,29 @@ function renderCase() {
   el.meta.textContent = `${c.topic}  ·  ${index + 1} of ${deck.cases.length}`;
   el.prompt.textContent = deck.prompt;
 
-  c.clauses.forEach((clause) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "clause";
-    btn.textContent = clause.text;
-    btn.addEventListener("click", () => selectClause(btn, clause, c));
-    el.clauses.appendChild(btn);
+  // Sentences flow into one paragraph, separated by ordinary spaces, so the
+  // stem reads the way a real stem reads.
+  c.clauses.forEach((clause, i) => {
+    const span = document.createElement("span");
+    span.className = "clause";
+    span.setAttribute("role", "button");
+    span.tabIndex = 0;
+    span.textContent = clause.text;
+
+    const choose = () => selectClause(span, clause, c);
+    span.addEventListener("click", choose);
+    span.addEventListener("keydown", (e) => {
+      // A real button responds to both; a span has to be told.
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        choose();
+      }
+    });
+
+    el.stem.appendChild(span);
+    if (i < c.clauses.length - 1) {
+      el.stem.appendChild(document.createTextNode(" "));
+    }
   });
 
   renderScore();
@@ -111,15 +127,15 @@ function renderScore() {
 
 /* ---------- interaction ---------- */
 
-function selectClause(btn, clause, c) {
+function selectClause(span, clause, c) {
   // Solved cases stay readable and focusable, but inert.
-  if (btn.getAttribute("aria-disabled") === "true") return;
+  if (span.getAttribute("aria-disabled") === "true") return;
 
   const record = progress[c.id] ?? (progress[c.id] = {});
   if (!record.firstAttempt) record.firstAttempt = clause.role;
 
-  btn.classList.remove("pivot", "contributory", "noise");
-  btn.classList.add(clause.role);
+  span.classList.remove("pivot", "contributory", "noise");
+  span.classList.add(clause.role);
   setFeedback(clause.feedback, clause.role);
 
   if (clause.role === "pivot") {
@@ -134,8 +150,8 @@ function selectClause(btn, clause, c) {
 }
 
 function lockCase() {
-  for (const btn of el.clauses.children) {
-    btn.setAttribute("aria-disabled", "true");
+  for (const span of el.stem.querySelectorAll(".clause")) {
+    span.setAttribute("aria-disabled", "true");
   }
 }
 
@@ -179,7 +195,7 @@ function showLoadError(err) {
     detail.textContent = err.message;
     box.appendChild(detail);
   }
-  el.clauses.replaceChildren(box);
+  el.stem.replaceChildren(box);
 }
 
 fetch("src/cases.json")

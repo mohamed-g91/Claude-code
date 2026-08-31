@@ -107,49 +107,59 @@
     margin-bottom: 1.2rem;
   }
 
-  .clauses { display: flex; flex-direction: column; gap: 0.5rem; }
+  /* The stem reads as continuous prose -- a clinical stem, not a list of
+     options. The generous line-height is doing real work: it gives each
+     wrapped line enough vertical room to be a comfortable thumb target
+     without breaking the sentences apart. */
+  .stem {
+    font-size: 1.1rem;
+    line-height: 2.4;
+    margin: 0;
+  }
 
-  /* Real buttons: keyboard, focus and screen-reader semantics for free.
-     Block-level so each clause is an unambiguous tap target even when the
-     text wraps -- an inline highlight fragments its own hit area. */
+  /* Inline spans rather than <button>: an inline-level button does not wrap
+     reliably across engines, and these sentences always wrap on a phone.
+     role="button" + tabindex keeps the semantics and keyboard behaviour. */
   .clause {
-    font: inherit;
-    line-height: 1.55;
-    text-align: left;
-    width: 100%;
-    display: block;
-    padding: 0.7rem 0.85rem;
-    min-height: 44px;
-    border: 1px solid var(--line);
-    border-left: 3px solid transparent;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--ink);
+    /* Vertical padding, not line-height, is what makes an inline span
+       tappable: the hit area is the font box plus padding. Sized to just
+       under the line box so bands are near-contiguous without overlapping. */
+    padding: 0.6rem 0.3rem;
+    border-radius: 5px;
     cursor: pointer;
+    /* Without this the background, padding and radius apply only to the
+       first and last line fragment, and the highlight tears mid-sentence. */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* Quiet but present at rest: there is no hover on a touchscreen, so the
+       affordance cannot depend on one -- while an underline under every
+       sentence at full strength turns the stem into noise. The breaks
+       between runs also show where one tappable finding ends. */
+    border-bottom: 1px dotted color-mix(in srgb, var(--ink-faint) 50%, transparent);
     transition: background 0.15s ease, border-color 0.15s ease;
   }
   .clause:hover:not([aria-disabled="true"]) {
-    background: color-mix(in srgb, var(--ink) 5%, transparent);
-    border-left-color: var(--ink-faint);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    border-bottom-color: var(--ink);
   }
   .clause:focus-visible {
     outline: 3px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 
   /* Marks persist: the trail of what you tried is the point. */
   .clause.pivot {
     background: var(--pivot-bg); color: var(--pivot-ink);
-    border-color: var(--pivot-line); border-left-color: var(--pivot-line);
+    border-bottom-color: var(--pivot-line);
     font-weight: 600;
   }
   .clause.contributory {
     background: var(--contrib-bg); color: var(--contrib-ink);
-    border-color: var(--contrib-line); border-left-color: var(--contrib-line);
+    border-bottom-color: var(--contrib-line);
   }
   .clause.noise {
     background: var(--noise-bg); color: var(--noise-ink);
-    border-color: var(--noise-line); border-left-color: var(--noise-line);
+    border-bottom-color: var(--noise-line);
   }
   .clause[aria-disabled="true"] { cursor: default; }
 
@@ -242,7 +252,7 @@
 
   <p class="prompt" id="prompt"></p>
 
-  <div class="clauses" id="clauses"></div>
+  <p class="stem" id="stem"></p>
 
   <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
   <div class="resolution" id="resolution"></div>

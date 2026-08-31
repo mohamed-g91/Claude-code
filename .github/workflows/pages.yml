@@ -1,0 +1,72 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets you deploy from any branch to preview before merging.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; queue instead of cancelling a live one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate cases
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # A case with no pivot is unwinnable and fails silently in the browser,
+      # so this gates the deploy rather than merely reporting.
+      - run: node tools/validate-cases.mjs
+
+  browser:
+    name: Browser suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Serve and test
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 &
+          for _ in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/index.html >/dev/null && break
+            sleep 1
+          done
+          node tools/smoke-test.mjs
+
+  deploy:
+    name: Deploy
+    needs: [validate, browser]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Assemble site
+        # Publish only what the site needs -- not the test harness.
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r src _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

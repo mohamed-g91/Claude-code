@@ -52,10 +52,57 @@ const overflow = await page.evaluate(() =>
   document.documentElement.scrollWidth - document.documentElement.clientWidth);
 check("no horizontal scroll at 360px", overflow <= 0, `overflow ${overflow}px`);
 
-// --- every clause is an independently tappable target >=44px ---
-const boxes = await page.locator(".clause").evaluateAll((els) =>
-  els.map((e) => e.getBoundingClientRect().height));
-check("all tap targets >= 44px", boxes.every((h) => h >= 44), boxes.map(Math.round).join(","));
+// --- the stem must read as prose, not as a stack of options ---
+// If clauses were block-level each would start its own line; sharing a line
+// with the next one is what proves they are flowing inline.
+const sharesLines = await page.locator(".clause").evaluateAll((els) => {
+  for (let i = 0; i < els.length - 1; i++) {
+    const a = [...els[i].getClientRects()].pop();
+    const b = els[i + 1].getClientRects()[0];
+    if (a && b && Math.abs(a.top - b.top) < 2) return true;
+  }
+  return false;
+});
+check("stem flows as prose, not stacked options", sharesLines);
+
+// --- a wrapped sentence must keep its highlight on every line ---
+const clone = await page.locator(".clause").first().evaluate((e) => {
+  const s = getComputedStyle(e);
+  return s.boxDecorationBreak ?? s.webkitBoxDecorationBreak;
+});
+check("wrapped highlight does not tear", clone === "clone", String(clone));
+
+// Sentences do wrap here -- confirm the case actually exercises that.
+const anyWraps = await page.locator(".clause").evaluateAll((els) =>
+  els.some((e) => e.getClientRects().length > 1));
+check("sentences wrap at this width (so the above matters)", anyWraps);
+
+// --- each line band gives enough vertical room for a thumb ---
+// A full 44px is not reachable for inline prose: the hit area of an inline
+// span is its font box plus padding, and padding beyond the line box makes
+// adjacent lines overlap. 40px with near-zero gaps is the practical ceiling,
+// and each target is a whole sentence wide.
+const lineHeights = await page.locator(".clause").evaluateAll((els) =>
+  els.flatMap((e) => [...e.getClientRects()].map((r) => r.height)));
+check(
+  "line bands >= 40px tall",
+  lineHeights.every((h) => h >= 40),
+  `min ${Math.round(Math.min(...lineHeights))}px`
+);
+
+// Dead space between consecutive lines means taps land on nothing.
+const maxGap = await page.locator(".clause").evaluateAll((els) => {
+  const rects = els
+    .flatMap((e) => [...e.getClientRects()])
+    .sort((a, b) => a.top - b.top);
+  let worst = 0;
+  for (let i = 1; i < rects.length; i++) {
+    const gap = rects[i].top - (rects[i - 1].top + rects[i - 1].height);
+    if (gap > worst) worst = gap;
+  }
+  return worst;
+});
+check("no dead space between lines", maxGap <= 4, `${Math.round(maxGap)}px`);
 
 // --- three states ---
 // case 1 (RV infarct): clause 0 = noise, 1 = contributory, 4 = pivot
