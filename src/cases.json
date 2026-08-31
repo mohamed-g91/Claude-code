@@ -1,0 +1,650 @@
+{
+  "prompt": "Tap the finding that most changes immediate management.",
+  "roles": {
+    "pivot": "The finding that commits you to a different action.",
+    "contributory": "Right line of reasoning, but not decisive on its own.",
+    "noise": "Does not change what you do next."
+  },
+  "cases": [
+    {
+      "id": "cardio_rv_infarct",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 62-year-old man has had crushing central chest pain for two hours.",
+          "role": "noise",
+          "feedback": "This is why he is in front of you, not what you do about it. Chest pain of this character opens a differential; it doesn't narrow one."
+        },
+        {
+          "text": "His ECG shows ST elevation in leads II, III and aVF.",
+          "role": "contributory",
+          "feedback": "Right line. This localises the infarct to the inferior territory, which is exactly where you should start thinking about right ventricular involvement. But an inferior STEMI on its own is still managed conventionally."
+        },
+        {
+          "text": "Pulse is 108 bpm and blood pressure is 84/52 mmHg.",
+          "role": "contributory",
+          "feedback": "Worth noticing, and it should raise your suspicion. But hypotension here has several possible causes — pump failure, arrhythmia, bleeding. It tells you he is unwell, not what to do differently."
+        },
+        {
+          "text": "His JVP is visible at the earlobe with him sitting upright.",
+          "role": "contributory",
+          "feedback": "Very close. A raised JVP tells you the right heart is under strain. But raised JVP with hypotension is also the picture of left ventricular failure with congestion, where you would offload rather than fill. One further finding separates those two."
+        },
+        {
+          "text": "His chest is completely clear on auscultation.",
+          "role": "pivot",
+          "feedback": "This is the finding that reverses your reflexes."
+        }
+      ],
+      "resolution": "Raised JVP + hypotension + clear lung fields in an inferior STEMI is right ventricular infarction. The right ventricle has failed and is preload-dependent: it needs filling, not offloading. So this one negative finding inverts the usual approach — give fluid, and withhold nitrates and other preload-reducing drugs, which can precipitate abrupt, profound hypotension. Clear lungs are what tell you the failing chamber is on the right."
+    },
+    {
+      "id": "resp_asthma_normal_co2",
+      "topic": "Respiratory",
+      "clauses": [
+        {
+          "text": "A 24-year-old woman with known asthma has been wheezy and breathless since the morning.",
+          "role": "noise",
+          "feedback": "Background. It tells you which illness you are in, not how severe this episode is."
+        },
+        {
+          "text": "She cannot complete a sentence in one breath.",
+          "role": "contributory",
+          "feedback": "A genuine severity marker — this is one of the features of acute severe asthma. But it puts her in a category that is still managed with maximal medical therapy on the ward."
+        },
+        {
+          "text": "Peak flow is 32% of her predicted best.",
+          "role": "contributory",
+          "feedback": "Again a real severity marker, and again it lands in 'acute severe'. Keep going — something here escalates her further."
+        },
+        {
+          "text": "Oxygen saturation is 94% on high-flow oxygen.",
+          "role": "noise",
+          "feedback": "Falsely reassuring, and a common trap. Saturations are maintained by supplemental oxygen until very late in acute asthma. A number that looks acceptable is not evidence that she is safe."
+        },
+        {
+          "text": "Arterial blood gas shows a PaCO2 of 5.4 kPa.",
+          "role": "pivot",
+          "feedback": "A normal number that should frighten you."
+        }
+      ],
+      "resolution": "A patient in acute severe asthma is hyperventilating, so the PaCO2 should be low. A normal — let alone raised — PaCO2 means she is tiring and no longer moving enough air to blow off CO2. That reclassifies her from acute severe to life-threatening asthma and makes this an immediate ITU referral for possible ventilation. The lesson generalises: in a patient working hard to breathe, a normal CO2 is not a reassuring result, it is a sign of exhaustion."
+    },
+    {
+      "id": "haem_ttp_schistocytes",
+      "topic": "Haematology",
+      "clauses": [
+        {
+          "text": "A 38-year-old woman presents with widespread bruising and lethargy.",
+          "role": "noise",
+          "feedback": "The presenting picture of any thrombocytopenia. It does not separate the causes, and the causes are managed very differently."
+        },
+        {
+          "text": "Her platelet count is 11 x 10^9/L.",
+          "role": "contributory",
+          "feedback": "Severe thrombocytopenia, and it explains the bruising. But the number alone doesn't tell you the mechanism — and in this condition the reflex it invites is the wrong one."
+        },
+        {
+          "text": "The blood film shows numerous fragmented red cells.",
+          "role": "pivot",
+          "feedback": "Schistocytes change everything."
+        },
+        {
+          "text": "She has been intermittently confused since yesterday.",
+          "role": "contributory",
+          "feedback": "Right line — fluctuating neurological signs are part of this picture and mark it as urgent. But confusion has many causes in a sick patient; on its own it doesn't establish the mechanism."
+        },
+        {
+          "text": "Her temperature is 37.9°C.",
+          "role": "noise",
+          "feedback": "A low-grade fever is common here but is far too non-specific to act on."
+        }
+      ],
+      "resolution": "Fragmented red cells mean a microangiopathic haemolytic anaemia — with thrombocytopenia and neurological signs, this is thrombotic thrombocytopenic purpura. It is a haematological emergency requiring urgent plasma exchange. Critically, it also makes the instinctive action harmful: platelets must NOT be transfused, because they fuel further microvascular thrombosis. The film is what stops you doing the wrong thing to a platelet count of 11."
+    },
+    {
+      "id": "endo_dka_low_potassium",
+      "topic": "Endocrinology",
+      "clauses": [
+        {
+          "text": "A 19-year-old with type 1 diabetes is admitted with vomiting and abdominal pain.",
+          "role": "noise",
+          "feedback": "The presentation. It points you towards the diagnosis but not towards the order in which you do things."
+        },
+        {
+          "text": "Capillary glucose is 29 mmol/L.",
+          "role": "contributory",
+          "feedback": "Part of the diagnostic triad, and it tells you insulin is needed. It does not tell you when to start it."
+        },
+        {
+          "text": "Blood ketones are 5.2 mmol/L and pH is 7.11.",
+          "role": "contributory",
+          "feedback": "This confirms diabetic ketoacidosis and tells you it is severe. Correct reasoning — but the diagnosis isn't the thing that alters your first move here."
+        },
+        {
+          "text": "She is drowsy but rousable, with dry mucous membranes.",
+          "role": "noise",
+          "feedback": "Consistent with the dehydration of DKA. It supports fluid resuscitation, which you were going to do anyway."
+        },
+        {
+          "text": "Serum potassium is 3.1 mmol/L.",
+          "role": "pivot",
+          "feedback": "This dictates the sequence."
+        }
+      ],
+      "resolution": "Insulin drives potassium intracellularly. Starting an insulin infusion in a patient whose potassium is already below 3.5 mmol/L can precipitate life-threatening hypokalaemia and arrhythmia. So this result changes the order of operations: fluids and potassium replacement first, insulin withheld until the potassium is above 3.5. Total body potassium is always depleted in DKA even when the serum level looks normal — a low value at presentation is the alarm."
+    },
+    {
+      "id": "tox_staggered_paracetamol",
+      "topic": "Toxicology",
+      "clauses": [
+        {
+          "text": "A 27-year-old woman is brought in after taking paracetamol.",
+          "role": "noise",
+          "feedback": "The reason for attendance. Everything that matters is in the detail of how and when."
+        },
+        {
+          "text": "She took the tablets in repeated small handfuls across about fourteen hours.",
+          "role": "pivot",
+          "feedback": "The pattern of ingestion, not the dose, is what decides this."
+        },
+        {
+          "text": "She estimates a total of around 18 grams.",
+          "role": "contributory",
+          "feedback": "Clearly a significant amount and it makes you take her seriously. But the total dose isn't what changes your interpretation of the investigations."
+        },
+        {
+          "text": "Her paracetamol concentration is below the treatment line on the nomogram.",
+          "role": "contributory",
+          "feedback": "Right instinct to check it — but this result is the trap. Ask yourself whether the nomogram is a valid tool in this particular ingestion before you act on where the point falls."
+        },
+        {
+          "text": "She feels nauseated but is otherwise well, with normal observations.",
+          "role": "noise",
+          "feedback": "Early paracetamol toxicity is characteristically silent. Feeling well carries no reassurance at this stage."
+        }
+      ],
+      "resolution": "The paracetamol treatment nomogram is validated only for a single acute overdose at a known time. In a staggered overdose — tablets taken over more than one hour — the plotted level is meaningless and cannot be used to withhold treatment. Acetylcysteine is started regardless of the concentration. Reading a below-the-line level as reassuring here is the classic and potentially fatal error."
+    },
+    {
+      "id": "neuro_gbs_vital_capacity",
+      "topic": "Neurology",
+      "clauses": [
+        {
+          "text": "A 45-year-old man describes four days of progressive weakness that began in his feet.",
+          "role": "contributory",
+          "feedback": "The ascending pattern is the right thread to pull, and it points at the diagnosis. But the diagnosis is not what determines the next hour."
+        },
+        {
+          "text": "He had a diarrhoeal illness three weeks ago.",
+          "role": "noise",
+          "feedback": "Supports the aetiology and is worth documenting, but a historical infection does not change what you do today."
+        },
+        {
+          "text": "Reflexes are absent throughout and he has a bilateral facial droop.",
+          "role": "contributory",
+          "feedback": "Areflexia with cranial nerve involvement confirms you are dealing with an acute polyradiculoneuropathy and tells you it is extensive. Still not the number that triggers escalation."
+        },
+        {
+          "text": "Forced vital capacity is 1.1 litres, down from 2.0 litres this morning.",
+          "role": "pivot",
+          "feedback": "This is the measurement that moves him."
+        },
+        {
+          "text": "Oxygen saturation is 98% on room air.",
+          "role": "noise",
+          "feedback": "Dangerously reassuring. Saturations stay normal in neuromuscular respiratory failure until the patient is on the edge of arrest — they lag far behind the mechanics."
+        }
+      ],
+      "resolution": "In Guillain-Barré syndrome, respiratory failure is neuromuscular, not gas-exchange, so pulse oximetry stays normal until decompensation is imminent. Serial forced vital capacity is the monitoring that matters: a falling FVC, and particularly one under roughly 1.5 litres or 20 ml/kg, mandates urgent ITU involvement and preparation for intubation. Watching the saturations instead of the FVC is how these patients arrest."
+    },
+    {
+      "id": "rheum_gca_visual_loss",
+      "topic": "Rheumatology",
+      "clauses": [
+        {
+          "text": "A 74-year-old woman has had a left-sided headache for three weeks.",
+          "role": "noise",
+          "feedback": "The presenting symptom. New headache in this age group earns your attention but doesn't set the clock."
+        },
+        {
+          "text": "Her scalp is tender when she brushes her hair, and her jaw aches when chewing.",
+          "role": "contributory",
+          "feedback": "Strong reasoning — jaw claudication is one of the more specific features of giant cell arteritis and should already have you reaching for steroids. But it isn't what changes the route and the dose."
+        },
+        {
+          "text": "Yesterday she had twenty minutes of complete visual loss in the left eye, which then resolved.",
+          "role": "pivot",
+          "feedback": "Transient visual loss is the emergency within the emergency."
+        },
+        {
+          "text": "ESR is 96 mm/hr.",
+          "role": "contributory",
+          "feedback": "Supports the diagnosis and is part of the criteria. But treatment in suspected GCA is never delayed for, or decided by, an inflammatory marker."
+        },
+        {
+          "text": "Temporal artery biopsy is scheduled for later in the week.",
+          "role": "noise",
+          "feedback": "Appropriate to arrange, and it stays positive for a week or more after steroids are started — which is exactly why it must never delay treatment."
+        }
+      ],
+      "resolution": "Amaurosis fugax in suspected giant cell arteritis signals imminent, irreversible blindness — and once vision is lost in one eye the other typically follows within days. This escalates management from high-dose oral prednisolone to immediate high-dose IV methylprednisolone, given before biopsy and without waiting for the ESR. Visual symptoms are the finding that converts an urgent outpatient problem into a same-hour intervention."
+    },
+    {
+      "id": "id_neutropenic_sepsis",
+      "topic": "Infectious Diseases",
+      "clauses": [
+        {
+          "text": "A 58-year-old woman attends with a sore throat and feeling generally run down.",
+          "role": "noise",
+          "feedback": "On its own, an entirely ordinary presentation you would not act urgently upon."
+        },
+        {
+          "text": "She completed a cycle of chemotherapy for breast cancer ten days ago.",
+          "role": "pivot",
+          "feedback": "This single line rewrites the urgency of everything else."
+        },
+        {
+          "text": "Her temperature is 38.4°C.",
+          "role": "contributory",
+          "feedback": "Right to notice — fever is the trigger. But in someone with an intact immune system this degree of fever with a sore throat is not a medical emergency. The context is what makes it one."
+        },
+        {
+          "text": "Chest examination is normal and her chest X-ray is clear.",
+          "role": "noise",
+          "feedback": "Reassuring-looking and irrelevant to the decision. A neutropenic patient frequently cannot mount the inflammatory response that produces signs or radiographic changes."
+        },
+        {
+          "text": "Blood pressure is 118/74 mmHg and she looks well.",
+          "role": "noise",
+          "feedback": "Looking well is not protective here, and waiting for haemodynamic compromise before treating is precisely the error this scenario is built to catch."
+        }
+      ],
+      "resolution": "Fever within roughly six weeks of chemotherapy is neutropenic sepsis until proven otherwise — and the nadir around day 7–14 is the highest-risk window. Empirical broad-spectrum intravenous antibiotics must be given within one hour, before the neutrophil count returns and regardless of how well the patient looks or how normal the examination is. These patients deteriorate precipitously and without warning."
+    },
+    {
+      "id": "renal_hyperkalaemia_ecg",
+      "topic": "Nephrology",
+      "clauses": [
+        {
+          "text": "A 71-year-old man with chronic kidney disease attends feeling weak and lethargic.",
+          "role": "noise",
+          "feedback": "Non-specific, and typical of the condition at any severity."
+        },
+        {
+          "text": "He was started on ramipril and spironolactone six weeks ago.",
+          "role": "contributory",
+          "feedback": "Good reasoning — this identifies the likely cause and tells you what to stop. But causation doesn't determine what you give in the next five minutes."
+        },
+        {
+          "text": "The ECG shows a broad, bizarre QRS complex approaching a sine wave.",
+          "role": "pivot",
+          "feedback": "The ECG, not the number, decides the first drug."
+        },
+        {
+          "text": "Serum potassium is 6.9 mmol/L.",
+          "role": "contributory",
+          "feedback": "Close, and it certainly demands treatment. But management is not driven by the value alone — the same potassium with a normal ECG calls for a different first step."
+        },
+        {
+          "text": "Creatinine is 280 µmol/L, similar to his baseline.",
+          "role": "noise",
+          "feedback": "An unchanged creatinine tells you this is his usual renal function, not an acute injury. It doesn't alter the emergency in front of you."
+        }
+      ],
+      "resolution": "Broad QRS complexes and sine-wave morphology mean the hyperkalaemia is already destabilising the myocardium, and cardiac arrest may be minutes away. That mandates IV calcium gluconate immediately to stabilise the membrane — before insulin-dextrose, before salbutamol, and before anything that lowers the potassium, none of which protect the heart quickly enough. Treat the ECG, not the laboratory value."
+    },
+    {
+      "id": "cardio_aortic_dissection",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 58-year-old man with poorly controlled hypertension has severe chest pain.",
+          "role": "noise",
+          "feedback": "Hypertension is a risk factor for several things at once here. It doesn't discriminate between them."
+        },
+        {
+          "text": "The pain was maximal at onset and tears through to between his shoulder blades.",
+          "role": "contributory",
+          "feedback": "Strong reasoning — instantaneous, tearing, interscapular pain should immediately raise this possibility. But history alone will not stop someone reaching for the wrong treatment."
+        },
+        {
+          "text": "Blood pressure is 178/96 mmHg in the right arm and 142/84 mmHg in the left.",
+          "role": "pivot",
+          "feedback": "An interarm differential is the objective sign that changes the pathway."
+        },
+        {
+          "text": "The ECG shows minor ST depression in the lateral leads.",
+          "role": "noise",
+          "feedback": "This is the trap, not the answer. Non-specific ECG changes invite you to treat this as an acute coronary syndrome — which is the dangerous move."
+        },
+        {
+          "text": "He is anxious and diaphoretic.",
+          "role": "noise",
+          "feedback": "Present in almost any severe chest pain. It adds nothing discriminating."
+        }
+      ],
+      "resolution": "A significant interarm blood pressure difference points to aortic dissection compromising flow to one subclavian artery. The consequence is not just diagnostic but protective: anticoagulation, antiplatelets and thrombolysis — the reflexes for an acute coronary syndrome — can be catastrophic in dissection. Management becomes urgent CT aortography with aggressive blood pressure and heart rate control. Always check both arms before treating chest pain as ACS."
+    },
+    {
+      "id": "gi_variceal_bleed",
+      "topic": "Gastroenterology",
+      "clauses": [
+        {
+          "text": "A 51-year-old man presents having vomited a large volume of fresh blood.",
+          "role": "contributory",
+          "feedback": "This establishes a significant upper gastrointestinal bleed and drives resuscitation. But the resuscitation is the same whatever the source — something else changes the drugs."
+        },
+        {
+          "text": "Pulse is 118 bpm with a blood pressure of 96/58 mmHg.",
+          "role": "contributory",
+          "feedback": "Right to register the haemodynamic compromise; it sets the urgency and the transfusion threshold. It does not tell you the cause."
+        },
+        {
+          "text": "He takes ibuprofen most days for back pain.",
+          "role": "noise",
+          "feedback": "A deliberate distractor. NSAIDs are a genuine cause of peptic ulceration, and following that thread leads you away from the finding that matters more."
+        },
+        {
+          "text": "He has spider naevi, palmar erythema and shifting dullness.",
+          "role": "pivot",
+          "feedback": "The signs of chronic liver disease change the treatment, not just the diagnosis."
+        },
+        {
+          "text": "His haemoglobin is 78 g/L.",
+          "role": "contributory",
+          "feedback": "Guides transfusion, and worth acting on. But the number is the consequence of the bleed rather than a clue to its origin."
+        }
+      ],
+      "resolution": "Stigmata of chronic liver disease with portal hypertension mean this is a variceal bleed until proven otherwise, and that adds two specific interventions to standard resuscitation: terlipressin to reduce portal pressure, and prophylactic broad-spectrum antibiotics, which independently reduce mortality in cirrhotic gastrointestinal bleeding. Endoscopy becomes band ligation rather than ulcer therapy. Missing the liver signs means missing both drugs."
+    },
+    {
+      "id": "neuro_subarachnoid",
+      "topic": "Neurology",
+      "clauses": [
+        {
+          "text": "A 44-year-old woman attends with a severe headache and vomiting.",
+          "role": "noise",
+          "feedback": "Common and undifferentiated. Almost every headache presentation looks like this at the door."
+        },
+        {
+          "text": "The headache reached its worst intensity within a couple of seconds of starting.",
+          "role": "pivot",
+          "feedback": "The speed of onset, not the severity, is the discriminator."
+        },
+        {
+          "text": "She has a long history of migraine and says this feels like a bad one.",
+          "role": "noise",
+          "feedback": "The anchoring trap. A previous headache diagnosis is one of the commonest reasons this condition is missed, and the patient's own comparison is not a safe filter."
+        },
+        {
+          "text": "She has mild neck stiffness and dislikes the light.",
+          "role": "contributory",
+          "feedback": "Right direction — meningism supports the concern and warrants investigation. But it appears late, is often absent early, and is shared with meningitis."
+        },
+        {
+          "text": "Neurological examination is otherwise entirely normal.",
+          "role": "noise",
+          "feedback": "Offers no reassurance whatsoever. Most patients with this diagnosis have a normal neurological examination at presentation."
+        }
+      ],
+      "resolution": "Thunderclap headache — maximal within seconds — is subarachnoid haemorrhage until excluded, irrespective of a migraine history or a normal examination. It mandates immediate non-contrast CT head; if that is negative and presentation is beyond six hours, lumbar puncture at twelve hours looking for xanthochromia. The character of the onset is doing all the diagnostic work here, which is why the history must be taken precisely: not 'how bad' but 'how fast'."
+    },
+    {
+      "id": "endo_addisonian_crisis",
+      "topic": "Endocrinology",
+      "clauses": [
+        {
+          "text": "A 34-year-old woman is admitted with vomiting, abdominal pain and profound weakness.",
+          "role": "noise",
+          "feedback": "Could be a dozen things. This presentation is why the diagnosis is so often delayed."
+        },
+        {
+          "text": "Sodium is 122 mmol/L and potassium is 5.9 mmol/L.",
+          "role": "contributory",
+          "feedback": "Excellent reasoning — hyponatraemia with hyperkalaemia is the classic biochemical signature and should put this diagnosis at the top of your list. But the electrolytes alone won't make you reach for the right drug fast enough."
+        },
+        {
+          "text": "Her blood pressure remains 82/48 mmHg after two litres of crystalloid.",
+          "role": "pivot",
+          "feedback": "Shock that will not respond to fluid is the finding that forces the diagnosis."
+        },
+        {
+          "text": "There is dark pigmentation of her palmar creases and buccal mucosa.",
+          "role": "contributory",
+          "feedback": "A genuinely useful sign of chronic primary adrenal insufficiency, and it strongly supports the diagnosis. But it is a chronic finding — it tells you about months, not about the next ten minutes."
+        },
+        {
+          "text": "She has lost 6 kg over the past four months.",
+          "role": "noise",
+          "feedback": "Consistent with the chronic phase of the illness, but far too slow and non-specific to act on."
+        }
+      ],
+      "resolution": "Hypotension refractory to adequate fluid resuscitation, with this electrolyte pattern, is an adrenal (Addisonian) crisis. The treatment is immediate IV hydrocortisone — given empirically, before any confirmatory cortisol or Synacthen testing, because delay is fatal and a single dose does not compromise later diagnosis. Fluid-unresponsive shock is the trigger: continuing to escalate fluids and vasopressors without steroid is the failure mode."
+    },
+    {
+      "id": "resp_tension_pneumothorax",
+      "topic": "Respiratory",
+      "clauses": [
+        {
+          "text": "A tall, slim 22-year-old man develops sudden right-sided pleuritic chest pain and breathlessness.",
+          "role": "noise",
+          "feedback": "The classic demographic and history for a primary spontaneous pneumothorax — which is managed quite differently from what is developing here."
+        },
+        {
+          "text": "There is no air entry on the right with hyper-resonant percussion.",
+          "role": "contributory",
+          "feedback": "Correct reasoning, and it confirms a pneumothorax. But a simple pneumothorax of any size still allows time for a chest X-ray first."
+        },
+        {
+          "text": "Respiratory rate is 34 and saturations are 89% on high-flow oxygen.",
+          "role": "contributory",
+          "feedback": "Marks severe respiratory compromise and demands urgency. Still not, by itself, the thing that removes the imaging step."
+        },
+        {
+          "text": "A chest X-ray has been requested and the porter is on the way.",
+          "role": "noise",
+          "feedback": "Reasonable in most pneumothoraces — and exactly the delay that kills in this one. Watch what the other findings do to the appropriateness of waiting."
+        },
+        {
+          "text": "The trachea is deviated to the left, blood pressure is 78/44 mmHg and the JVP is raised.",
+          "role": "pivot",
+          "feedback": "Tracheal deviation with haemodynamic collapse removes the imaging step entirely."
+        }
+      ],
+      "resolution": "Tracheal deviation away from the affected side with hypotension and a raised JVP is a tension pneumothorax: intrathoracic pressure is obstructing venous return, and this is obstructive shock. It is a clinical diagnosis treated by immediate needle decompression followed by a chest drain — with no chest X-ray beforehand. Sending this patient to radiology is the classic fatal error; a simple pneumothorax can wait for a film, a tension pneumothorax cannot."
+    },
+    {
+      "id": "haem_leukostasis",
+      "topic": "Haematology",
+      "clauses": [
+        {
+          "text": "A 54-year-old man reports three months of fatigue, weight loss and drenching night sweats.",
+          "role": "noise",
+          "feedback": "B symptoms. They tell you something chronic is going on, over a timescale of months rather than hours."
+        },
+        {
+          "text": "He has massive splenomegaly crossing the midline.",
+          "role": "contributory",
+          "feedback": "Right direction — this narrows you towards a myeloproliferative disorder. But splenomegaly has been developing for months and does not dictate today's intervention."
+        },
+        {
+          "text": "White cell count is 310 x 10^9/L with a full spectrum of granulocyte precursors.",
+          "role": "contributory",
+          "feedback": "Very close, and this degree of leucocytosis should worry you. A high count alone, though, is treated with cytoreduction on a scale of days — something here makes it an emergency."
+        },
+        {
+          "text": "The leucocyte alkaline phosphatase score is low.",
+          "role": "contributory",
+          "feedback": "Diagnostically useful — a low score distinguishes chronic myeloid leukaemia from a reactive leukaemoid reaction, where it would be raised. But being diagnostically important is not the same as being management-changing, and this is largely a historical test now superseded by BCR-ABL testing."
+        },
+        {
+          "text": "He has had a painful, sustained erection since the early hours of this morning.",
+          "role": "pivot",
+          "feedback": "Priapism here is not a urological problem — it is a rheology emergency."
+        }
+      ],
+      "resolution": "Priapism with a white cell count this high is leukostasis: the blood is too viscous to perfuse the microcirculation, and the same process threatens the cerebral and pulmonary beds. It converts a chronic leukaemia into a same-day emergency requiring urgent leukapheresis and cytoreduction. Note the discrimination being trained here — the LAP score is the most diagnostically interesting finding in the stem, and the priapism is the one that changes what you do in the next hour. They are not the same thing."
+    },
+    {
+      "id": "cardio_complete_heart_block",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "An 80-year-old woman has felt dizzy on standing for the past week.",
+          "role": "noise",
+          "feedback": "A week of symptoms establishes chronicity, which argues against — not for — immediate intervention."
+        },
+        {
+          "text": "Her ECG shows complete dissociation of P waves and QRS complexes at a rate of 34.",
+          "role": "contributory",
+          "feedback": "Correct identification of complete heart block, and it certainly means she needs a permanent pacemaker. But the rhythm alone doesn't determine whether that happens now or on a planned list."
+        },
+        {
+          "text": "She takes bisoprolol for hypertension.",
+          "role": "contributory",
+          "feedback": "Worth spotting and worth stopping, since it may be contributing. It doesn't decide the urgency of pacing."
+        },
+        {
+          "text": "Blood pressure is 74/40 mmHg and she is drowsy and confused.",
+          "role": "pivot",
+          "feedback": "Adverse features, not the rhythm, decide the timing."
+        },
+        {
+          "text": "Troponin is mildly elevated at 45 ng/L.",
+          "role": "noise",
+          "feedback": "A minor troponin rise is expected with prolonged bradycardia and poor perfusion. It is a consequence here, not a driver."
+        }
+      ],
+      "resolution": "In bradycardia the decision to intervene immediately turns on adverse features — shock, syncope, myocardial ischaemia or heart failure — not on the heart rate or the rhythm label. Hypotension with reduced consciousness makes this an emergency requiring atropine and immediate transcutaneous or transvenous pacing, rather than an urgent-but-planned permanent pacemaker. The same ECG in a well, normotensive patient is a very different problem."
+    },
+    {
+      "id": "id_meningococcal_sepsis",
+      "topic": "Infectious Diseases",
+      "clauses": [
+        {
+          "text": "A 19-year-old university student has had fever and headache since last night.",
+          "role": "noise",
+          "feedback": "Ubiquitous in winter. Nothing here yet separates this from a viral illness."
+        },
+        {
+          "text": "There is a purpuric rash over his trunk that does not blanch under a glass.",
+          "role": "pivot",
+          "feedback": "The non-blanching rash means antibiotics before anything else."
+        },
+        {
+          "text": "He has photophobia and marked neck stiffness.",
+          "role": "contributory",
+          "feedback": "Right line — meningism raises the concern substantially and makes meningitis likely. But meningism alone still permits the usual sequence of investigation."
+        },
+        {
+          "text": "He is drowsy, with a GCS of 13.",
+          "role": "contributory",
+          "feedback": "Important, and it does alter the pathway — reduced consciousness means CT before lumbar puncture. Good reasoning, but it isn't the finding that stops you waiting for anything at all."
+        },
+        {
+          "text": "White cell count is 19.4 x 10^9/L with neutrophilia.",
+          "role": "noise",
+          "feedback": "Consistent with bacterial infection but far too slow and non-specific to change the immediate decision."
+        }
+      ],
+      "resolution": "A non-blanching purpuric rash indicates meningococcal septicaemia, where mortality climbs with every hour of delay. Parenteral benzylpenicillin or a third-generation cephalosporin is given immediately — before the lumbar puncture, before the CT, before blood cultures if those would cause any delay. This is one of the few situations where treatment unambiguously precedes diagnosis, and the rash is the finding that licenses it."
+    },
+    {
+      "id": "endo_thyroid_storm",
+      "topic": "Endocrinology",
+      "clauses": [
+        {
+          "text": "A 41-year-old woman with Graves' disease attends three days after a laparoscopic cholecystectomy.",
+          "role": "contributory",
+          "feedback": "Good reasoning — recent surgery is a recognised precipitant in a patient with known thyrotoxicosis. It raises your index of suspicion without confirming anything."
+        },
+        {
+          "text": "She has a fine tremor and a smooth goitre.",
+          "role": "noise",
+          "feedback": "The signs of her underlying, chronic thyrotoxicosis. They were present before this admission."
+        },
+        {
+          "text": "She is in atrial fibrillation at 148 bpm.",
+          "role": "contributory",
+          "feedback": "Close. Tachyarrhythmia is part of the picture and needs treating, but AF is common in ordinary thyrotoxicosis and doesn't by itself signal decompensation."
+        },
+        {
+          "text": "Her temperature is 39.9°C and she is agitated and disorientated.",
+          "role": "pivot",
+          "feedback": "Fever with altered mental state is what converts thyrotoxicosis into a storm."
+        },
+        {
+          "text": "TSH is undetectable with a free T4 of 41 pmol/L.",
+          "role": "noise",
+          "feedback": "Confirms thyrotoxicosis but does not grade it. Hormone levels in thyroid storm overlap almost completely with uncomplicated thyrotoxicosis — the diagnosis is clinical."
+        }
+      ],
+      "resolution": "Thyroid storm is diagnosed clinically, not biochemically: hyperpyrexia and central nervous system dysfunction — agitation, delirium, or coma — in a thyrotoxic patient, usually with a precipitant such as surgery or infection. Mortality is substantial and treatment must not wait for thyroid function tests. It requires immediate combined therapy: beta-blockade, propylthiouracil, iodine given at least an hour after the thionamide, corticosteroids, and active cooling."
+    },
+    {
+      "id": "tox_anaphylaxis_betablocker",
+      "topic": "Toxicology",
+      "clauses": [
+        {
+          "text": "A 66-year-old woman develops urticaria and facial swelling minutes after a first dose of intravenous antibiotic.",
+          "role": "contributory",
+          "feedback": "This establishes anaphylaxis and tells you to give intramuscular adrenaline immediately. Correct — but the question is what to do when that doesn't work."
+        },
+        {
+          "text": "She has audible stridor and is wheezing throughout.",
+          "role": "contributory",
+          "feedback": "Airway and breathing compromise confirming severity. It reinforces the need for adrenaline rather than changing the drug."
+        },
+        {
+          "text": "Blood pressure is 68/38 mmHg.",
+          "role": "contributory",
+          "feedback": "Circulatory collapse, and part of the same picture. It tells you she is peri-arrest but not why she isn't responding."
+        },
+        {
+          "text": "She remains hypotensive and stridulous after three doses of intramuscular adrenaline and two litres of fluid.",
+          "role": "contributory",
+          "feedback": "Very close — recognising refractoriness is the right step and should prompt you to ask why. Now find the reason in the stem."
+        },
+        {
+          "text": "Her regular medications include bisoprolol, which she took this morning.",
+          "role": "pivot",
+          "feedback": "Beta-blockade explains the failure and points at a specific antidote."
+        }
+      ],
+      "resolution": "Beta-blockers blunt the response to adrenaline, producing anaphylaxis that is refractory to standard treatment. The specific answer is intravenous glucagon, which increases cardiac inotropy and chronotropy through a receptor pathway that bypasses the blocked beta-adrenoceptor entirely. Without this, escalating adrenaline doses achieve little. The drug history is the finding that explains an otherwise inexplicable failure to respond."
+    },
+    {
+      "id": "psych_lithium_toxicity",
+      "topic": "Clinical Pharmacology",
+      "clauses": [
+        {
+          "text": "A 46-year-old woman with bipolar affective disorder is brought in confused and unsteady.",
+          "role": "noise",
+          "feedback": "The presentation. Confusion and ataxia in a psychiatric patient have a wide differential, including several drug effects."
+        },
+        {
+          "text": "She has a coarse tremor, ataxia and brisk reflexes with intermittent myoclonic jerks.",
+          "role": "contributory",
+          "feedback": "Strong reasoning — this neurological signature is characteristic of the toxicity in question and tells you what is happening. But it doesn't tell you why it happened now, after years of stability."
+        },
+        {
+          "text": "She has taken the same dose of lithium for eight years with stable levels.",
+          "role": "contributory",
+          "feedback": "An important observation, and it should make you ask what changed. Stable dosing means the cause lies outside the prescription itself."
+        },
+        {
+          "text": "Her GP added ramipril and bendroflumethiazide for hypertension three weeks ago.",
+          "role": "pivot",
+          "feedback": "The new drugs are the mechanism and the thing you must stop."
+        },
+        {
+          "text": "She has been vomiting for two days.",
+          "role": "contributory",
+          "feedback": "Right thread — volume depletion worsens lithium retention, so this compounds the problem. But here it is more likely a symptom of the toxicity than its root cause."
+        }
+      ],
+      "resolution": "Lithium is renally excreted and its clearance falls with anything that reduces renal perfusion or increases sodium reabsorption. ACE inhibitors, thiazide diuretics and NSAIDs all raise lithium levels and are classic precipitants of toxicity in a patient stable for years. Management is to stop the offending drugs and the lithium, rehydrate with saline, and consider haemodialysis in severe toxicity. The drug history, not the neurology, is where the answer lives."
+    }
+  ]
+}

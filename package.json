@@ -1,0 +1,15 @@
+{
+  "name": "find-the-pivot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Clinical reasoning drill: find the finding that changes management.",
+  "scripts": {
+    "validate": "node tools/validate-cases.mjs",
+    "serve": "python3 -m http.server 8000",
+    "test": "node tools/validate-cases.mjs && node tools/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}

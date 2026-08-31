@@ -1,0 +1,197 @@
+/* Find the Pivot -- clinical reasoning drill.
+ *
+ * Three answer states rather than right/wrong: a learner who taps a
+ * contributory finding is reasoning correctly and is told so. Marks stay on
+ * screen once made, because the trail of what you tried is the useful part.
+ *
+ * All content is written with textContent, never innerHTML -- cases.json is
+ * data, and it stays data.
+ */
+
+const STORAGE_KEY = "findthepivot.v1";
+const ROLE_LABEL = {
+  pivot: "Pivot",
+  contributory: "Contributory",
+  noise: "Not decisive",
+};
+
+const el = {
+  meta: document.getElementById("meta"),
+  prompt: document.getElementById("prompt"),
+  clauses: document.getElementById("clauses"),
+  feedback: document.getElementById("feedback"),
+  resolution: document.getElementById("resolution"),
+  next: document.getElementById("next"),
+  score: document.getElementById("score"),
+};
+
+let deck = null;   // { prompt, cases }
+let index = 0;
+let progress = {}; // caseId -> { firstAttempt: role, solved: bool }
+
+/* ---------- persistence ---------- */
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { index: 0, progress: {} };
+    const parsed = JSON.parse(raw);
+    return {
+      index: Number.isInteger(parsed.index) ? parsed.index : 0,
+      progress: parsed.progress && typeof parsed.progress === "object" ? parsed.progress : {},
+    };
+  } catch {
+    // Private browsing, cleared storage, blocked site data -- start clean.
+    return { index: 0, progress: {} };
+  }
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ index, progress }));
+  } catch {
+    // Storage is a convenience here; the game works without it.
+  }
+}
+
+/* ---------- rendering ---------- */
+
+function renderCase() {
+  const c = deck.cases[index];
+
+  // Reset every piece of per-case state. Forgetting the button here is how
+  // the old version got permanently stuck on its end-of-deck label.
+  el.clauses.replaceChildren();
+  setFeedback("", null);
+  el.resolution.replaceChildren();
+  el.next.hidden = true;
+  el.next.textContent = "Next case";
+  el.next.disabled = false;
+
+  el.meta.textContent = `${c.topic}  ·  ${index + 1} of ${deck.cases.length}`;
+  el.prompt.textContent = deck.prompt;
+
+  c.clauses.forEach((clause) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "clause";
+    btn.textContent = clause.text;
+    btn.addEventListener("click", () => selectClause(btn, clause, c));
+    el.clauses.appendChild(btn);
+  });
+
+  renderScore();
+}
+
+function setFeedback(text, role) {
+  el.feedback.replaceChildren();
+  el.feedback.className = "feedback" + (role ? ` ${role}` : "");
+  if (!text) return;
+
+  if (role) {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = ROLE_LABEL[role];
+    el.feedback.appendChild(tag);
+  }
+  el.feedback.appendChild(document.createTextNode(text));
+}
+
+function renderScore() {
+  const seen = Object.values(progress);
+  if (seen.length === 0) {
+    el.score.textContent = "";
+    return;
+  }
+  const clean = seen.filter((p) => p.firstAttempt === "pivot").length;
+  const pct = Math.round((clean / seen.length) * 100);
+  el.score.textContent =
+    `First-attempt pivots: ${clean} of ${seen.length} (${pct}%)`;
+}
+
+/* ---------- interaction ---------- */
+
+function selectClause(btn, clause, c) {
+  // Solved cases stay readable and focusable, but inert.
+  if (btn.getAttribute("aria-disabled") === "true") return;
+
+  const record = progress[c.id] ?? (progress[c.id] = {});
+  if (!record.firstAttempt) record.firstAttempt = clause.role;
+
+  btn.classList.remove("pivot", "contributory", "noise");
+  btn.classList.add(clause.role);
+  setFeedback(clause.feedback, clause.role);
+
+  if (clause.role === "pivot") {
+    record.solved = true;
+    lockCase();
+    showResolution(c);
+    showNext();
+  }
+
+  saveProgress();
+  renderScore();
+}
+
+function lockCase() {
+  for (const btn of el.clauses.children) {
+    btn.setAttribute("aria-disabled", "true");
+  }
+}
+
+function showResolution(c) {
+  el.resolution.replaceChildren();
+  const h = document.createElement("h2");
+  h.textContent = "Why it turns on that finding";
+  const p = document.createElement("p");
+  p.style.margin = "0";
+  p.textContent = c.resolution;
+  el.resolution.append(h, p);
+}
+
+function showNext() {
+  const last = index >= deck.cases.length - 1;
+  el.next.textContent = last ? "Start again from the top" : "Next case";
+  el.next.hidden = false;
+  el.next.focus();
+}
+
+el.next.addEventListener("click", () => {
+  index = index >= deck.cases.length - 1 ? 0 : index + 1;
+  saveProgress();
+  renderCase();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ---------- boot ---------- */
+
+function showLoadError(err) {
+  const box = document.createElement("div");
+  box.className = "error";
+  box.textContent =
+    "Could not load the cases. If you opened this file directly, the browser " +
+    "blocks reading JSON from disk -- serve the folder over HTTP instead:";
+  const code = document.createElement("code");
+  code.textContent = "python3 -m http.server 8000";
+  box.appendChild(code);
+  if (err?.message) {
+    const detail = document.createElement("code");
+    detail.textContent = err.message;
+    box.appendChild(detail);
+  }
+  el.clauses.replaceChildren(box);
+}
+
+fetch("src/cases.json")
+  .then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  })
+  .then((data) => {
+    deck = data;
+    const saved = loadProgress();
+    progress = saved.progress;
+    index = saved.index < deck.cases.length ? saved.index : 0;
+    renderCase();
+  })
+  .catch(showLoadError);
