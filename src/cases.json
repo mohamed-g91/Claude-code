@@ -779,14 +779,19 @@
       "topic": "Cardiology",
       "clauses": [
         {
-          "text": "A 67-year-old man on nicorandil for angina describes a painful mouth ulcer that has not healed in three weeks.",
+          "text": "A 67-year-old man describes a painful mouth ulcer that has not healed in three weeks.",
           "role": "noise",
           "feedback": "A mouth ulcer that won't heal earns investigation — it doesn't yet tell you why."
         },
         {
+          "text": "His regular medications include nicorandil, ramipril and simvastatin.",
+          "role": "pivot",
+          "feedback": "One of these three is doing all the work in this stem."
+        },
+        {
           "text": "He also has a painful ulcer around his anus, which he assumed was a separate problem.",
           "role": "contributory",
-          "feedback": "Multifocal ulceration is the real clue here — a single mouth ulcer has many mundane explanations, but mouth and perianal together should make you think systemically. It doesn't, on its own, name the cause."
+          "feedback": "Multifocal ulceration is the real clue here — a single mouth ulcer has many mundane explanations, but mouth and perianal together should make you think systemically. It doesn't, on its own, name which drug is responsible."
         },
         {
           "text": "Blood tests, including a full blood count and inflammatory markers, are unremarkable.",
@@ -794,17 +799,12 @@
           "feedback": "Reasonable to check, and it argues against several nastier explanations. Normal bloods don't point you toward the answer, they just clear some alternatives out of the way."
         },
         {
-          "text": "He started nicorandil eight months ago for his angina.",
-          "role": "pivot",
-          "feedback": "This is the one fact that explains everything else in the stem."
-        },
-        {
-          "text": "He has been referred to the maxillofacial team, and the plan is to continue nicorandil while a biopsy is arranged to exclude malignancy.",
+          "text": "He has been referred to the maxillofacial team, and the plan is to continue his current medications while a biopsy is arranged to exclude malignancy.",
           "role": "noise",
           "feedback": "Appropriate to exclude malignancy — wrong to keep giving the drug that's causing this while you wait for the answer."
         }
       ],
-      "resolution": "Nicorandil, a potassium-channel activator and nitrate used second-line for angina, is a recognised cause of ulceration anywhere along the gastrointestinal tract — from the mouth to the perianal skin — a class effect documented in the BNF and its summary of product characteristics. These ulcers can be severe, multifocal, and refractory to standard treatment, and are easily mistaken for malignancy, Crohn's disease, or Behçet's syndrome before the drug history is connected. Once recognised, nicorandil should be stopped promptly and permanently; the ulcers typically heal after discontinuation, and rechallenge is not attempted. Waiting for a biopsy while continuing the drug prolongs the harm for no diagnostic benefit — the history alone is enough to act on."
+      "resolution": "Nicorandil, a potassium-channel activator and nitrate used second-line for angina, is a recognised cause of ulceration anywhere along the gastrointestinal tract — from the mouth to the perianal skin — a class effect documented in the BNF and its summary of product characteristics. Ramipril and simvastatin, sitting alongside it on the drug chart, are not associated with this pattern. These ulcers can be severe, multifocal, and refractory to standard treatment, and are easily mistaken for malignancy, Crohn's disease, or Behçet's syndrome before the drug history is connected. Once recognised, nicorandil should be stopped promptly and permanently; the ulcers typically heal after discontinuation, and rechallenge is not attempted. Waiting for a biopsy while continuing the drug prolongs the harm for no diagnostic benefit — the medication list already has the answer on it."
     },
     {
       "id": "cardio_posterior_mi",
@@ -824,11 +824,6 @@
           "text": "His ECG shows 2mm ST depression in V1 to V3, with tall, broad R waves and upright T waves in the same leads.",
           "role": "pivot",
           "feedback": "This pattern is the STEMI hiding in plain sight."
-        },
-        {
-          "text": "Posterior leads V7 to V9 are recorded and show 1mm of ST elevation.",
-          "role": "contributory",
-          "feedback": "Good instinct to confirm, and this seals the diagnosis. But the anterior pattern alone was already enough to commit to the emergency pathway — posterior leads confirm, they don't gate the decision."
         },
         {
           "text": "He is admitted under the medical team as an NSTEMI, with a plan for inpatient angiography within 72 hours.",
@@ -912,6 +907,11 @@
           "feedback": "The presentation and the ECG get the protocol moving — they don't decide which reperfusion strategy is safe."
         },
         {
+          "text": "He mentions he had an operation on his bowel twelve days ago.",
+          "role": "pivot",
+          "feedback": "This is the fact the protocol never asked about, and the one that matters most."
+        },
+        {
           "text": "The nearest primary PCI centre is over two hours away by road.",
           "role": "contributory",
           "feedback": "Correct reasoning under the usual protocol — beyond 120 minutes to a PCI centre is exactly when pre-hospital thrombolysis is indicated. It's still only half the decision."
@@ -925,11 +925,6 @@
           "text": "The crew have alteplase prepared and are about to give it, in line with the standard pre-hospital thrombolysis protocol.",
           "role": "noise",
           "feedback": "The correct protocol for the distance alone — and about to be applied to a patient it was never meant for."
-        },
-        {
-          "text": "He tells the crew he had an operation on his bowel twelve days ago.",
-          "role": "pivot",
-          "feedback": "This is the fact the protocol never asked about, and the one that matters most."
         }
       ],
       "resolution": "Per the ESC 2017 STEMI Guidelines, major non-cranial surgery within the preceding three weeks is a relative contraindication to fibrinolytic therapy, because of the bleeding risk at the surgical site — and this holds regardless of how far away the nearest primary PCI centre is. UK pre-hospital protocols (JRCALC, aligned with Resuscitation Council UK guidance) apply the same contraindication list before paramedics administer thrombolysis in the community. The distance to a PCI centre decides which reperfusion strategy would normally be used; a recent operation overrides that default and means the patient needs transfer for primary PCI instead, arranged urgently, even outside the usual time thresholds. A surgical history has to be asked for — it's exactly the kind of fact a rushed pre-hospital assessment can miss."
