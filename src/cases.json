@@ -645,6 +645,134 @@
         }
       ],
       "resolution": "Lithium is renally excreted and its clearance falls with anything that reduces renal perfusion or increases sodium reabsorption. ACE inhibitors, thiazide diuretics and NSAIDs all raise lithium levels and are classic precipitants of toxicity in a patient stable for years. Management is to stop the offending drugs and the lithium, rehydrate with saline, and consider haemodialysis in severe toxicity. The drug history, not the neurology, is where the answer lives."
+    },
+    {
+      "id": "cardio_wellens_syndrome",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 54-year-old man attended his GP three days ago with exertional chest pain, which settled with rest and has not recurred since.",
+          "role": "noise",
+          "feedback": "The story of a chest pain that already settled tells you he survived it — it doesn't tell you whether the vessel behind it is still critical."
+        },
+        {
+          "text": "He is a current smoker with type 2 diabetes and a strong family history of ischaemic heart disease.",
+          "role": "contributory",
+          "feedback": "Real risk factors, and they should raise your index of suspicion. But risk factors alone don't diagnose critical stenosis — plenty of patients with this exact profile have unremarkable coronary arteries."
+        },
+        {
+          "text": "He is entirely pain-free now, and his cardiac troponin is normal.",
+          "role": "noise",
+          "feedback": "Feeling well with a normal troponin is exactly the trap. This ECG pattern is classically seen between episodes of ischaemia — the patient is often asymptomatic and biomarker-negative when it's recorded."
+        },
+        {
+          "text": "His ECG shows deep, symmetrical T-wave inversion in leads V2 and V3.",
+          "role": "pivot",
+          "feedback": "This is the pattern that changes everything."
+        },
+        {
+          "text": "An outpatient exercise tolerance test has been booked for next week to further assess his chest pain.",
+          "role": "noise",
+          "feedback": "This is the dangerous instinct, not the safe one. Provoking ischaemia in a vessel this critical can trigger a large anterior infarction on the treadmill."
+        }
+      ],
+      "resolution": "Deep, symmetrical T-wave inversion in V2-3 in a patient who has just had unstable angina is Wellens' syndrome — an ECG marker of critical stenosis of the proximal left anterior descending artery, seen precisely because the patient is currently pain-free and the vessel has not yet occluded. It carries a high risk of extensive anterior myocardial infarction if left untreated, so it mandates prompt coronary angiography rather than an outpatient wait-and-see approach. Provocative testing — exercise ECG or pharmacological stress imaging — is contraindicated: it can precipitate the very infarction the pattern is warning you about. A normal troponin and a settled story are not, on their own, reassuring once the ECG carries this pattern."
+    },
+    {
+      "id": "cardio_stent_thrombosis",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 61-year-old man had a drug-eluting stent placed in his right coronary artery seventeen days ago, after presenting with an NSTEMI.",
+          "role": "noise",
+          "feedback": "Establishes the anatomy and the timeline — useful context, but a stent seventeen days old doesn't itself tell you whether today's pain is routine or a new occlusion."
+        },
+        {
+          "text": "He describes central chest tightness that feels identical to the angina he had before his stent.",
+          "role": "contributory",
+          "feedback": "Right instinct — pain that matches his known angina says this is almost certainly cardiac. It doesn't yet tell you whether this is the same disease behaving as before, or something new happening inside the stent."
+        },
+        {
+          "text": "He ran out of his clopidogrel five days ago and has not taken any since.",
+          "role": "contributory",
+          "feedback": "This explains the mechanism and should worry you — premature discontinuation of dual antiplatelet therapy is the classic precipitant of stent thrombosis. But a patient can develop stent thrombosis even with perfect adherence; this raises suspicion, it doesn't confirm the event is happening right now."
+        },
+        {
+          "text": "The pain has not eased despite three sprays of sublingual GTN.",
+          "role": "pivot",
+          "feedback": "This is what separates today from every other episode he's had."
+        },
+        {
+          "text": "His observations are stable: heart rate 88, blood pressure 128/76 mmHg, oxygen saturation 98% on air.",
+          "role": "noise",
+          "feedback": "Looking stable is not the same as being safe. Normal observations are common in the early minutes of an evolving occlusion, and waiting for them to deteriorate before acting is how this diagnosis gets missed."
+        }
+      ],
+      "resolution": "Angina that reproduces a patient's usual pain but fails to respond to sublingual nitrates, in the weeks after stent placement, is stent thrombosis until proven otherwise — a near-complete or complete re-occlusion of the treated vessel, most classically precipitated by early cessation of dual antiplatelet therapy. Because the occlusion is typically more complete than the original lesion, it behaves like a fresh STEMI: this is a medical emergency requiring immediate reassessment, urgent ECG and troponin, and prompt reactivation of the primary PCI pathway — not simply another dose of GTN and reassurance that his angina is just playing up. Nitrate-refractoriness is the finding that tells you the story has changed, even when the pain sounds exactly like it always has."
+    },
+    {
+      "id": "cardio_papillary_muscle_rupture",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 68-year-old woman is recovering on the coronary care unit, four days after a large anterior ST-elevation myocardial infarction.",
+          "role": "noise",
+          "feedback": "Sets the scene and the timing. Day four after a large infarct is exactly the window this complication occurs in — but the day alone doesn't tell you what's gone wrong."
+        },
+        {
+          "text": "She has become acutely breathless over the last hour, with a respiratory rate of 32 and oxygen saturations of 88% on high-flow oxygen.",
+          "role": "contributory",
+          "feedback": "Real and worrying — acute hypoxic breathlessness this soon after a big infarct should make you think about a new mechanical problem, not just 'more heart failure.' It doesn't yet tell you which one."
+        },
+        {
+          "text": "Blood pressure has fallen to 82/54 mmHg.",
+          "role": "contributory",
+          "feedback": "Cardiogenic shock is now on the table, and it demands urgent senior review. But hypotension alone is shared by several post-infarct catastrophes — pump failure, free wall rupture, reinfarction — so it doesn't discriminate between them."
+        },
+        {
+          "text": "A new pansystolic murmur, loudest at the apex, has appeared since this morning.",
+          "role": "pivot",
+          "feedback": "A new murmur days after an MI is never just an incidental finding."
+        },
+        {
+          "text": "She is afebrile, and her chest X-ray from two days ago was unremarkable.",
+          "role": "noise",
+          "feedback": "An unremarkable film from two days ago tells you nothing about the last hour, and a normal temperature makes an infective or inflammatory cause less likely — but it doesn't rule out a mechanical one, which is exactly what's happening here."
+        }
+      ],
+      "resolution": "A new pansystolic murmur loudest at the apex, days after a myocardial infarction, with acute pulmonary oedema and hypotension, is papillary muscle rupture causing acute severe mitral regurgitation until proven otherwise. It typically occurs one to seven days post-infarction, most often with inferior or posterior infarcts affecting the posteromedial papillary muscle. Unlike routine post-MI heart failure, this is a surgical emergency: standard diuretic and vasodilator therapy will not fix a flail mitral leaflet, and the patient needs urgent echocardiography and inotropic or mechanical support to bridge to emergency mitral valve repair or replacement. The murmur, not the breathlessness or the blood pressure, is what tells you which emergency you are in."
+    },
+    {
+      "id": "cardio_prinzmetal_angina",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 38-year-old woman describes several episodes of central chest tightness over the past month, always occurring between 3 and 5 a.m. while she is asleep.",
+          "role": "noise",
+          "feedback": "The circadian pattern — pain clustering in the small hours — is a genuine clue, but on its own it's just an unusual story, not a diagnosis."
+        },
+        {
+          "text": "Each episode settles rapidly with sublingual GTN.",
+          "role": "contributory",
+          "feedback": "Rapid relief with GTN is consistent with a vasospastic or ischaemic process either way; it narrows the field without settling the question of what's actually obstructing flow — or whether anything is."
+        },
+        {
+          "text": "An ECG recorded during one episode showed transient ST elevation that had completely resolved half an hour later, with no rise in troponin.",
+          "role": "contributory",
+          "feedback": "Transient ST elevation that fully resolves, with no troponin rise, is exactly the pattern of vasospastic angina. Strong reasoning — but a fixed, high-grade stenosis with intermittent plaque instability can look similar on the surface."
+        },
+        {
+          "text": "Coronary angiography, performed while she was symptomatic, shows no significant stenosis anywhere in her coronary arteries.",
+          "role": "pivot",
+          "feedback": "A normal angiogram during an actual episode is what rules out fixed disease and rules in vasospasm."
+        },
+        {
+          "text": "She smokes ten cigarettes a day and has a family history of ischaemic heart disease.",
+          "role": "noise",
+          "feedback": "Real risk factors for atherosclerosis, and easy to anchor on. But they describe her risk of one disease while the angiogram in front of you is telling you she doesn't have it — at least not the obstructive kind."
+        }
+      ],
+      "resolution": "Chest pain at rest, characteristically clustering in the early hours, with transient ST elevation that resolves spontaneously and a coronary angiogram free of significant stenosis, is Prinzmetal's (variant) angina — coronary artery vasospasm rather than fixed atherosclerotic obstruction. This changes the pharmacology: first-line treatment is a dihydropyridine calcium channel blocker such as amlodipine or nifedipine to relax the vessel wall, with long-acting nitrates as an add-on. Beta-blockers, the default second agent in ordinary stable angina, are avoided here — unopposed alpha-mediated vasoconstriction can worsen the spasm they're meant to treat. Smoking history and family history describe her risk of atherosclerosis; the angiogram is what tells you which disease she actually has."
     }
   ]
 }
