@@ -85,3 +85,49 @@ Original prose for the four groupings above has been written into
 `src/cases.json` as `cardio_wellens_syndrome`, `cardio_stent_thrombosis`,
 `cardio_papillary_muscle_rupture` and `cardio_prinzmetal_angina`, per the
 repo's existing rule against lifting stems from commercial banks.
+
+## Pass 2 — five more cases
+
+Continuing the topic-first pass, picking up the two facts held back above
+plus three more from the original Step 1–2 enumeration that hadn't been
+built yet: posterior MI (STEMI-equivalent), LV aneurysm (vs. Dressler's/
+reinfarction, by absence of pain/fever), and recent-surgery-as-thrombolysis-
+contraindication.
+
+A sixth candidate was tried and dropped during the pivot-approval checkpoint
+for this pass: **CK-MB re-elevation vs. troponin for detecting reinfarction**.
+Follow-up research found the 2018 Fourth Universal Definition of MI
+(ESC/ACC/AHA/WHF) now diagnoses reinfarction via a >20% rise in serial
+troponin and explicitly downplays CK-MB ("not useful... when cTn can be
+determined") — a case teaching "CK-MB proves it, troponin is a trap" would
+contradict the current guideline. Offered a troponin-delta reframing as a
+fix; user chose to drop the fact entirely rather than reframe, and picked
+nicorandil ulceration as the replacement. Logged here so a future pass
+doesn't re-propose the CK-MB framing without this context.
+
+Five groupings written up this pass, all non-overlapping with the 24
+existing cases at the time:
+
+1. **Nicorandil GI ulceration** — mouth/perianal ulcers in a patient on
+   nicorandil → recognise the drug as cause (BNF-documented class effect),
+   stop it, rather than pursuing a malignancy workup while continuing it.
+2. **Posterior MI** — ST depression V1–3 with tall R waves, in ongoing
+   ischaemic pain → STEMI-equivalent, same emergency reperfusion pathway
+   (ESC 2017 STEMI guideline; Resuscitation Council UK ALS teaching).
+3. **LV aneurysm** — persistent ST elevation weeks post-MI, pain-free and
+   afebrile → distinguishes from Dressler's/reinfarction by absence, not a
+   positive finding; anticoagulation is for demonstrated mural thrombus
+   (ESC 2017 STEMI, Class IIa), not the aneurysm itself.
+4. **Verapamil + beta-blocker** — already on a beta-blocker, verapamil
+   about to be added → recognise the AV-block risk before it's given
+   (NICE stable angina guidance + BNF interactions); correct second agent
+   is a dihydropyridine.
+5. **Recent major surgery + thrombolysis** — STEMI, PCI centre far away,
+   thrombolysis about to be given per the usual >120-minute protocol →
+   surgery within 3 weeks is a relative contraindication (ESC 2017 STEMI;
+   UK pre-hospital protocols via JRCALC) that overrides the distance-based
+   default.
+
+Written into `src/cases.json` as `cardio_nicorandil_ulceration`,
+`cardio_posterior_mi`, `cardio_lv_aneurysm`, `cardio_verapamil_betablocker`
+and `cardio_surgery_thrombolysis`. Bank is now 29 cases.
