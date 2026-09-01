@@ -71,6 +71,32 @@ writing starts.
    from PassMedicine, Pastest or any other commercial bank. The rubric only
    decides *which facts* and *what role* — never the wording.
 
+   Three lessons from the first review pass, folded in here because they're
+   about how a grouping becomes prose, not about classification:
+
+   - **Name the shortfall, not just the merit.** A `contributory` clause's
+     feedback should state the *specific reason* it isn't actionable alone —
+     not just why it's plausible. A learner (or reviewer) who can't see why
+     a contributory clause falls short will read it as a second pivot, which
+     defeats the exercise even when the underlying classification is right.
+   - **Model the wrong step, don't just list findings.** Where it fits
+     naturally, one clause should depict the *incorrect management step
+     already in motion* — an order placed, a plan being made — rather than
+     only a finding to weigh. `cardio_wellens_syndrome`'s "an outpatient
+     exercise tolerance test has been booked" is the template: it's the
+     mistake happening, not a fact about the patient. Don't force this into
+     every case; use it where a concrete wrong action exists to contrast
+     with the pivot.
+   - **Guideline-anchor the resolution.** Every resolution should trace to a
+     named source a UK MRCP candidate would be expected to know — NICE,
+     Resuscitation Council UK, BNF, the relevant Royal College or specialist
+     society, or ESC as followed in UK practice — not "how a clinician
+     behaves in practice" or unattributed literature. When no UK-specific
+     document exists for a point (rare, but real — e.g. FVC monitoring in
+     Guillain-Barré syndrome, which traces to a single cohort study embedded
+     in NHS practice rather than a NICE/society guideline), say so
+     explicitly rather than imply guideline backing that isn't there.
+
 ## Intake: where candidate facts come from
 
 The rubric operates on **facts and associations**, never on verbatim exam
