@@ -269,13 +269,13 @@ check("nav marks a case that has a comment", notedNav.includes("has-note"), note
 
 await page.locator(".nav-item").nth(4).click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("5 of 24"));
+  document.getElementById("meta").textContent.includes("5 of 29"));
 const leaked = await page.locator("#notes").inputValue();
 check("comments don't leak into another case", leaked === "", JSON.stringify(leaked));
 
 await page.locator(".nav-item").nth(1).click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+  document.getElementById("meta").textContent.includes("2 of 29"));
 const restoredNote = await page.locator("#notes").inputValue();
 check(
   "comment is restored when navigating back",
