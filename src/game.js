@@ -21,35 +21,40 @@ const el = {
   prompt: document.getElementById("prompt"),
   stem: document.getElementById("stem"),
   feedback: document.getElementById("feedback"),
+  notes: document.getElementById("notes"),
   resolution: document.getElementById("resolution"),
   next: document.getElementById("next"),
   score: document.getElementById("score"),
+  exportBtn: document.getElementById("export-notes"),
+  exportOutput: document.getElementById("export-output"),
 };
 
 let deck = null;   // { prompt, cases }
 let index = 0;
 let progress = {}; // caseId -> { firstAttempt: role, solved: bool }
+let notes = {};    // caseId -> free-text review comment
 
 /* ---------- persistence ---------- */
 
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { index: 0, progress: {} };
+    if (!raw) return { index: 0, progress: {}, notes: {} };
     const parsed = JSON.parse(raw);
     return {
       index: Number.isInteger(parsed.index) ? parsed.index : 0,
       progress: parsed.progress && typeof parsed.progress === "object" ? parsed.progress : {},
+      notes: parsed.notes && typeof parsed.notes === "object" ? parsed.notes : {},
     };
   } catch {
     // Private browsing, cleared storage, blocked site data -- start clean.
-    return { index: 0, progress: {} };
+    return { index: 0, progress: {}, notes: {} };
   }
 }
 
 function saveProgress() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ index, progress }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ index, progress, notes }));
   } catch {
     // Storage is a convenience here; the game works without it.
   }
@@ -71,6 +76,9 @@ function renderCase() {
 
   el.meta.textContent = `${c.topic}  ·  ${index + 1} of ${deck.cases.length}`;
   el.prompt.textContent = deck.prompt;
+
+  el.notes.value = notes[c.id] ?? "";
+  el.notes.setAttribute("aria-label", `Comments for case ${index + 1}: ${c.topic}`);
 
   // Sentences flow into one paragraph, separated by ordinary spaces, so the
   // stem reads the way a real stem reads.
@@ -150,10 +158,14 @@ function syncNav() {
   [...el.nav.children].forEach((btn, i) => {
     const c = deck.cases[i];
     const solved = !!progress[c.id]?.solved;
+    const hasNote = !!notes[c.id]?.trim();
     btn.classList.toggle("solved", solved);
+    btn.classList.toggle("has-note", hasNote);
     btn.setAttribute(
       "aria-label",
-      `Case ${i + 1}: ${c.topic}${solved ? ", solved" : ""}`
+      `Case ${i + 1}: ${c.topic}` +
+        (solved ? ", solved" : "") +
+        (hasNote ? ", has a comment" : "")
     );
     if (i === index) btn.setAttribute("aria-current", "true");
     else btn.removeAttribute("aria-current");
@@ -220,6 +232,46 @@ el.next.addEventListener("click", () => {
   jumpTo(index >= deck.cases.length - 1 ? 0 : index + 1);
 });
 
+/* ---------- review comments (not shown on the published game) ---------- */
+
+el.notes.addEventListener("input", () => {
+  const c = deck.cases[index];
+  notes[c.id] = el.notes.value;
+  saveProgress();
+  syncNav();
+});
+
+el.exportBtn.addEventListener("click", async () => {
+  const entries = deck.cases
+    .map((c, i) => ({ n: i + 1, c, note: (notes[c.id] ?? "").trim() }))
+    .filter((x) => x.note)
+    .map((x) => `Case ${x.n} (${x.c.topic}) — ${x.c.id}:\n${x.note}`);
+
+  const revert = () => {
+    el.exportBtn.textContent = "Copy all notes";
+  };
+
+  if (entries.length === 0) {
+    el.exportBtn.textContent = "No notes yet";
+    setTimeout(revert, 1500);
+    return;
+  }
+
+  const text = entries.join("\n\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    el.exportBtn.textContent = "Copied!";
+    setTimeout(revert, 1500);
+  } catch {
+    // Clipboard permission denied or unavailable -- fall back to a
+    // selectable box rather than a silent dead end.
+    el.exportOutput.value = text;
+    el.exportOutput.hidden = false;
+    el.exportOutput.focus();
+    el.exportOutput.select();
+  }
+});
+
 /* ---------- boot ---------- */
 
 function showLoadError(err) {
@@ -249,6 +301,7 @@ fetch("src/cases.json")
     buildNav();
     const saved = loadProgress();
     progress = saved.progress;
+    notes = saved.notes;
     index = saved.index < deck.cases.length ? saved.index : 0;
     renderCase();
   })

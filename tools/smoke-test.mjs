@@ -79,6 +79,11 @@ check(
   String(firstFocused)
 );
 
+// --- comments export with nothing recorded yet ---
+await page.locator("#export-notes").click();
+const emptyExportLabel = await page.locator("#export-notes").innerText();
+check("export shows empty state with no notes", emptyExportLabel === "No notes yet", emptyExportLabel);
+
 // --- the stem must read as prose, not as a stack of options ---
 // If clauses were block-level each would start its own line; sharing a line
 // with the next one is what proves they are flowing inline.
@@ -255,6 +260,40 @@ await page.keyboard.press("Enter");
 const kbFeedback = await page.locator("#feedback").innerText();
 check("Enter selects a clause", kbFeedback.length > 20, kbFeedback.slice(0, 40));
 
+// --- comments (review tool, not part of the published game) ---
+// Still on case 2. Write a note, jump away, and confirm it neither leaks
+// into another case nor gets lost.
+await page.locator("#notes").fill("feels vague — check this wording");
+const notedNav = await page.locator(".nav-item").nth(1).getAttribute("class");
+check("nav marks a case that has a comment", notedNav.includes("has-note"), notedNav);
+
+await page.locator(".nav-item").nth(4).click();
+await page.waitForFunction(() =>
+  document.getElementById("meta").textContent.includes("5 of 24"));
+const leaked = await page.locator("#notes").inputValue();
+check("comments don't leak into another case", leaked === "", JSON.stringify(leaked));
+
+await page.locator(".nav-item").nth(1).click();
+await page.waitForFunction(() =>
+  document.getElementById("meta").textContent.includes("2 of 24"));
+const restoredNote = await page.locator("#notes").inputValue();
+check(
+  "comment is restored when navigating back",
+  restoredNote.includes("feels vague"),
+  restoredNote
+);
+
+await ctx.grantPermissions(["clipboard-read", "clipboard-write"]);
+await page.locator("#export-notes").click();
+const clip = await page.evaluate(() => navigator.clipboard.readText());
+check(
+  "export copies the comment with its case context",
+  clip.includes("Case 2") && clip.includes("feels vague"),
+  clip.slice(0, 80)
+);
+const copiedLabel = await page.locator("#export-notes").innerText();
+check("export button confirms the copy", copiedLabel === "Copied!", copiedLabel);
+
 // --- persistence across reload ---
 await page.reload();
 await page.waitForSelector(".clause");
@@ -265,6 +304,13 @@ check("score persists across reload", /of \d/.test(scoreAfter), scoreAfter);
 
 const navAfterReload = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("nav current-case marker restores after reload", navAfterReload === "2", navAfterReload);
+
+const noteAfterReload = await page.locator("#notes").inputValue();
+check(
+  "comment persists across reload",
+  noteAfterReload.includes("feels vague"),
+  noteAfterReload
+);
 
 // --- end of deck wraps rather than dead-ends ---
 await page.evaluate(() => {
