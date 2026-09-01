@@ -17,6 +17,7 @@ const ROLE_LABEL = {
 
 const el = {
   meta: document.getElementById("meta"),
+  nav: document.getElementById("nav"),
   prompt: document.getElementById("prompt"),
   stem: document.getElementById("stem"),
   feedback: document.getElementById("feedback"),
@@ -114,6 +115,8 @@ function setFeedback(text, role) {
 }
 
 function renderScore() {
+  syncNav();
+
   const seen = Object.values(progress);
   if (seen.length === 0) {
     el.score.textContent = "";
@@ -123,6 +126,38 @@ function renderScore() {
   const pct = Math.round((clean / seen.length) * 100);
   el.score.textContent =
     `First-attempt pivots: ${clean} of ${seen.length} (${pct}%)`;
+}
+
+/* ---------- navigator ---------- */
+
+// Built once, from the fixed case list -- only the current/solved marks
+// change after that, handled by syncNav().
+function buildNav() {
+  deck.cases.forEach((c, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "nav-item";
+    btn.textContent = String(i + 1);
+    btn.addEventListener("click", () => jumpTo(i));
+    el.nav.appendChild(btn);
+  });
+}
+
+// Runs on every render: marks which case is open and which are solved, so
+// the strip stays a truthful map of progress without needing its own
+// separate render pass.
+function syncNav() {
+  [...el.nav.children].forEach((btn, i) => {
+    const c = deck.cases[i];
+    const solved = !!progress[c.id]?.solved;
+    btn.classList.toggle("solved", solved);
+    btn.setAttribute(
+      "aria-label",
+      `Case ${i + 1}: ${c.topic}${solved ? ", solved" : ""}`
+    );
+    if (i === index) btn.setAttribute("aria-current", "true");
+    else btn.removeAttribute("aria-current");
+  });
 }
 
 /* ---------- interaction ---------- */
@@ -172,11 +207,17 @@ function showNext() {
   el.next.focus();
 }
 
-el.next.addEventListener("click", () => {
-  index = index >= deck.cases.length - 1 ? 0 : index + 1;
+// Shared by the "Next case" button and the navigator -- both just move to
+// a case index and render it.
+function jumpTo(i) {
+  index = i;
   saveProgress();
   renderCase();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+el.next.addEventListener("click", () => {
+  jumpTo(index >= deck.cases.length - 1 ? 0 : index + 1);
 });
 
 /* ---------- boot ---------- */
@@ -205,6 +246,7 @@ fetch("src/cases.json")
   })
   .then((data) => {
     deck = data;
+    buildNav();
     const saved = loadProgress();
     progress = saved.progress;
     index = saved.index < deck.cases.length ? saved.index : 0;

@@ -98,6 +98,58 @@
   }
   .meta { font-size: 0.85rem; color: var(--ink-faint); }
 
+  /* A contained horizontal scroll strip -- this never adds to the page's
+     own scrollWidth, so it doesn't fight the no-horizontal-scroll rule the
+     stem itself has to honour at 360px. */
+  .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.15rem 0.15rem 0.6rem;
+    margin-bottom: 1.1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-item {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .nav-item:hover {
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .nav-item:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+  }
+  /* Reuses the pivot palette -- the same green a correctly-found pivot
+     already turns, so "solved" doesn't invent a fourth colour. */
+  .nav-item.solved {
+    background: var(--pivot-bg);
+    color: var(--pivot-ink);
+    border-color: var(--pivot-line);
+  }
+  /* box-shadow rather than a border-width change: it doesn't reflow the
+     button, so the strip doesn't jiggle as the current case moves. */
+  .nav-item[aria-current="true"] {
+    box-shadow: 0 0 0 2px var(--accent);
+    color: var(--ink);
+    font-weight: 700;
+  }
+
   .prompt {
     background: color-mix(in srgb, var(--accent) 10%, transparent);
     border-left: 3px solid var(--accent);
@@ -239,6 +291,8 @@
   @media (max-width: 420px) {
     body { padding: 0.5rem; }
     .game { padding: 1rem 0.85rem; border-radius: 10px; }
+    /* Tap targets stay 44px -- only the gap between them shrinks. */
+    .nav { gap: 0.3rem; }
   }
 </style>
 </head>
@@ -249,6 +303,8 @@
     <h1>Find the Pivot</h1>
     <span class="meta" id="meta"></span>
   </header>
+
+  <div class="nav" id="nav" role="group" aria-label="Jump to case"></div>
 
   <p class="prompt" id="prompt"></p>
 

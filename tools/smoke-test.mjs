@@ -48,9 +48,36 @@ check(
 );
 
 // --- no horizontal scroll at 360px ---
+// The navigator has its own contained overflow-x, so this also confirms
+// that scroll strip isn't leaking into the page's own scrollWidth.
 const overflow = await page.evaluate(() =>
   document.documentElement.scrollWidth - document.documentElement.clientWidth);
 check("no horizontal scroll at 360px", overflow <= 0, `overflow ${overflow}px`);
+
+// --- navigator ---
+const navCount = await page.locator(".nav-item").count();
+check("nav renders one button per case", navCount === 24, `${navCount} nav buttons`);
+
+const firstCurrent = await page.locator('.nav-item[aria-current="true"]').innerText();
+check("case 1 marked current on load", firstCurrent === "1", firstCurrent);
+
+const navSizes = await page.locator(".nav-item").evaluateAll((els) =>
+  els.map((e) => e.getBoundingClientRect()));
+check(
+  "nav buttons are >= 44px tap targets",
+  navSizes.every((r) => r.width >= 44 && r.height >= 44),
+  `min ${Math.round(Math.min(...navSizes.map((r) => Math.min(r.width, r.height))))}px`
+);
+
+// Tab from a fresh page should reach the navigator before anything else --
+// it comes first in document order, ahead of the stem's clauses.
+await page.keyboard.press("Tab");
+const firstFocused = await page.evaluate(() => document.activeElement?.className);
+check(
+  "Tab reaches the navigator first",
+  String(firstFocused).includes("nav-item"),
+  String(firstFocused)
+);
 
 // --- the stem must read as prose, not as a stack of options ---
 // If clauses were block-level each would start its own line; sharing a line
@@ -148,12 +175,20 @@ check("locked clause ignores clicks", inert === "clause", inert);
 const score = await page.locator("#score").innerText();
 check("first-attempt scoring counts the miss", score.includes("0 of 1"), score);
 
+// --- navigator reflects a solved case immediately, without navigating away ---
+const navSolvedNow = await page.locator(".nav-item").first().getAttribute("class");
+check(
+  "nav marks case 1 solved as soon as its pivot is found",
+  navSolvedNow.includes("solved"),
+  navSolvedNow
+);
+
 // --- next button ---
 await page.locator("#next").click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 20"));
+  document.getElementById("meta").textContent.includes("2 of 24"));
 const meta2 = await page.locator("#meta").innerText();
-check("next advances", meta2.includes("2 of 20"), meta2);
+check("next advances", meta2.includes("2 of 24"), meta2);
 
 const cleanReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -166,11 +201,45 @@ check("feedback/resolution/button reset on new case",
   cleanReset.fb === "" && cleanReset.res === "" && cleanReset.nextHidden &&
   cleanReset.marks === 0, JSON.stringify(cleanReset));
 
+// --- navigator jump ---
+// Jump to case 5 directly, skipping cases 3-4 entirely -- something only
+// the navigator makes possible.
+await page.locator(".nav-item").nth(4).click();
+await page.waitForFunction(() =>
+  document.getElementById("meta").textContent.includes("5 of 24"));
+const meta5 = await page.locator("#meta").innerText();
+check("nav jump moves to the clicked case", meta5.includes("5 of 24"), meta5);
+
+const navReset = await page.evaluate(() => ({
+  fb: document.getElementById("feedback").textContent,
+  res: document.getElementById("resolution").textContent,
+  nextHidden: document.getElementById("next").hidden,
+  marks: [...document.querySelectorAll(".clause")].filter(
+    (e) => e.className !== "clause").length,
+}));
+check("nav jump resets per-case state same as next",
+  navReset.fb === "" && navReset.res === "" && navReset.nextHidden &&
+  navReset.marks === 0, JSON.stringify(navReset));
+
+const currentAfterJump = await page.locator('.nav-item[aria-current="true"]').innerText();
+check("aria-current follows the nav jump", currentAfterJump === "5", currentAfterJump);
+
+const case1StillSolved = await page.locator(".nav-item").first().getAttribute("class");
+check("solved mark survives navigating away", case1StillSolved.includes("solved"), case1StillSolved);
+
+// Jump back to case 2 so the rest of the flow continues from where the
+// existing checks below expect to be.
+await page.locator(".nav-item").nth(1).click();
+await page.waitForFunction(() =>
+  document.getElementById("meta").textContent.includes("2 of 24"));
+
 // --- keyboard only ---
+// The navigator's 24 buttons come before the clauses in tab order, so the
+// guard needs enough headroom to walk past all of them first.
 await page.keyboard.press("Tab");
 let focused = await page.evaluate(() => document.activeElement?.className);
 let guard = 0;
-while (!String(focused).includes("clause") && guard++ < 10) {
+while (!String(focused).includes("clause") && guard++ < 40) {
   await page.keyboard.press("Tab");
   focused = await page.evaluate(() => document.activeElement?.className);
 }
@@ -191,29 +260,41 @@ await page.reload();
 await page.waitForSelector(".clause");
 const metaAfter = await page.locator("#meta").innerText();
 const scoreAfter = await page.locator("#score").innerText();
-check("case index persists across reload", metaAfter.includes("2 of 20"), metaAfter);
+check("case index persists across reload", metaAfter.includes("2 of 24"), metaAfter);
 check("score persists across reload", /of \d/.test(scoreAfter), scoreAfter);
+
+const navAfterReload = await page.locator('.nav-item[aria-current="true"]').innerText();
+check("nav current-case marker restores after reload", navAfterReload === "2", navAfterReload);
 
 // --- end of deck wraps rather than dead-ends ---
 await page.evaluate(() => {
   localStorage.setItem("findthepivot.v1",
-    JSON.stringify({ index: 19, progress: {} }));
+    JSON.stringify({ index: 23, progress: {} }));
 });
 await page.reload();
 await page.waitForSelector(".clause");
 const lastCase = await page.locator("#meta").innerText();
-check("can resume at last case", lastCase.includes("20 of 20"), lastCase);
+check("can resume at last case", lastCase.includes("24 of 24"), lastCase);
 
+// Case 24 (cardio_prinzmetal_angina): the pivot is the normal-angiogram
+// finding -- "no significant stenosis" is unique to that clause.
 const pivotIdx = await page.locator(".clause").evaluateAll((els) =>
-  els.findIndex((e) => e.textContent.includes("ramipril")));
+  els.findIndex((e) => e.textContent.includes("stenosis")));
 await page.locator(".clause").nth(pivotIdx).click();
 const nextLabel = await page.locator("#next").innerText();
 check("last case offers restart, not a dead button", /again/i.test(nextLabel), nextLabel);
+
+const lastNavSolved = await page.locator(".nav-item").nth(23).getAttribute("class");
+check("last case marked solved in nav after completion", lastNavSolved.includes("solved"), lastNavSolved);
+
 await page.locator("#next").click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("1 of 20"));
+  document.getElementById("meta").textContent.includes("1 of 24"));
 const wrapped = await page.locator("#next").evaluate((e) => e.disabled);
 check("restart re-enables the button", wrapped === false);
+
+const navAfterWrap = await page.locator('.nav-item[aria-current="true"]').innerText();
+check("nav current marker wraps to case 1", navAfterWrap === "1", navAfterWrap);
 
 // --- storage-blocked fallback ---
 const ctx2 = await browser.newContext({ viewport: { width: 360, height: 740 } });
