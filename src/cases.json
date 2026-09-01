@@ -11,9 +11,9 @@
       "topic": "Cardiology",
       "clauses": [
         {
-          "text": "A 62-year-old man has had crushing central chest pain for two hours.",
+          "text": "A 62-year-old man has had crushing central chest pain for two hours, and has already been given sublingual GTN for the pain.",
           "role": "noise",
-          "feedback": "This is why he is in front of you, not what you do about it. Chest pain of this character opens a differential; it doesn't narrow one."
+          "feedback": "The GTN is the reflex almost any chest pain gets — reasonable right up until you know which heart chamber has actually failed."
         },
         {
           "text": "His ECG shows ST elevation in leads II, III and aVF.",
@@ -23,7 +23,7 @@
         {
           "text": "Pulse is 108 bpm and blood pressure is 84/52 mmHg.",
           "role": "contributory",
-          "feedback": "Worth noticing, and it should raise your suspicion. But hypotension here has several possible causes — pump failure, arrhythmia, bleeding. It tells you he is unwell, not what to do differently."
+          "feedback": "Worth noticing, and it should raise your suspicion. But hypotension alone doesn't tell you whether the safe move is more fluid or less — pump failure from left heart congestion needs the opposite of what preload-dependent right heart failure needs."
         },
         {
           "text": "His JVP is visible at the earlobe with him sitting upright.",
@@ -36,7 +36,7 @@
           "feedback": "This is the finding that reverses your reflexes."
         }
       ],
-      "resolution": "Raised JVP + hypotension + clear lung fields in an inferior STEMI is right ventricular infarction. The right ventricle has failed and is preload-dependent: it needs filling, not offloading. So this one negative finding inverts the usual approach — give fluid, and withhold nitrates and other preload-reducing drugs, which can precipitate abrupt, profound hypotension. Clear lungs are what tell you the failing chamber is on the right."
+      "resolution": "Raised JVP with hypotension in an inferior STEMI could mean either right ventricular infarction (preload-dependent, needs filling) or left ventricular failure with congestion (needs offloading) — the two need opposite treatment. Clear lung fields are what settle it: they rule out the pulmonary congestion of LV failure, confirming the right ventricle is the failing chamber. Per ESC 2023 ACS guidance, RV infarction specifically requires aggressive IV fluid to maintain right heart output, and nitrates and other preload-reducing drugs — including the GTN already reached for on arrival — should be avoided, as they can precipitate abrupt, profound hypotension. The clear chest is what should make you stop the GTN and start the fluids, not the other way round."
     },
     {
       "id": "resp_asthma_normal_co2",
@@ -151,12 +151,12 @@
         {
           "text": "She estimates a total of around 18 grams.",
           "role": "contributory",
-          "feedback": "Clearly a significant amount and it makes you take her seriously. But the total dose isn't what changes your interpretation of the investigations."
+          "feedback": "Clearly a significant amount, and it's right to take it seriously. But the total dose isn't what invalidates the nomogram here — the pattern of ingestion does, regardless of how much was actually taken."
         },
         {
           "text": "Her paracetamol concentration is below the treatment line on the nomogram.",
           "role": "contributory",
-          "feedback": "Right instinct to check it — but this result is the trap. Ask yourself whether the nomogram is a valid tool in this particular ingestion before you act on where the point falls."
+          "feedback": "Right instinct to check it — but this result is the trap. The nomogram is only valid for a single ingestion at a known time; in a staggered overdose, a level below the line isn't reassuring, it's simply inapplicable. Discharging on the strength of this number is exactly the error the 2012 guidance change exists to prevent."
         },
         {
           "text": "She feels nauseated but is otherwise well, with normal observations.",
@@ -164,7 +164,7 @@
           "feedback": "Early paracetamol toxicity is characteristically silent. Feeling well carries no reassurance at this stage."
         }
       ],
-      "resolution": "The paracetamol treatment nomogram is validated only for a single acute overdose at a known time. In a staggered overdose — tablets taken over more than one hour — the plotted level is meaningless and cannot be used to withhold treatment. Acetylcysteine is started regardless of the concentration. Reading a below-the-line level as reassuring here is the classic and potentially fatal error."
+      "resolution": "The 2012 MHRA/Commission on Human Medicines revision to the acetylcysteine guidance, implemented via TOXBASE, states that any staggered overdose — tablets not all taken within a single hour — invalidates the treatment nomogram outright, regardless of the total amount ingested. Acetylcysteine is started on the pattern of ingestion alone, not the plotted level. Reading a below-the-line concentration as reassuring here is exactly the error the 2012 change was designed to close off."
     },
     {
       "id": "neuro_gbs_vital_capacity",
@@ -183,7 +183,7 @@
         {
           "text": "Reflexes are absent throughout and he has a bilateral facial droop.",
           "role": "contributory",
-          "feedback": "Areflexia with cranial nerve involvement confirms you are dealing with an acute polyradiculoneuropathy and tells you it is extensive. Still not the number that triggers escalation."
+          "feedback": "Areflexia with cranial nerve involvement confirms you're dealing with an acute, extensive polyradiculoneuropathy — genuinely severity-defining. But it's a diagnostic and extent marker, not a number with a defined action-threshold. That's what the next finding uniquely supplies."
         },
         {
           "text": "Forced vital capacity is 1.1 litres, down from 2.0 litres this morning.",
@@ -196,7 +196,7 @@
           "feedback": "Dangerously reassuring. Saturations stay normal in neuromuscular respiratory failure until the patient is on the edge of arrest — they lag far behind the mechanics."
         }
       ],
-      "resolution": "In Guillain-Barré syndrome, respiratory failure is neuromuscular, not gas-exchange, so pulse oximetry stays normal until decompensation is imminent. Serial forced vital capacity is the monitoring that matters: a falling FVC, and particularly one under roughly 1.5 litres or 20 ml/kg, mandates urgent ITU involvement and preparation for intubation. Watching the saturations instead of the FVC is how these patients arrest."
+      "resolution": "In Guillain-Barré syndrome, respiratory failure is neuromuscular, not due to impaired gas exchange, so pulse oximetry stays normal until decompensation is imminent — it lags far behind the mechanics. Serial forced vital capacity is what UK neurology and intensive care practice actually monitors instead: the roughly 20 ml/kg (around 1.5 litres) threshold for escalating to ITU and planning for ventilation traces to Lawn ND et al. (Arch Neurol 2001;58:893), a cohort study now embedded in NHS trust protocols and UK training, rather than a single NICE- or Association of British Neurologists-badged guideline. Exam findings like areflexia and cranial nerve involvement tell you this is severe GBS; FVC is the one measurement with a defined trigger for acting right now."
     },
     {
       "id": "rheum_gca_visual_loss",
@@ -282,9 +282,9 @@
           "feedback": "The ECG, not the number, decides the first drug."
         },
         {
-          "text": "Serum potassium is 6.9 mmol/L.",
+          "text": "Serum potassium is 6.3 mmol/L.",
           "role": "contributory",
-          "feedback": "Close, and it certainly demands treatment. But management is not driven by the value alone — the same potassium with a normal ECG calls for a different first step."
+          "feedback": "Elevated, and it demands treatment. But at this level it's a monitoring and escalation threshold, not an automatic calcium trigger — the same potassium with a normal ECG calls for a different first step."
         },
         {
           "text": "Creatinine is 280 µmol/L, similar to his baseline.",
@@ -292,7 +292,7 @@
           "feedback": "An unchanged creatinine tells you this is his usual renal function, not an acute injury. It doesn't alter the emergency in front of you."
         }
       ],
-      "resolution": "Broad QRS complexes and sine-wave morphology mean the hyperkalaemia is already destabilising the myocardium, and cardiac arrest may be minutes away. That mandates IV calcium gluconate immediately to stabilise the membrane — before insulin-dextrose, before salbutamol, and before anything that lowers the potassium, none of which protect the heart quickly enough. Treat the ECG, not the laboratory value."
+      "resolution": "Broad QRS complexes and sine-wave morphology mean the hyperkalaemia is already destabilising the myocardium, and cardiac arrest may be minutes away. Per the UK Kidney Association's October 2023 hyperkalaemia guideline and Resuscitation Council UK, IV calcium is triggered by these ECG changes specifically — not by crossing a particular potassium number, which the guideline instead uses as the threshold for escalated monitoring (K+ ≥6.5 mmol/L defines severe hyperkalaemia). That mandates IV calcium gluconate immediately to stabilise the membrane — before insulin-dextrose, before salbutamol, and before anything that lowers the potassium, none of which protect the heart quickly enough. Treat the ECG, not the laboratory value."
     },
     {
       "id": "cardio_aortic_dissection",
@@ -306,7 +306,7 @@
         {
           "text": "The pain was maximal at onset and tears through to between his shoulder blades.",
           "role": "contributory",
-          "feedback": "Strong reasoning — instantaneous, tearing, interscapular pain should immediately raise this possibility. But history alone will not stop someone reaching for the wrong treatment."
+          "feedback": "Strong reasoning — instantaneous, tearing, interscapular pain is a classic presentation of acute aortic syndrome. But history alone doesn't stop the ACS pathway being activated; an objective sign is what the diagnostic split actually turns on."
         },
         {
           "text": "Blood pressure is 178/96 mmHg in the right arm and 142/84 mmHg in the left.",
@@ -319,12 +319,12 @@
           "feedback": "This is the trap, not the answer. Non-specific ECG changes invite you to treat this as an acute coronary syndrome — which is the dangerous move."
         },
         {
-          "text": "He is anxious and diaphoretic.",
+          "text": "He has been given aspirin, and thrombolysis is being arranged.",
           "role": "noise",
-          "feedback": "Present in almost any severe chest pain. It adds nothing discriminating."
+          "feedback": "The default reflex for chest pain with ECG changes — and exactly what should wait until dissection is excluded. Antiplatelets and thrombolysis can be catastrophic if this is dissection, not a coronary event."
         }
       ],
-      "resolution": "A significant interarm blood pressure difference points to aortic dissection compromising flow to one subclavian artery. The consequence is not just diagnostic but protective: anticoagulation, antiplatelets and thrombolysis — the reflexes for an acute coronary syndrome — can be catastrophic in dissection. Management becomes urgent CT aortography with aggressive blood pressure and heart rate control. Always check both arms before treating chest pain as ACS."
+      "resolution": "Per the ESC 2014 Guidelines on the Diagnosis and Treatment of Aortic Diseases, a significant interarm blood pressure difference (typically ≥20 mmHg) raises suspicion of acute aortic syndrome and should prompt urgent CT aortography — with ACS treatment (antiplatelets, anticoagulation, thrombolysis) withheld until dissection is excluded, since these can be catastrophic if the true diagnosis is dissection compromising flow to one subclavian artery. Management becomes urgent imaging with aggressive blood pressure and heart rate control instead. Always check both arms before treating chest pain as ACS — and before continuing treatment already started on that assumption."
     },
     {
       "id": "gi_variceal_bleed",
@@ -395,32 +395,32 @@
       "topic": "Endocrinology",
       "clauses": [
         {
-          "text": "A 34-year-old woman is admitted with vomiting, abdominal pain and profound weakness.",
+          "text": "A 29-year-old woman with known Addison's disease, normally well-controlled on maintenance hydrocortisone and fludrocortisone, has had vomiting and diarrhoea for two days.",
           "role": "noise",
-          "feedback": "Could be a dozen things. This presentation is why the diagnosis is so often delayed."
+          "feedback": "Known diagnosis, already on treatment, and exactly the kind of minor illness sick-day rules exist for — the puzzle here isn't what's wrong, it's what's different about today."
         },
         {
-          "text": "Sodium is 122 mmol/L and potassium is 5.9 mmol/L.",
-          "role": "contributory",
-          "feedback": "Excellent reasoning — hyponatraemia with hyperkalaemia is the classic biochemical signature and should put this diagnosis at the top of your list. But the electrolytes alone won't make you reach for the right drug fast enough."
-        },
-        {
-          "text": "Her blood pressure remains 82/48 mmHg after two litres of crystalloid.",
+          "text": "She has not been able to keep her regular hydrocortisone tablets down for the last two days.",
           "role": "pivot",
-          "feedback": "Shock that will not respond to fluid is the finding that forces the diagnosis."
+          "feedback": "This is what turns 'take more tablets' into 'give the injection.'"
         },
         {
-          "text": "There is dark pigmentation of her palmar creases and buccal mucosa.",
+          "text": "She looks dehydrated, with a pulse of 118 bpm and blood pressure of 88/54 mmHg.",
           "role": "contributory",
-          "feedback": "A genuinely useful sign of chronic primary adrenal insufficiency, and it strongly supports the diagnosis. But it is a chronic finding — it tells you about months, not about the next ten minutes."
+          "feedback": "Real evidence of volume depletion, and it correctly raises urgency. But this is exactly the kind of picture her normal sick-day dose is meant to cover — it doesn't yet tell you why today needs more than that."
         },
         {
-          "text": "She has lost 6 kg over the past four months.",
+          "text": "Sodium is 128 mmol/L and potassium is 5.8 mmol/L.",
+          "role": "contributory",
+          "feedback": "The pattern fits mineralocorticoid deficiency and supports how unwell she is. But she runs this tendency at baseline when unwell — it doesn't by itself change the sick-day plan she already has."
+        },
+        {
+          "text": "The plan is to double her oral hydrocortisone dose, as she was advised to do the last time she was unwell.",
           "role": "noise",
-          "feedback": "Consistent with the chronic phase of the illness, but far too slow and non-specific to act on."
+          "feedback": "Doubling the oral dose is genuinely correct sick-day advice — for a patient who can keep tablets down. It's the wrong instruction for someone who's just told you she can't."
         }
       ],
-      "resolution": "Hypotension refractory to adequate fluid resuscitation, with this electrolyte pattern, is an adrenal (Addisonian) crisis. The treatment is immediate IV hydrocortisone — given empirically, before any confirmatory cortisol or Synacthen testing, because delay is fatal and a single dose does not compromise later diagnosis. Fluid-unresponsive shock is the trigger: continuing to escalate fluids and vasopressors without steroid is the failure mode."
+      "resolution": "Society for Endocrinology emergency guidance (2020) sets out \"sick day rules\" for known adrenal insufficiency: minor intercurrent illness is managed by doubling the oral hydrocortisone dose. That advice assumes the tablets stay down. Vomiting, or any inability to take or absorb oral medication, converts the same illness into an indication for an emergency 100 mg IM or IV hydrocortisone injection and same-day hospital admission, regardless of how the observations look at that exact moment. Increasing a dose she cannot absorb treats nothing — the injection is what the guidance actually calls for here."
     },
     {
       "id": "resp_tension_pneumothorax",
@@ -439,7 +439,7 @@
         {
           "text": "Respiratory rate is 34 and saturations are 89% on high-flow oxygen.",
           "role": "contributory",
-          "feedback": "Marks severe respiratory compromise and demands urgency. Still not, by itself, the thing that removes the imaging step."
+          "feedback": "Marks severe respiratory compromise and demands escalated management. But per BTS's own high-risk criteria, significant hypoxia is managed on the standard imaging pathway (X-ray, then aspiration or drain) — it's tension physiology specifically, not hypoxia severity, that skips imaging."
         },
         {
           "text": "A chest X-ray has been requested and the porter is on the way.",
@@ -452,7 +452,7 @@
           "feedback": "Tracheal deviation with haemodynamic collapse removes the imaging step entirely."
         }
       ],
-      "resolution": "Tracheal deviation away from the affected side with hypotension and a raised JVP is a tension pneumothorax: intrathoracic pressure is obstructing venous return, and this is obstructive shock. It is a clinical diagnosis treated by immediate needle decompression followed by a chest drain — with no chest X-ray beforehand. Sending this patient to radiology is the classic fatal error; a simple pneumothorax can wait for a film, a tension pneumothorax cannot."
+      "resolution": "Tracheal deviation away from the affected side with hypotension and a raised JVP is a tension pneumothorax: intrathoracic pressure is obstructing venous return, and this is obstructive shock. Per the BTS Pleural Disease Guideline 2023, this is treated as a clinical diagnosis — immediate needle decompression followed by a chest drain, with no chest X-ray beforehand — while significant hypoxia and other high-risk features are managed on the standard imaging-led pathway. Sending this patient to radiology is the classic fatal error; a simple or even severely hypoxic pneumothorax can wait for a film, a tension pneumothorax cannot."
     },
     {
       "id": "haem_leukostasis",
@@ -498,12 +498,12 @@
         {
           "text": "Her ECG shows complete dissociation of P waves and QRS complexes at a rate of 34.",
           "role": "contributory",
-          "feedback": "Correct identification of complete heart block, and it certainly means she needs a permanent pacemaker. But the rhythm alone doesn't determine whether that happens now or on a planned list."
+          "feedback": "Correct identification of complete heart block, and it certainly means she needs a permanent pacemaker eventually. But per the Resuscitation Council UK bradycardia algorithm, the rhythm diagnosis itself never dictates timing — adverse features do."
         },
         {
           "text": "She takes bisoprolol for hypertension.",
           "role": "contributory",
-          "feedback": "Worth spotting and worth stopping, since it may be contributing. It doesn't decide the urgency of pacing."
+          "feedback": "Worth spotting and worth stopping, since it may be contributing. A drug history explains a cause to remove, not a timing decision — the algorithm's adverse-features check is what actually decides urgency."
         },
         {
           "text": "Blood pressure is 74/40 mmHg and she is drowsy and confused.",
@@ -511,44 +511,44 @@
           "feedback": "Adverse features, not the rhythm, decide the timing."
         },
         {
-          "text": "Troponin is mildly elevated at 45 ng/L.",
+          "text": "Her GP has been asked to arrange a routine outpatient pacing referral.",
           "role": "noise",
-          "feedback": "A minor troponin rise is expected with prolonged bradycardia and poor perfusion. It is a consequence here, not a driver."
+          "feedback": "The right endpoint — she does need a pacemaker — reached by the wrong route. Adverse features make this today's emergency, not next month's outpatient list."
         }
       ],
-      "resolution": "In bradycardia the decision to intervene immediately turns on adverse features — shock, syncope, myocardial ischaemia or heart failure — not on the heart rate or the rhythm label. Hypotension with reduced consciousness makes this an emergency requiring atropine and immediate transcutaneous or transvenous pacing, rather than an urgent-but-planned permanent pacemaker. The same ECG in a well, normotensive patient is a very different problem."
+      "resolution": "Per the Resuscitation Council UK bradycardia algorithm, the decision to intervene immediately turns on adverse features — shock, syncope, myocardial ischaemia or heart failure — not on the heart rate or the rhythm label itself. Hypotension with reduced consciousness makes this an emergency requiring atropine and immediate transcutaneous or transvenous pacing, rather than a routine outpatient referral for an urgent-but-planned permanent pacemaker. The same ECG in a well, normotensive patient is a very different problem."
     },
     {
       "id": "id_meningococcal_sepsis",
       "topic": "Infectious Diseases",
       "clauses": [
         {
-          "text": "A 19-year-old university student has had fever and headache since last night.",
+          "text": "A 19-year-old university student has had fever and headache since last night, and his GP has been called out for an out-of-hours home visit.",
           "role": "noise",
-          "feedback": "Ubiquitous in winter. Nothing here yet separates this from a viral illness."
-        },
-        {
-          "text": "There is a purpuric rash over his trunk that does not blanch under a glass.",
-          "role": "pivot",
-          "feedback": "The non-blanching rash means antibiotics before anything else."
+          "feedback": "The reason for the visit — it tells you to take this seriously, not what to do before the ambulance arrives."
         },
         {
           "text": "He has photophobia and marked neck stiffness.",
           "role": "contributory",
-          "feedback": "Right line — meningism raises the concern substantially and makes meningitis likely. But meningism alone still permits the usual sequence of investigation."
+          "feedback": "Right line — meningism raises real concern and justifies urgent transfer. But on its own it's still \"call an ambulance and get him to hospital,\" not \"treat him here first.\""
         },
         {
-          "text": "He is drowsy, with a GCS of 13.",
+          "text": "There is a purpuric rash over his trunk that does not blanch under a glass.",
+          "role": "pivot",
+          "feedback": "This is the finding that changes what you do right now, in his living room."
+        },
+        {
+          "text": "He is drowsy and takes longer than usual to answer questions.",
           "role": "contributory",
-          "feedback": "Important, and it does alter the pathway — reduced consciousness means CT before lumbar puncture. Good reasoning, but it isn't the finding that stops you waiting for anything at all."
+          "feedback": "A genuine severity marker, and it should worry you. It still only argues for how fast the ambulance needs to be — not for what you do with your bag before it arrives."
         },
         {
-          "text": "White cell count is 19.4 x 10^9/L with neutrophilia.",
+          "text": "An ambulance has been called, and the plan is to give antibiotics once he arrives at hospital.",
           "role": "noise",
-          "feedback": "Consistent with bacterial infection but far too slow and non-specific to change the immediate decision."
+          "feedback": "Correct instinct to call an ambulance — wrong to wait for it. Giving the injection now doesn't delay the transfer; withholding it does delay the treatment."
         }
       ],
-      "resolution": "A non-blanching purpuric rash indicates meningococcal septicaemia, where mortality climbs with every hour of delay. Parenteral benzylpenicillin or a third-generation cephalosporin is given immediately — before the lumbar puncture, before the CT, before blood cultures if those would cause any delay. This is one of the few situations where treatment unambiguously precedes diagnosis, and the rash is the finding that licenses it."
+      "resolution": "Per NICE NG240 (2024), suspected bacterial meningitis without a rash is treated urgently in hospital — antibiotics within around an hour of arrival — but pre-hospital antibiotics are only advised if transfer would otherwise be significantly delayed. A non-blanching rash changes that threshold: NG240 recommends giving IM or IV benzylpenicillin (or a third-generation cephalosporin) as soon as possible in the community, provided it doesn't delay transfer to hospital. The rash doesn't make hospital treatment more urgent — timing there is similar either way — it specifically licenses treating before the ambulance even arrives, in the one setting where every minute is entirely in your hands."
     },
     {
       "id": "endo_thyroid_storm",
@@ -567,7 +567,7 @@
         {
           "text": "She is in atrial fibrillation at 148 bpm.",
           "role": "contributory",
-          "feedback": "Close. Tachyarrhythmia is part of the picture and needs treating, but AF is common in ordinary thyrotoxicosis and doesn't by itself signal decompensation."
+          "feedback": "Close. Tachyarrhythmia is part of the picture and needs treating, but atrial fibrillation alone is common in ordinary thyrotoxicosis and doesn't meet Burch-Wartofsky/ATA criteria for storm by itself — it doesn't signal decompensation on its own."
         },
         {
           "text": "Her temperature is 39.9°C and she is agitated and disorientated.",
@@ -580,7 +580,7 @@
           "feedback": "Confirms thyrotoxicosis but does not grade it. Hormone levels in thyroid storm overlap almost completely with uncomplicated thyrotoxicosis — the diagnosis is clinical."
         }
       ],
-      "resolution": "Thyroid storm is diagnosed clinically, not biochemically: hyperpyrexia and central nervous system dysfunction — agitation, delirium, or coma — in a thyrotoxic patient, usually with a precipitant such as surgery or infection. Mortality is substantial and treatment must not wait for thyroid function tests. It requires immediate combined therapy: beta-blockade, propylthiouracil, iodine given at least an hour after the thionamide, corticosteroids, and active cooling."
+      "resolution": "Thyroid storm is diagnosed clinically, not biochemically: hyperpyrexia and central nervous system dysfunction — agitation, delirium, or coma — in a thyrotoxic patient, usually with a precipitant such as surgery or infection. UK practice imports this from the American Thyroid Association/AACE 2016 hyperthyroidism guideline (Ross DS et al., Thyroid 2016) and commonly uses the Burch-Wartofsky Point Scale as a bedside aid — there is no dedicated NICE or British Thyroid Association document specifically on thyroid storm. Mortality is substantial and treatment must not wait for thyroid function tests. It requires immediate combined therapy: beta-blockade, propylthiouracil, iodine given at least an hour after the thionamide, corticosteroids, and active cooling."
     },
     {
       "id": "tox_anaphylaxis_betablocker",
@@ -641,10 +641,10 @@
         {
           "text": "She has been vomiting for two days.",
           "role": "contributory",
-          "feedback": "Right thread — volume depletion worsens lithium retention, so this compounds the problem. But here it is more likely a symptom of the toxicity than its root cause."
+          "feedback": "Right thread, and a strong one — volume depletion is itself a BNF-recognised aggravating factor for lithium retention, not just a symptom of it. It's tempting to stop here and call this dehydration. But eight years of stability makes 'just vomiting' an incomplete explanation on its own — something still needs to explain why her kidneys are suddenly retaining lithium in the first place."
         }
       ],
-      "resolution": "Lithium is renally excreted and its clearance falls with anything that reduces renal perfusion or increases sodium reabsorption. ACE inhibitors, thiazide diuretics and NSAIDs all raise lithium levels and are classic precipitants of toxicity in a patient stable for years. Management is to stop the offending drugs and the lithium, rehydrate with saline, and consider haemodialysis in severe toxicity. The drug history, not the neurology, is where the answer lives."
+      "resolution": "Lithium is renally excreted and its clearance falls with anything that reduces renal perfusion or increases sodium reabsorption. Per the BNF's interaction data, ACE inhibitors, thiazide diuretics and NSAIDs all raise lithium levels and are classic precipitants of toxicity in a patient stable for years. Management is to stop the offending drugs and the lithium, rehydrate with saline, and consider haemodialysis in severe toxicity. The drug history, not the neurology or the vomiting alone, is where the answer lives."
     },
     {
       "id": "cardio_wellens_syndrome",
@@ -695,7 +695,7 @@
         {
           "text": "He ran out of his clopidogrel five days ago and has not taken any since.",
           "role": "contributory",
-          "feedback": "This explains the mechanism and should worry you — premature discontinuation of dual antiplatelet therapy is the classic precipitant of stent thrombosis. But a patient can develop stent thrombosis even with perfect adherence; this raises suspicion, it doesn't confirm the event is happening right now."
+          "feedback": "This explains a mechanism and should worry you — per ESC/EACTS guidance, premature discontinuation of dual antiplatelet therapy is the classic precipitant of stent thrombosis. But stent thrombosis occurs even with perfect adherence; this raises suspicion, it isn't required for the diagnosis and doesn't confirm the event is happening right now."
         },
         {
           "text": "The pain has not eased despite three sprays of sublingual GTN.",
@@ -703,12 +703,12 @@
           "feedback": "This is what separates today from every other episode he's had."
         },
         {
-          "text": "His observations are stable: heart rate 88, blood pressure 128/76 mmHg, oxygen saturation 98% on air.",
+          "text": "The plan is to increase his isosorbide mononitrate dose and review him in clinic next week.",
           "role": "noise",
-          "feedback": "Looking stable is not the same as being safe. Normal observations are common in the early minutes of an evolving occlusion, and waiting for them to deteriorate before acting is how this diagnosis gets missed."
+          "feedback": "The right move for genuinely worsening stable angina — and the wrong one here. Pain like this after a stent needs emergency reassessment now, not anti-anginal escalation on an outpatient timeline."
         }
       ],
-      "resolution": "Angina that reproduces a patient's usual pain but fails to respond to sublingual nitrates, in the weeks after stent placement, is stent thrombosis until proven otherwise — a near-complete or complete re-occlusion of the treated vessel, most classically precipitated by early cessation of dual antiplatelet therapy. Because the occlusion is typically more complete than the original lesion, it behaves like a fresh STEMI: this is a medical emergency requiring immediate reassessment, urgent ECG and troponin, and prompt reactivation of the primary PCI pathway — not simply another dose of GTN and reassurance that his angina is just playing up. Nitrate-refractoriness is the finding that tells you the story has changed, even when the pain sounds exactly like it always has."
+      "resolution": "Per the 2018 ESC/EACTS Guidelines on Myocardial Revascularization (§13.4.3), angina that reproduces a patient's usual pain but fails to respond to sublingual nitrates, in the weeks after stent placement, is stent thrombosis until proven otherwise — a near-complete or complete re-occlusion of the treated vessel, most classically precipitated by early cessation of dual antiplatelet therapy, though it can occur even with perfect adherence. Because the occlusion is typically more complete than the original lesion, it behaves like a fresh STEMI: this is a medical emergency requiring immediate reassessment, urgent ECG and troponin, and prompt reactivation of the primary PCI pathway — not another dose of GTN, and not an outpatient medication review. Nitrate-refractoriness is the finding that tells you the story has changed, even when the pain sounds exactly like it always has."
     },
     {
       "id": "cardio_papillary_muscle_rupture",
@@ -735,12 +735,12 @@
           "feedback": "A new murmur days after an MI is never just an incidental finding."
         },
         {
-          "text": "She is afebrile, and her chest X-ray from two days ago was unremarkable.",
+          "text": "She has been started on IV furosemide and referred to the heart failure team.",
           "role": "noise",
-          "feedback": "An unremarkable film from two days ago tells you nothing about the last hour, and a normal temperature makes an infective or inflammatory cause less likely — but it doesn't rule out a mechanical one, which is exactly what's happening here."
+          "feedback": "Reasonable first instinct for post-MI pulmonary oedema — and exactly the wrong fix here. Diuretics and vasodilators won't correct a flail mitral leaflet; this needs a surgeon, not a heart-failure round."
         }
       ],
-      "resolution": "A new pansystolic murmur loudest at the apex, days after a myocardial infarction, with acute pulmonary oedema and hypotension, is papillary muscle rupture causing acute severe mitral regurgitation until proven otherwise. It typically occurs one to seven days post-infarction, most often with inferior or posterior infarcts affecting the posteromedial papillary muscle. Unlike routine post-MI heart failure, this is a surgical emergency: standard diuretic and vasodilator therapy will not fix a flail mitral leaflet, and the patient needs urgent echocardiography and inotropic or mechanical support to bridge to emergency mitral valve repair or replacement. The murmur, not the breathlessness or the blood pressure, is what tells you which emergency you are in."
+      "resolution": "Per ESC 2023 ACS guidance and the 2021 ESC/EACTS Guidelines for the Management of Valvular Heart Disease, a new pansystolic murmur loudest at the apex, days after a myocardial infarction, with acute pulmonary oedema and hypotension, is papillary muscle rupture causing acute severe mitral regurgitation until proven otherwise. It typically occurs within the first week post-infarction, most classically with inferior or posterior infarcts affecting the posteromedial papillary muscle, which — unlike the dual-supplied anterolateral muscle — relies on a single blood supply. Unlike routine post-MI heart failure, this is a surgical emergency: standard diuretic and vasodilator therapy will not fix a flail mitral leaflet, and the patient needs urgent echocardiography and inotropic or mechanical support to bridge to emergency mitral valve repair or replacement. The murmur, not the breathlessness or the blood pressure, is what tells you which emergency you are in."
     },
     {
       "id": "cardio_prinzmetal_angina",
