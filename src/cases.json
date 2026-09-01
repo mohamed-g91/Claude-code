@@ -773,6 +773,166 @@
         }
       ],
       "resolution": "Chest pain at rest, characteristically clustering in the early hours, with transient ST elevation that resolves spontaneously and a coronary angiogram free of significant stenosis, is Prinzmetal's (variant) angina — coronary artery vasospasm rather than fixed atherosclerotic obstruction. This changes the pharmacology: first-line treatment is a dihydropyridine calcium channel blocker such as amlodipine or nifedipine to relax the vessel wall, with long-acting nitrates as an add-on. Beta-blockers, the default second agent in ordinary stable angina, are avoided here — unopposed alpha-mediated vasoconstriction can worsen the spasm they're meant to treat. Smoking history and family history describe her risk of atherosclerosis; the angiogram is what tells you which disease she actually has."
+    },
+    {
+      "id": "cardio_nicorandil_ulceration",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 67-year-old man on nicorandil for angina describes a painful mouth ulcer that has not healed in three weeks.",
+          "role": "noise",
+          "feedback": "A mouth ulcer that won't heal earns investigation — it doesn't yet tell you why."
+        },
+        {
+          "text": "He also has a painful ulcer around his anus, which he assumed was a separate problem.",
+          "role": "contributory",
+          "feedback": "Multifocal ulceration is the real clue here — a single mouth ulcer has many mundane explanations, but mouth and perianal together should make you think systemically. It doesn't, on its own, name the cause."
+        },
+        {
+          "text": "Blood tests, including a full blood count and inflammatory markers, are unremarkable.",
+          "role": "contributory",
+          "feedback": "Reasonable to check, and it argues against several nastier explanations. Normal bloods don't point you toward the answer, they just clear some alternatives out of the way."
+        },
+        {
+          "text": "He started nicorandil eight months ago for his angina.",
+          "role": "pivot",
+          "feedback": "This is the one fact that explains everything else in the stem."
+        },
+        {
+          "text": "He has been referred to the maxillofacial team, and the plan is to continue nicorandil while a biopsy is arranged to exclude malignancy.",
+          "role": "noise",
+          "feedback": "Appropriate to exclude malignancy — wrong to keep giving the drug that's causing this while you wait for the answer."
+        }
+      ],
+      "resolution": "Nicorandil, a potassium-channel activator and nitrate used second-line for angina, is a recognised cause of ulceration anywhere along the gastrointestinal tract — from the mouth to the perianal skin — a class effect documented in the BNF and its summary of product characteristics. These ulcers can be severe, multifocal, and refractory to standard treatment, and are easily mistaken for malignancy, Crohn's disease, or Behçet's syndrome before the drug history is connected. Once recognised, nicorandil should be stopped promptly and permanently; the ulcers typically heal after discontinuation, and rechallenge is not attempted. Waiting for a biopsy while continuing the drug prolongs the harm for no diagnostic benefit — the history alone is enough to act on."
+    },
+    {
+      "id": "cardio_posterior_mi",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 61-year-old man has central chest pain, ongoing for 40 minutes, with a history of hypertension and heavy smoking.",
+          "role": "noise",
+          "feedback": "Chest pain with cardiac risk factors gets you in the door — it doesn't tell you which reperfusion pathway he needs."
+        },
+        {
+          "text": "Troponin, sent on arrival, comes back significantly elevated.",
+          "role": "contributory",
+          "feedback": "Confirms this is a genuine coronary event and demands urgent action. It doesn't tell you whether this is an NSTEMI on the usual pathway, or something more urgent."
+        },
+        {
+          "text": "His ECG shows 2mm ST depression in V1 to V3, with tall, broad R waves and upright T waves in the same leads.",
+          "role": "pivot",
+          "feedback": "This pattern is the STEMI hiding in plain sight."
+        },
+        {
+          "text": "Posterior leads V7 to V9 are recorded and show 1mm of ST elevation.",
+          "role": "contributory",
+          "feedback": "Good instinct to confirm, and this seals the diagnosis. But the anterior pattern alone was already enough to commit to the emergency pathway — posterior leads confirm, they don't gate the decision."
+        },
+        {
+          "text": "He is admitted under the medical team as an NSTEMI, with a plan for inpatient angiography within 72 hours.",
+          "role": "noise",
+          "feedback": "The default pathway for a normal-looking anterior ECG — and exactly the delay a posterior MI cannot afford."
+        }
+      ],
+      "resolution": "Per the ESC 2017 STEMI Guidelines, isolated ST depression in V1–V3 — especially with tall, broad R waves and upright T waves, reciprocal to true posterior-wall ST elevation — is the dominant ECG sign of posterior myocardial infarction and should be managed as a STEMI: the same emergency primary PCI pathway, at the same urgency, as overt anterior or inferior ST elevation. Resuscitation Council UK's ALS teaching makes the same point directly: this pattern in this clinical context should prompt posterior leads (V7–V9) to confirm, but the anterior pattern alone is enough to activate the pathway. Waiting for a scheduled inpatient angiogram, as if this were a routine NSTEMI, is exactly the delay a posterior STEMI cannot afford."
+    },
+    {
+      "id": "cardio_lv_aneurysm",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 70-year-old woman is reviewed in cardiology outpatients, six weeks after a large anterior ST-elevation myocardial infarction.",
+          "role": "noise",
+          "feedback": "Sets the timescale — weeks, not hours, which already argues against an acute process, though it takes more than timing to be sure."
+        },
+        {
+          "text": "Her ECG shows persistent ST elevation across the anterior leads, with deep Q waves, essentially unchanged from her discharge ECG.",
+          "role": "contributory",
+          "feedback": "Persistent ST elevation weeks after a large anterior infarct is exactly what a forming aneurysm looks like on ECG. It's also exactly what ongoing ischaemia or pericarditis can look like — the ECG alone doesn't separate them."
+        },
+        {
+          "text": "She feels entirely well, with no chest pain, and her temperature is normal.",
+          "role": "pivot",
+          "feedback": "What's missing from this story is the finding."
+        },
+        {
+          "text": "An echocardiogram shows a thinned, akinetic anterior wall with a small area of mural thrombus.",
+          "role": "contributory",
+          "feedback": "This confirms the aneurysm and identifies something that does need treatment — a mural thrombus. It doesn't change the fact that today's presentation isn't an emergency; it changes what she's discharged on, not whether she's admitted."
+        },
+        {
+          "text": "Given the ECG findings, she is admitted from clinic for urgent repeat angiography to exclude reinfarction.",
+          "role": "noise",
+          "feedback": "The reflex for unexplained ST elevation — and unnecessary here. A pain-free, afebrile patient with an unchanged ECG weeks out from her infarct doesn't need urgent re-angiography; she needs anticoagulation for the thrombus and routine follow-up."
+        }
+      ],
+      "resolution": "Persistent ST elevation weeks after a large anterior STEMI, in a patient who is pain-free and afebrile, is a left ventricular aneurysm until proven otherwise — the ECG reflects the akinetic, thinned myocardial segment rather than ongoing ischaemia. This is what separates it from the two conditions it's most often confused with: Dressler's syndrome (typically weeks post-MI, but with fever and pleuritic chest pain from autoimmune pericarditis) and reinfarction (recurrent chest pain with new ECG change). Per the ESC 2017 STEMI guideline, when a mural thrombus is demonstrated on echocardiography — as it often is with an akinetic aneurysmal segment — oral anticoagulation is indicated (a vitamin K antagonist targeting INR 2.0–2.5, alongside antiplatelet therapy, guided by repeat imaging); the anticoagulation is for the thrombus, not the aneurysm itself. None of this requires urgent readmission — the absence of pain and fever is what tells you this can be managed in clinic."
+    },
+    {
+      "id": "cardio_verapamil_betablocker",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 64-year-old man with stable angina continues to have chest pain on moderate exertion despite treatment.",
+          "role": "noise",
+          "feedback": "Ongoing symptoms on monotherapy is exactly when a second agent gets added — the question is which one."
+        },
+        {
+          "text": "He has been taking bisoprolol 10mg once daily for six weeks.",
+          "role": "pivot",
+          "feedback": "This is the fact that decides which second agent is safe."
+        },
+        {
+          "text": "His resting heart rate is 58 bpm and blood pressure is 118/72 mmHg, and he feels entirely well in himself.",
+          "role": "contributory",
+          "feedback": "Reassuring on the surface — a comfortable heart rate and normal blood pressure make verapamil look safe to add. But this combination's danger isn't about how he looks now; it's about what happens to AV conduction once both drugs are on board together."
+        },
+        {
+          "text": "He has no history of heart block or other conduction disease.",
+          "role": "contributory",
+          "feedback": "Worth checking, and reassuring as far as it goes. But the risk of this specific combination isn't confined to patients with pre-existing conduction disease — a previously normal conducting system is not a safeguard here."
+        },
+        {
+          "text": "His GP plans to add verapamil as a second anti-anginal agent.",
+          "role": "noise",
+          "feedback": "Rate-limiting calcium channel blockers — verapamil or diltiazem — combined with a beta-blocker risk severe bradycardia, AV block, or asystole, regardless of how well the heart rate and rhythm look beforehand. The safe second agent here is a dihydropyridine, such as amlodipine."
+        }
+      ],
+      "resolution": "NICE guidance on the management of stable angina recommends a beta-blocker or calcium channel blocker first-line, and when a second agent is needed, specifically avoids combining a beta-blocker with a rate-limiting calcium channel blocker — verapamil or diltiazem — because both slow conduction through the AV node, and together they risk severe bradycardia, complete heart block, or asystole. This risk holds even in a patient with a currently normal heart rate, blood pressure, and no prior conduction disease; it's the combination, not the current numbers, that matters. The correct second agent alongside an existing beta-blocker is a dihydropyridine calcium channel blocker, such as amlodipine or a long-acting nifedipine, which doesn't share this risk. Recognising the beta-blocker on the drug chart is what should stop the verapamil prescription before it's written, not after a bradyarrhythmia develops."
+    },
+    {
+      "id": "cardio_surgery_thrombolysis",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 55-year-old man develops crushing central chest pain at home, and the ambulance crew's ECG shows 3mm of ST elevation across the anterior leads.",
+          "role": "noise",
+          "feedback": "The presentation and the ECG get the protocol moving — they don't decide which reperfusion strategy is safe."
+        },
+        {
+          "text": "The nearest primary PCI centre is over two hours away by road.",
+          "role": "contributory",
+          "feedback": "Correct reasoning under the usual protocol — beyond 120 minutes to a PCI centre is exactly when pre-hospital thrombolysis is indicated. It's still only half the decision."
+        },
+        {
+          "text": "He is otherwise fit and well, with no known drug allergies.",
+          "role": "contributory",
+          "feedback": "The kind of reassurance a drug history is meant to rule out. It's exactly the wrong place to stop looking."
+        },
+        {
+          "text": "The crew have alteplase prepared and are about to give it, in line with the standard pre-hospital thrombolysis protocol.",
+          "role": "noise",
+          "feedback": "The correct protocol for the distance alone — and about to be applied to a patient it was never meant for."
+        },
+        {
+          "text": "He tells the crew he had an operation on his bowel twelve days ago.",
+          "role": "pivot",
+          "feedback": "This is the fact the protocol never asked about, and the one that matters most."
+        }
+      ],
+      "resolution": "Per the ESC 2017 STEMI Guidelines, major non-cranial surgery within the preceding three weeks is a relative contraindication to fibrinolytic therapy, because of the bleeding risk at the surgical site — and this holds regardless of how far away the nearest primary PCI centre is. UK pre-hospital protocols (JRCALC, aligned with Resuscitation Council UK guidance) apply the same contraindication list before paramedics administer thrombolysis in the community. The distance to a PCI centre decides which reperfusion strategy would normally be used; a recent operation overrides that default and means the patient needs transfer for primary PCI instead, arranged urgently, even outside the usual time thresholds. A surgical history has to be asked for — it's exactly the kind of fact a rushed pre-hospital assessment can miss."
     }
   ]
 }

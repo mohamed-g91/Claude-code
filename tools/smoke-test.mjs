@@ -56,7 +56,7 @@ check("no horizontal scroll at 360px", overflow <= 0, `overflow ${overflow}px`);
 
 // --- navigator ---
 const navCount = await page.locator(".nav-item").count();
-check("nav renders one button per case", navCount === 24, `${navCount} nav buttons`);
+check("nav renders one button per case", navCount === 29, `${navCount} nav buttons`);
 
 const firstCurrent = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("case 1 marked current on load", firstCurrent === "1", firstCurrent);
@@ -191,9 +191,9 @@ check(
 // --- next button ---
 await page.locator("#next").click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+  document.getElementById("meta").textContent.includes("2 of 29"));
 const meta2 = await page.locator("#meta").innerText();
-check("next advances", meta2.includes("2 of 24"), meta2);
+check("next advances", meta2.includes("2 of 29"), meta2);
 
 const cleanReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -211,9 +211,9 @@ check("feedback/resolution/button reset on new case",
 // the navigator makes possible.
 await page.locator(".nav-item").nth(4).click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("5 of 24"));
+  document.getElementById("meta").textContent.includes("5 of 29"));
 const meta5 = await page.locator("#meta").innerText();
-check("nav jump moves to the clicked case", meta5.includes("5 of 24"), meta5);
+check("nav jump moves to the clicked case", meta5.includes("5 of 29"), meta5);
 
 const navReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -236,10 +236,10 @@ check("solved mark survives navigating away", case1StillSolved.includes("solved"
 // existing checks below expect to be.
 await page.locator(".nav-item").nth(1).click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+  document.getElementById("meta").textContent.includes("2 of 29"));
 
 // --- keyboard only ---
-// The navigator's 24 buttons come before the clauses in tab order, so the
+// The navigator's 29 buttons come before the clauses in tab order, so the
 // guard needs enough headroom to walk past all of them first.
 await page.keyboard.press("Tab");
 let focused = await page.evaluate(() => document.activeElement?.className);
@@ -299,7 +299,7 @@ await page.reload();
 await page.waitForSelector(".clause");
 const metaAfter = await page.locator("#meta").innerText();
 const scoreAfter = await page.locator("#score").innerText();
-check("case index persists across reload", metaAfter.includes("2 of 24"), metaAfter);
+check("case index persists across reload", metaAfter.includes("2 of 29"), metaAfter);
 check("score persists across reload", /of \d/.test(scoreAfter), scoreAfter);
 
 const navAfterReload = await page.locator('.nav-item[aria-current="true"]').innerText();
@@ -315,27 +315,27 @@ check(
 // --- end of deck wraps rather than dead-ends ---
 await page.evaluate(() => {
   localStorage.setItem("findthepivot.v1",
-    JSON.stringify({ index: 23, progress: {} }));
+    JSON.stringify({ index: 28, progress: {} }));
 });
 await page.reload();
 await page.waitForSelector(".clause");
 const lastCase = await page.locator("#meta").innerText();
-check("can resume at last case", lastCase.includes("24 of 24"), lastCase);
+check("can resume at last case", lastCase.includes("29 of 29"), lastCase);
 
-// Case 24 (cardio_prinzmetal_angina): the pivot is the normal-angiogram
-// finding -- "no significant stenosis" is unique to that clause.
+// Case 29 (cardio_surgery_thrombolysis): the pivot is the recent-surgery
+// finding -- "operation" is unique to that clause.
 const pivotIdx = await page.locator(".clause").evaluateAll((els) =>
-  els.findIndex((e) => e.textContent.includes("stenosis")));
+  els.findIndex((e) => e.textContent.includes("operation")));
 await page.locator(".clause").nth(pivotIdx).click();
 const nextLabel = await page.locator("#next").innerText();
 check("last case offers restart, not a dead button", /again/i.test(nextLabel), nextLabel);
 
-const lastNavSolved = await page.locator(".nav-item").nth(23).getAttribute("class");
+const lastNavSolved = await page.locator(".nav-item").nth(28).getAttribute("class");
 check("last case marked solved in nav after completion", lastNavSolved.includes("solved"), lastNavSolved);
 
 await page.locator("#next").click();
 await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("1 of 24"));
+  document.getElementById("meta").textContent.includes("1 of 29"));
 const wrapped = await page.locator("#next").evaluate((e) => e.disabled);
 check("restart re-enables the button", wrapped === false);
 
