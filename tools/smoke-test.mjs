@@ -210,6 +210,36 @@ check("feedback/resolution/button reset on new case",
   cleanReset.fb === "" && cleanReset.res === "" && cleanReset.nextHidden &&
   cleanReset.marks === 0, JSON.stringify(cleanReset));
 
+// --- None option ---
+// Case 2 carries no `none` override, so DEFAULT_NONE (role noise, since its
+// plan is in fact wrong) is what answering None resolves to.
+const noneText = await page.locator("#noneOption").innerText();
+check("None button renders with a label", noneText.trim().length > 0, noneText);
+
+const noneBox = await page.locator("#noneOption").boundingBox();
+check(
+  "None button meets 44px tap target at 360px",
+  !!noneBox && noneBox.width >= 44 && noneBox.height >= 44,
+  noneBox ? `${Math.round(noneBox.width)}x${Math.round(noneBox.height)}` : "no box"
+);
+
+await page.locator("#noneOption").click();
+const noneCls = await page.locator("#noneOption").getAttribute("class");
+const noneFb = await page.locator("#feedback").innerText();
+check("tapping None on a wrong-plan case marks it noise", noneCls.includes("noise"), noneCls);
+check(
+  "tapping None shows the default feedback",
+  noneFb.endsWith("Something in this stem does change what you do next."),
+  noneFb
+);
+
+const noneAriaDisabled = await page.locator("#noneOption").getAttribute("aria-disabled");
+check("a noise None tap does not lock the case", noneAriaDisabled !== "true", String(noneAriaDisabled));
+
+const clausesTappableAfterNone = await page.locator(".clause").evaluateAll((els) =>
+  els.every((e) => e.getAttribute("aria-disabled") !== "true"));
+check("clauses remain tappable after tapping None", clausesTappableAfterNone);
+
 // --- navigator jump ---
 // Jump to case 5 directly, skipping cases 3-4 entirely -- something only
 // the navigator makes possible.
@@ -218,6 +248,18 @@ await page.waitForFunction(
   (n) => document.getElementById("meta").textContent.includes(`5 of ${n}`), N);
 const meta5 = await page.locator("#meta").innerText();
 check("nav jump moves to the clicked case", meta5.includes(`5 of ${N}`), meta5);
+
+// --- moving to another case resets the None button ---
+// Case 2's None was just marked noise; landing on a fresh case must clear it.
+const noneAfterJump = await page.evaluate(() => {
+  const b = document.getElementById("noneOption");
+  return { cls: b.className, ariaDisabled: b.getAttribute("aria-disabled") };
+});
+check(
+  "None button resets to bare class on a new case",
+  noneAfterJump.cls === "none-option" && noneAfterJump.ariaDisabled === null,
+  JSON.stringify(noneAfterJump)
+);
 
 const navReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,

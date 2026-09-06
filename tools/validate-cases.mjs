@@ -70,8 +70,23 @@ data.cases.forEach((c, i) => {
     }
   });
 
-  if (pivots === 0) fail(where, "no pivot clause -- the case is unwinnable");
-  if (pivots > 1) fail(where, `${pivots} pivot clauses -- only one can be reached`);
+  // The None option is a virtual clause -- same three roles, same scoring --
+  // so it counts toward the one-pivot rule. A case whose plan is correct makes
+  // None the pivot and carries no pivot clause.
+  if (c.none !== undefined) {
+    const nw = `${where} none`;
+    if (!isFilled(c.none?.feedback)) fail(nw, "missing `feedback`");
+    if (!ROLES.includes(c.none?.role)) {
+      fail(nw, `role must be one of ${ROLES.join(" | ")}, got ${JSON.stringify(c.none?.role)}`);
+    }
+    if (c.none?.role === "pivot") {
+      pivots += 1;
+      pivotPositions.set(c.id ?? i, "none");
+    }
+  }
+
+  if (pivots === 0) fail(where, "no pivot -- the case is unwinnable");
+  if (pivots > 1) fail(where, `${pivots} pivots -- only one can be reached`);
 
   // Not fatal, but a case with nothing in between is just a binary MCQ again.
   if (!c.clauses.some((cl) => cl?.role === "contributory")) {
@@ -85,7 +100,10 @@ const buckets = new Map();
 for (const pos of pivotPositions.values()) {
   buckets.set(pos, (buckets.get(pos) ?? 0) + 1);
 }
-for (const [pos, n] of [...buckets].sort((a, b) => a[0] - b[0])) {
+const byPosition = (a, b) =>
+  String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true });
+
+for (const [pos, n] of [...buckets].sort(byPosition)) {
   if (n / total > 0.4) {
     warnings.push(
       `pivot sits at position ${pos} in ${n}/${total} cases -- learners will pattern-match on position`
@@ -94,7 +112,7 @@ for (const [pos, n] of [...buckets].sort((a, b) => a[0] - b[0])) {
 }
 
 const spread = [...buckets]
-  .sort((a, b) => a[0] - b[0])
+  .sort(byPosition)
   .map(([pos, n]) => `${pos}:${n}`)
   .join("  ");
 

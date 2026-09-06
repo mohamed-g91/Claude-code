@@ -9,6 +9,17 @@
  */
 
 const STORAGE_KEY = "findthepivot.v1";
+
+// The learner has to be able to say "nothing here changes it", or every case
+// silently promises that something does and the exercise loses half its
+// difficulty. It is a virtual clause: same three roles, same scoring. A case
+// whose plan is genuinely correct gives it role "pivot" and carries no pivot
+// clause of its own, so the one-pivot-per-case rule still holds.
+const NONE_LABEL = "None — the management is right";
+const DEFAULT_NONE = {
+  role: "noise",
+  feedback: "Something in this stem does change what you do next.",
+};
 const ROLE_LABEL = {
   pivot: "Pivot",
   contributory: "Contributory",
@@ -22,6 +33,7 @@ const el = {
   stem: document.getElementById("stem"),
   feedback: document.getElementById("feedback"),
   resolution: document.getElementById("resolution"),
+  none: document.getElementById("noneOption"),
   next: document.getElementById("next"),
   score: document.getElementById("score"),
 };
@@ -63,6 +75,9 @@ function renderCase() {
   // Reset every piece of per-case state. Forgetting the button here is how
   // the old version got permanently stuck on its end-of-deck label.
   el.stem.replaceChildren();
+  el.none.className = "none-option";
+  el.none.textContent = NONE_LABEL;
+  el.none.removeAttribute("aria-disabled");
   setFeedback("", null);
   el.resolution.replaceChildren();
   el.next.hidden = true;
@@ -81,7 +96,7 @@ function renderCase() {
     span.tabIndex = 0;
     span.textContent = clause.text;
 
-    const choose = () => selectClause(span, clause, c);
+    const choose = () => selectOption(span, clause, c);
     span.addEventListener("click", choose);
     span.addEventListener("keydown", (e) => {
       // A real button responds to both; a span has to be told.
@@ -96,6 +111,8 @@ function renderCase() {
       el.stem.appendChild(document.createTextNode(" "));
     }
   });
+
+  el.none.onclick = () => selectOption(el.none, c.none ?? DEFAULT_NONE, c);
 
   renderScore();
 }
@@ -162,18 +179,20 @@ function syncNav() {
 
 /* ---------- interaction ---------- */
 
-function selectClause(span, clause, c) {
+// Shared by the stem clauses and the None option -- they answer the same
+// question, so they score and lock identically.
+function selectOption(target, option, c) {
   // Solved cases stay readable and focusable, but inert.
-  if (span.getAttribute("aria-disabled") === "true") return;
+  if (target.getAttribute("aria-disabled") === "true") return;
 
   const record = progress[c.id] ?? (progress[c.id] = {});
-  if (!record.firstAttempt) record.firstAttempt = clause.role;
+  if (!record.firstAttempt) record.firstAttempt = option.role;
 
-  span.classList.remove("pivot", "contributory", "noise");
-  span.classList.add(clause.role);
-  setFeedback(clause.feedback, clause.role);
+  target.classList.remove("pivot", "contributory", "noise");
+  target.classList.add(option.role);
+  setFeedback(option.feedback, option.role);
 
-  if (clause.role === "pivot") {
+  if (option.role === "pivot") {
     record.solved = true;
     lockCase();
     showResolution(c);
@@ -188,6 +207,7 @@ function lockCase() {
   for (const span of el.stem.querySelectorAll(".clause")) {
     span.setAttribute("aria-disabled", "true");
   }
+  el.none.setAttribute("aria-disabled", "true");
 }
 
 function showResolution(c) {

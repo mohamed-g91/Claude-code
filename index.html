@@ -215,6 +215,46 @@
   }
   .clause[aria-disabled="true"] { cursor: default; }
 
+  /* An answer, not a finding -- so it sits outside the stem and is dashed
+     rather than underlined. A learner must be able to say the plan is right,
+     otherwise every case silently promises that something is wrong with it. */
+  .none-option {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    font: inherit;
+    text-align: left;
+    color: var(--ink);
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .none-option:hover:not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    border-color: var(--ink);
+  }
+  .none-option:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .none-option.pivot {
+    background: var(--pivot-bg); color: var(--pivot-ink);
+    border: 1px solid var(--pivot-line); font-weight: 600;
+  }
+  .none-option.contributory {
+    background: var(--contrib-bg); color: var(--contrib-ink);
+    border: 1px solid var(--contrib-line);
+  }
+  .none-option.noise {
+    background: var(--noise-bg); color: var(--noise-ink);
+    border: 1px solid var(--noise-line);
+  }
+  .none-option[aria-disabled="true"] { cursor: default; }
+
   .tag {
     display: inline-block;
     font-size: 0.7rem;
@@ -309,6 +349,8 @@
   <p class="prompt" id="prompt"></p>
 
   <p class="stem" id="stem"></p>
+
+  <button class="none-option" id="noneOption" type="button"></button>
 
   <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
   <div class="resolution" id="resolution"></div>
