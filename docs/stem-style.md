@@ -44,9 +44,14 @@ cue, and it matches how a real handover arrives.
    into the presentation clause: *"A 58-year-old man"* + *"presented with four
    months of…"*. The two read as one sentence and stay separately tappable.
    Age is the pivot in other pathways — it is what picks the first-line
-   antihypertensive — so it has to stay tappable everywhere, and a learner who
-   reaches for it deserves to be told why it is not decisive *here* rather than
-   to find it welded to a sentence about something else.
+   antihypertensive — so it should stay tappable, and a learner who reaches for
+   it deserves to be told why it is not decisive *here* rather than to find it
+   welded to a sentence about something else.
+
+   The exception is a stem that opens on an established diagnosis: *"A
+   71-year-old man with a history of coronary stenting five years ago"*. There
+   the diagnosis carries the reasoning and the age is plainly inert, so
+   bundling them costs nothing and reads better than a clipped opening.
 
 5. **The symptom and its qualifiers are one clause.** Character, trigger,
    duration and what relieves it belong in a single sentence. Splitting them

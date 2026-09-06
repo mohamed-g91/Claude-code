@@ -847,6 +847,80 @@
         }
       ],
       "resolution": "Non-invasive functional imaging — stress echocardiography, myocardial perfusion scintigraphy, stress MR — is second-line in the NICE pathway. It is what you reach for once CT coronary angiography has shown disease of uncertain functional significance or come back non-diagnostic. With no past medical history she has no established coronary disease and has not yet had the first-line test, which is 64-slice or better CT coronary angiography. Neither her risk factors nor the typical character of her pain changes that, the 2016 update having removed pre-test probability from the pathway. An exercise ECG would be wrong here too, for a different reason: NICE prohibits it outright for diagnosing or excluding angina in anyone without known coronary disease. ESC 2024 is the exception worth knowing — there functional imaging may be chosen first-line where clinical likelihood is high, so this ordering is NICE's rather than universal."
+    },
+    {
+      "id": "cardio_stress_agent_asthma",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 71-year-old man with a history of coronary stenting five years ago",
+          "role": "contributory",
+          "feedback": "Right thread. Established disease is why he is having a functional study rather than a CT, and that decision has been made correctly. The age adds nothing to it."
+        },
+        {
+          "text": "presented with six months of chest tightness on climbing stairs, easing after a few minutes' rest.",
+          "role": "noise",
+          "feedback": "Why he is being investigated. With disease already established, the character of the pain does not steer the test."
+        },
+        {
+          "text": "He also has a long history of asthma controlled on regular inhalers.",
+          "role": "pivot",
+          "feedback": "One of the three stress agents is not available to him."
+        },
+        {
+          "text": "Hip osteoarthritis limits him to about twenty metres.",
+          "role": "contributory",
+          "feedback": "Very close. Someone who cannot reach an adequate workload gives a submaximal, uninterpretable study, so pharmacological stress is right. That chooses the method, not the drug — and there are three of them."
+        },
+        {
+          "text": "A myocardial perfusion scan with adenosine stress is planned.",
+          "role": "noise",
+          "feedback": "A decision already made, down to the drug."
+        }
+      ],
+      "resolution": "Adenosine and dipyridamole are coronary vasodilators and both provoke bronchospasm, so they are contraindicated in significant reversible airways disease — as they are in second- or third-degree atrioventricular block without a pacemaker. NICE lists adenosine, dipyridamole or dobutamine as acceptable stressors for myocardial perfusion scintigraphy, so the guideline supplies its own way out: dobutamine, which raises myocardial oxygen demand by increasing contractility and heart rate rather than redistributing coronary flow. Two decisions sit inside this case and candidates collapse them into one. Inability to exercise is what makes the stress pharmacological; the airway is what chooses which drug. Caffeine within twenty-four hours matters too, but it postpones a scan rather than redesigning it. ESC says the same — this is pharmacology, not pathway policy."
+    },
+    {
+      "id": "cardio_nonanginal_ecg_rescue",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 52-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this pathway since 2016."
+        },
+        {
+          "text": "presented with three weeks of sharp left-sided chest pain lasting a few seconds at a time, unrelated to exertion.",
+          "role": "contributory",
+          "feedback": "Right thread, and correctly classified: none of the three features, so this is non-anginal chest pain, which usually ends the diagnostic pathway."
+        },
+        {
+          "text": "She has no past medical history.",
+          "role": "noise",
+          "feedback": "No established disease, which keeps her out of the known-CAD route. It does not decide whether she needs a pathway at all."
+        },
+        {
+          "text": "She has a family history of ischaemic heart disease and a BMI of 31.",
+          "role": "noise",
+          "feedback": "Genuine risk factors. Since 2016 the NICE pathway has not used them to select anyone for testing."
+        },
+        {
+          "text": "The pain is reproduced by pressing over the costochondral junctions.",
+          "role": "contributory",
+          "feedback": "Strong support for a musculoskeletal cause, and the reason the plan looks reasonable. But chest wall tenderness and coronary disease can coexist."
+        },
+        {
+          "text": "Her resting 12-lead ECG shows ST-segment flattening and T-wave inversion in the lateral leads.",
+          "role": "pivot",
+          "feedback": "The one objective finding that overrides the history."
+        },
+        {
+          "text": "Ibuprofen and a muscle relaxant are prescribed, with follow-up with her GP in two days.",
+          "role": "noise",
+          "feedback": "A decision already made, and a careful-looking one for the diagnosis it assumes."
+        }
+      ],
+      "resolution": "Non-anginal chest pain — none of the three features — normally ends the diagnostic pathway, and musculoskeletal or gastro-oesophageal causes become the sensible place to look. NICE builds in one exception. Where the resting 12-lead ECG shows ST-T changes or pathological Q waves, non-anginal pain is routed back into first-line 64-slice or better CT coronary angiography, because those changes suggest myocardial damage or ischaemia that the history has failed to declare. Reproducible chest wall tenderness supports a musculoskeletal cause without excluding coexisting coronary disease, and her risk factors play no part either way. This rescue is NICE-specific: ESC 2024 routes by clinical likelihood rather than by the resting ECG, so there an abnormal ECG raises suspicion without being the switch that reopens the pathway."
     }
   ]
 }
