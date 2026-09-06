@@ -929,12 +929,12 @@
         {
           "text": "A 56-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable in this pathway."
+          "feedback": "Not a variable in this decision."
         },
         {
-          "text": "presented with eight months of central chest tightness on walking uphill, relieved within five minutes of stopping.",
-          "role": "contributory",
-          "feedback": "Right thread. All three features, so this is typical angina — which is exactly why the story does not fit the label she leaves with."
+          "text": "presented with central chest tightness on exertion, relieved by rest within two minutes.",
+          "role": "pivot",
+          "feedback": "The symptoms are what refuse the label she is being given."
         },
         {
           "text": "She has hypertension and a family history of ischaemic heart disease.",
@@ -942,22 +942,22 @@
           "feedback": "Real risk factors. They neither support nor undermine the diagnosis being made here."
         },
         {
-          "text": "Myocardial perfusion imaging shows a reversible inferolateral defect.",
-          "role": "pivot",
-          "feedback": "Objective ischaemia is not compatible with the label she has been given."
-        },
-        {
-          "text": "Invasive coronary angiography shows unobstructed coronary arteries.",
+          "text": "Echocardiography shows normal left ventricular function and no valve disease.",
           "role": "contributory",
-          "feedback": "Right thread, and it correctly rules out flow-limiting epicardial disease — there is nothing here to stent. But absence of obstruction is not absence of disease."
+          "feedback": "Right thread, and worth doing — it rules out aortic stenosis and hypertrophic cardiomyopathy, both of which cause exertional angina with clean coronaries. Ruling those out narrows the field without settling it."
         },
         {
-          "text": "She is discharged with a diagnosis of non-cardiac chest pain.",
+          "text": "CT coronary angiography shows smooth, unobstructed coronary arteries with no calcified or non-calcified plaque.",
+          "role": "contributory",
+          "feedback": "Right thread, and a genuinely reassuring scan — there is no obstructive epicardial disease and nothing to stent. But it explains what she does not have, not what she does."
+        },
+        {
+          "text": "She is reassured that her arteries are normal and discharged with a diagnosis of non-cardiac chest pain.",
           "role": "noise",
-          "feedback": "A decision already made, and the one the angiogram appears to license."
+          "feedback": "A decision already made, and the one the scan appears to license."
         }
       ],
-      "resolution": "Typical exertional angina with demonstrable reversible ischaemia and unobstructed epicardial arteries is microvascular angina, not non-cardiac chest pain. The perfusion defect is objective evidence that her myocardium is ischaemic; a normal angiogram tells you only that no epicardial vessel is doing it. The outlook is not benign and the treatment is medical — antianginal therapy continues and risk factors are treated — so discharge with a non-cardiac label is the one clearly wrong move. ESC 2024 goes further, giving invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries. Distinguish it from vasospastic angina, which presents at rest with transient ST elevation rather than on exertion with a fixed perfusion defect."
+      "resolution": "A normal CT coronary angiogram excludes obstructive epicardial disease. It does not explain her symptoms and it does not make them non-cardiac. All three features are present — constricting discomfort, brought on by exertion, relieved promptly by rest — and typical angina with unobstructed coronary arteries is microvascular angina until shown otherwise. The next step is functional imaging, myocardial perfusion scintigraphy or stress MR perfusion, to establish whether the myocardium is actually ischaemic; the diagnosis rests on demonstrating ischaemia, not on the absence of stenosis. ESC 2024 goes further and gives invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries. The outlook is not benign and the treatment is medical. Distinguish it from vasospastic angina, which presents at rest with transient ST elevation rather than on exertion."
     },
     {
       "id": "cardio_ctca_nondiagnostic",
@@ -995,6 +995,47 @@
         }
       ],
       "resolution": "NICE sequences three lines. CT coronary angiography is first. Where it shows disease of uncertain functional significance or comes back non-diagnostic, non-invasive functional imaging is second. Invasive coronary angiography is third, for when functional imaging is inconclusive. A non-diagnostic scan moves him to the second line, not past it. Heavy calcification is the commonest reason a CTCA cannot be read, and a calcium score in the high hundreds warns of it in advance without itself justifying a skipped step. ESC sequences the same way. Going straight to the catheter lab commits him to an arterial procedure to answer a question stress imaging will usually answer without one."
+    },
+    {
+      "id": "cardio_third_antianginal_restraint",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 67-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented for review having had one episode of chest tightness in the past three months, on carrying shopping uphill and relieved by rest.",
+          "role": "contributory",
+          "feedback": "Right thread — symptom frequency is the measure this turns on. On its own it does not tell you whether anything needs to change."
+        },
+        {
+          "text": "He takes bisoprolol 10 mg and amlodipine 10 mg daily and uses his GTN spray about once a month.",
+          "role": "contributory",
+          "feedback": "Right thread, and worth reading closely: two antianginal agents, both at full dose, and a spray that is barely touched."
+        },
+        {
+          "text": "He takes atorvastatin 80 mg and attends a smoking cessation clinic.",
+          "role": "noise",
+          "feedback": "Secondary prevention, already in hand. Nothing here is being neglected."
+        },
+        {
+          "text": "A CT coronary angiogram six months ago showed a 60% stenosis in the left circumflex artery.",
+          "role": "contributory",
+          "feedback": "The tempting one. A stenosis in that range is anatomically real but functionally uncertain, and it was not what put him on treatment."
+        },
+        {
+          "text": "The patient is reassured and scheduled for follow-up in three months.",
+          "role": "noise",
+          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+        }
+      ],
+      "none": {
+        "role": "pivot",
+        "feedback": "Restraint is the decision."
+      },
+      "resolution": "NICE is explicit: do not offer a third antianginal drug to someone whose stable angina is controlled on two. A third is considered only where two have failed to control symptoms and the person is awaiting revascularisation or is unsuitable for it. One episode in three months, with monthly GTN use, on a beta-blocker and a dihydropyridine calcium channel blocker both at full dose, is control. The 60% circumflex stenosis is the trap — anatomically real, functionally uncertain, and not on its own an indication to revascularise a man already controlled on medical therapy; routine invasive management in stable disease has not been shown to reduce ischaemic events, and its symptom benefit falls to those still symptomatic. The statin and the cessation clinic are secondary prevention running correctly alongside. Sometimes the finding that changes management is that there isn't one."
     }
   ]
 }

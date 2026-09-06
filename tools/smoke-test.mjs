@@ -18,7 +18,11 @@ const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/index.html";
 const CASES = JSON.parse(readFileSync(
   join(import.meta.dirname, "..", "src", "cases.json"), "utf8")).cases;
 const N = CASES.length;
+// The last case's pivot may live on a stem clause, or (for a case whose plan
+// is already right) on `none` instead -- there is never both, so exactly one
+// of these resolves to a usable target for solving the last case below.
 const LAST_PIVOT = CASES[N - 1].clauses.findIndex((c) => c.role === "pivot");
+const LAST_PIVOT_IS_NONE = LAST_PIVOT === -1 && CASES[N - 1].none?.role === "pivot";
 const results = [];
 const check = (name, ok, detail = "") =>
   results.push({ name, ok, detail });
@@ -328,8 +332,13 @@ const lastCase = await page.locator("#meta").innerText();
 check("can resume at last case", lastCase.includes(`${N} of ${N}`), lastCase);
 
 // The last case's pivot position comes from cases.json, so this keeps working
-// whichever case ends up last.
-await page.locator(".clause").nth(LAST_PIVOT).click();
+// whichever case ends up last -- click the pivot clause if it has one,
+// otherwise the last case's answer is None, so click that instead.
+if (LAST_PIVOT_IS_NONE) {
+  await page.locator("#noneOption").click();
+} else {
+  await page.locator(".clause").nth(LAST_PIVOT).click();
+}
 const nextLabel = await page.locator("#next").innerText();
 check("last case offers restart, not a dead button", /again/i.test(nextLabel), nextLabel);
 
