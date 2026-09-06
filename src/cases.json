@@ -921,6 +921,80 @@
         }
       ],
       "resolution": "Non-anginal chest pain — none of the three features — normally ends the diagnostic pathway, and musculoskeletal or gastro-oesophageal causes become the sensible place to look. NICE builds in one exception. Where the resting 12-lead ECG shows ST-T changes or pathological Q waves, non-anginal pain is routed back into first-line 64-slice or better CT coronary angiography, because those changes suggest myocardial damage or ischaemia that the history has failed to declare. Reproducible chest wall tenderness supports a musculoskeletal cause without excluding coexisting coronary disease, and her risk factors play no part either way. This rescue is NICE-specific: ESC 2024 routes by clinical likelihood rather than by the resting ECG, so there an abnormal ECG raises suspicion without being the switch that reopens the pathway."
+    },
+    {
+      "id": "cardio_microvascular_angina",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 56-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this pathway."
+        },
+        {
+          "text": "presented with eight months of central chest tightness on walking uphill, relieved within five minutes of stopping.",
+          "role": "contributory",
+          "feedback": "Right thread. All three features, so this is typical angina — which is exactly why the story does not fit the label she leaves with."
+        },
+        {
+          "text": "She has hypertension and a family history of ischaemic heart disease.",
+          "role": "noise",
+          "feedback": "Real risk factors. They neither support nor undermine the diagnosis being made here."
+        },
+        {
+          "text": "Myocardial perfusion imaging shows a reversible inferolateral defect.",
+          "role": "pivot",
+          "feedback": "Objective ischaemia is not compatible with the label she has been given."
+        },
+        {
+          "text": "Invasive coronary angiography shows unobstructed coronary arteries.",
+          "role": "contributory",
+          "feedback": "Right thread, and it correctly rules out flow-limiting epicardial disease — there is nothing here to stent. But absence of obstruction is not absence of disease."
+        },
+        {
+          "text": "She is discharged with a diagnosis of non-cardiac chest pain.",
+          "role": "noise",
+          "feedback": "A decision already made, and the one the angiogram appears to license."
+        }
+      ],
+      "resolution": "Typical exertional angina with demonstrable reversible ischaemia and unobstructed epicardial arteries is microvascular angina, not non-cardiac chest pain. The perfusion defect is objective evidence that her myocardium is ischaemic; a normal angiogram tells you only that no epicardial vessel is doing it. The outlook is not benign and the treatment is medical — antianginal therapy continues and risk factors are treated — so discharge with a non-cardiac label is the one clearly wrong move. ESC 2024 goes further, giving invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries. Distinguish it from vasospastic angina, which presents at rest with transient ST elevation rather than on exertion with a fixed perfusion defect."
+    },
+    {
+      "id": "cardio_ctca_nondiagnostic",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 61-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this pathway."
+        },
+        {
+          "text": "presented with five months of central chest tightness on exertion, relieved by rest within a few minutes.",
+          "role": "contributory",
+          "feedback": "Right thread, and correctly classified — typical angina, which is what put him into the pathway at the right entry point."
+        },
+        {
+          "text": "He has type 2 diabetes and hypertension.",
+          "role": "noise",
+          "feedback": "Genuine risk factors, and they raise his chance of disease. They do not decide which test comes next."
+        },
+        {
+          "text": "His coronary artery calcium score is 890.",
+          "role": "contributory",
+          "feedback": "Right thread — a score that high is a real marker of risk and predicts exactly the problem that follows. But a number describing burden does not tell you what to do next."
+        },
+        {
+          "text": "The CT coronary angiogram is reported as non-diagnostic, the vessels being too heavily calcified to assess.",
+          "role": "pivot",
+          "feedback": "A test that could not answer the question is not the same as a test that answered it."
+        },
+        {
+          "text": "Invasive coronary angiography is planned.",
+          "role": "noise",
+          "feedback": "A decision already made, and the one that feels decisive."
+        }
+      ],
+      "resolution": "NICE sequences three lines. CT coronary angiography is first. Where it shows disease of uncertain functional significance or comes back non-diagnostic, non-invasive functional imaging is second. Invasive coronary angiography is third, for when functional imaging is inconclusive. A non-diagnostic scan moves him to the second line, not past it. Heavy calcification is the commonest reason a CTCA cannot be read, and a calcium score in the high hundreds warns of it in advance without itself justifying a skipped step. ESC sequences the same way. Going straight to the catheter lab commits him to an arterial procedure to answer a question stress imaging will usually answer without one."
     }
   ]
 }
