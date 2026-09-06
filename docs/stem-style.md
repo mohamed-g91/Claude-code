@@ -5,11 +5,15 @@ worked, and applied to every case unless there is a reason to depart from it.
 
 ## The reference stem
 
-> A 58-year-old man. He has four months of central chest tightness on walking
-> uphill that takes fifteen to twenty minutes to settle after he stops. He has
-> a past medical history of myocardial infarction three years ago. He smokes 15
-> cigarettes a day and his father had a myocardial infarction at 58. His
-> resting 12-lead ECG is normal. A CT coronary angiography is planned.
+> A 58-year-old man | presented with four months of central chest tightness on
+> walking uphill that takes fifteen to twenty minutes to settle after he stops.
+> | He has a past medical history of myocardial infarction three years ago. |
+> He smokes 15 cigarettes a day and his father had a myocardial infarction at
+> 58. | His resting 12-lead ECG is normal. | A CT coronary angiography is
+> planned.
+
+The `|` marks a clause boundary; the game joins clauses with a plain space, so
+the reader sees ordinary prose.
 
 Six clauses, sixty-odd words, and nothing in it signals which clause matters.
 That last property is the whole point.
@@ -36,8 +40,10 @@ cue, and it matches how a real handover arrives.
    attached. The plan is inherited, not argued for — that is what gives the
    learner a default to overturn without the stem naming the answer.
 
-4. **Age is always its own clause**, carrying sex with it: *"A 58-year-old
-   man."* Age is the pivot in other pathways — it is what picks the first-line
+4. **Age is always its own clause**, carrying sex with it, and runs straight
+   into the presentation clause: *"A 58-year-old man"* + *"presented with four
+   months of…"*. The two read as one sentence and stay separately tappable.
+   Age is the pivot in other pathways — it is what picks the first-line
    antihypertensive — so it has to stay tappable everywhere, and a learner who
    reaches for it deserves to be told why it is not decisive *here* rather than
    to find it welded to a sentence about something else.

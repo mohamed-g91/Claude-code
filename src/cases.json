@@ -779,12 +779,12 @@
       "topic": "Cardiology",
       "clauses": [
         {
-          "text": "A 58-year-old man.",
+          "text": "A 58-year-old man",
           "role": "noise",
           "feedback": "Age picks the drug or the test in plenty of pathways. Not this one — the 2016 update removed age-weighted pre-test probability from the chest pain pathway altogether."
         },
         {
-          "text": "He has four months of central chest tightness on walking uphill that takes fifteen to twenty minutes to settle after he stops.",
+          "text": "presented with four months of central chest tightness on walking uphill that takes fifteen to twenty minutes to settle after he stops.",
           "role": "contributory",
           "feedback": "Right thread. Losing that third feature — prompt relief with rest — makes this atypical rather than typical angina, which is worth classifying correctly. But the class does not pick the test."
         },
@@ -810,6 +810,43 @@
         }
       ],
       "resolution": "CT coronary angiography answers whether there is coronary disease. In a man who infarcted three years ago that question is already answered, and the useful one becomes whether his current symptoms are caused by ischaemia. NICE therefore routes people with confirmed coronary artery disease to non-invasive functional testing — stress echocardiography, myocardial perfusion scintigraphy or stress MR — rather than to first-line anatomical imaging. Neither his risk factors nor the atypical character of the pain moves him off that route, and the normal resting ECG excludes nothing. ESC 2024 arrives at the same place by a different argument, preferring functional imaging where the clinical likelihood of disease is already high."
+    },
+    {
+      "id": "cardio_cad_naive_ctca",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 64-year-old woman",
+          "role": "noise",
+          "feedback": "Age and sex drive the estimate in some pathways. Since 2016 the NICE chest pain pathway has used neither."
+        },
+        {
+          "text": "presented with six weeks of central chest tightness on walking to the bus stop, relieved within two minutes of stopping.",
+          "role": "contributory",
+          "feedback": "Right thread. All three features are present, so this is typical angina — worth classifying, but the class does not pick the test."
+        },
+        {
+          "text": "She has no past medical history.",
+          "role": "pivot",
+          "feedback": "Whether disease is already established is what decides where in the pathway she starts."
+        },
+        {
+          "text": "She has smoked since her twenties and her total cholesterol is 6.4 mmol/L.",
+          "role": "noise",
+          "feedback": "Substantial risk factors, and they raise her chance of having disease. They do not change how it is looked for."
+        },
+        {
+          "text": "Physical examination and her resting 12-lead ECG are normal.",
+          "role": "contributory",
+          "feedback": "Right to check, and NICE is explicit that a normal resting ECG does not exclude angina. A normal examination does not either — neither result moves her along the pathway or off it."
+        },
+        {
+          "text": "A stress echocardiogram is planned.",
+          "role": "noise",
+          "feedback": "Already booked. A test on the list is not a test that is justified."
+        }
+      ],
+      "resolution": "Non-invasive functional imaging — stress echocardiography, myocardial perfusion scintigraphy, stress MR — is second-line in the NICE pathway. It is what you reach for once CT coronary angiography has shown disease of uncertain functional significance or come back non-diagnostic. With no past medical history she has no established coronary disease and has not yet had the first-line test, which is 64-slice or better CT coronary angiography. Neither her risk factors nor the typical character of her pain changes that, the 2016 update having removed pre-test probability from the pathway. An exercise ECG would be wrong here too, for a different reason: NICE prohibits it outright for diagnosing or excluding angina in anyone without known coronary disease. ESC 2024 is the exception worth knowing — there functional imaging may be chosen first-line where clinical likelihood is high, so this ordering is NICE's rather than universal."
     }
   ]
 }
