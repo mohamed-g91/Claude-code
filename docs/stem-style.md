@@ -5,19 +5,18 @@ worked, and applied to every case unless there is a reason to depart from it.
 
 ## The reference stem
 
-> A 58-year-old man has four months of central chest tightness on walking
-> uphill. The tightness takes fifteen to twenty minutes to settle after he
-> stops. He has a past medical history of myocardial infarction three years
-> ago. He smokes 15 cigarettes a day and his father had a myocardial
-> infarction at 58. His resting 12-lead ECG is normal. A CT coronary
-> angiography is planned.
+> A 58-year-old man. He has four months of central chest tightness on walking
+> uphill that takes fifteen to twenty minutes to settle after he stops. He has
+> a past medical history of myocardial infarction three years ago. He smokes 15
+> cigarettes a day and his father had a myocardial infarction at 58. His
+> resting 12-lead ECG is normal. A CT coronary angiography is planned.
 
 Six clauses, sixty-odd words, and nothing in it signals which clause matters.
 That last property is the whole point.
 
 ## Order
 
-**Presentation → history → risk factors → investigations → plan.**
+**Age → presentation → history → risk factors → investigations → plan.**
 
 Always this order. A fixed order means the learner cannot use position as a
 cue, and it matches how a real handover arrives.
@@ -37,25 +36,36 @@ cue, and it matches how a real handover arrives.
    attached. The plan is inherited, not argued for — that is what gives the
    learner a default to overturn without the stem naming the answer.
 
-4. **Risk factors bundle into one clause.** Smoking, family history,
+4. **Age is always its own clause**, carrying sex with it: *"A 58-year-old
+   man."* Age is the pivot in other pathways — it is what picks the first-line
+   antihypertensive — so it has to stay tappable everywhere, and a learner who
+   reaches for it deserves to be told why it is not decisive *here* rather than
+   to find it welded to a sentence about something else.
+
+5. **The symptom and its qualifiers are one clause.** Character, trigger,
+   duration and what relieves it belong in a single sentence. Splitting them
+   turns one act of classification into two taps and invites a learner to score
+   a hit on half a thought.
+
+6. **Risk factors bundle into one clause.** Smoking, family history,
    cholesterol, BMI go together in a single sentence so they read as one block
    of background rather than a list of separate hooks.
 
-5. **Short declarative sentences.** No subordinate clauses that build a case.
+7. **Short declarative sentences.** No subordinate clauses that build a case.
    Each sentence states one thing and stops.
 
-6. **No severity adjectives** unless the number is itself the pivot. *Severe*,
+8. **No severity adjectives** unless the number is itself the pivot. *Severe*,
    *significant*, *marked* and *profound* are the writer's opinion leaking into
    the data.
 
-7. **Numbers carry no interpretation.** *"His resting 12-lead ECG is normal"*,
+9. **Numbers carry no interpretation.** *"His resting 12-lead ECG is normal"*,
    never *"reassuringly normal"*. The learner decides what it means.
 
-8. **Five or six clauses, roughly 55–75 words.** Below five there is nothing to
-   hide the pivot in; above six the exercise becomes reading stamina.
+10. **Six or seven clauses, roughly 55–75 words.** Fewer and there is nothing
+    to hide the pivot in; more and the exercise becomes reading stamina.
 
-9. **At least two contributory clauses.** One is enough to satisfy the
-   validator and not enough to stop the case scoring like right-and-wrong.
+11. **At least two contributory clauses.** One is enough to satisfy the
+    validator and not enough to stop the case scoring like right-and-wrong.
 
 ## The test
 
