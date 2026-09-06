@@ -7,9 +7,18 @@
 // Set PW_CHROMIUM to a Chromium binary if Playwright's bundled one is absent.
 
 import { chromium } from "playwright";
-import { globSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/index.html";
+
+// Deck size and the last case's pivot come from the data, never hardcoded --
+// otherwise adding a case fails the suite on a count rather than on a bug.
+// join(), not new URL() -- the page address below shadows the global URL.
+const CASES = JSON.parse(readFileSync(
+  join(import.meta.dirname, "..", "src", "cases.json"), "utf8")).cases;
+const N = CASES.length;
+const LAST_PIVOT = CASES[N - 1].clauses.findIndex((c) => c.role === "pivot");
 const results = [];
 const check = (name, ok, detail = "") =>
   results.push({ name, ok, detail });
@@ -56,7 +65,7 @@ check("no horizontal scroll at 360px", overflow <= 0, `overflow ${overflow}px`);
 
 // --- navigator ---
 const navCount = await page.locator(".nav-item").count();
-check("nav renders one button per case", navCount === 24, `${navCount} nav buttons`);
+check("nav renders one button per case", navCount === N, `${navCount} nav buttons`);
 
 const firstCurrent = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("case 1 marked current on load", firstCurrent === "1", firstCurrent);
@@ -185,10 +194,10 @@ check(
 
 // --- next button ---
 await page.locator("#next").click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`2 of ${n}`), N);
 const meta2 = await page.locator("#meta").innerText();
-check("next advances", meta2.includes("2 of 24"), meta2);
+check("next advances", meta2.includes(`2 of ${N}`), meta2);
 
 const cleanReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -205,10 +214,10 @@ check("feedback/resolution/button reset on new case",
 // Jump to case 5 directly, skipping cases 3-4 entirely -- something only
 // the navigator makes possible.
 await page.locator(".nav-item").nth(4).click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("5 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`5 of ${n}`), N);
 const meta5 = await page.locator("#meta").innerText();
-check("nav jump moves to the clicked case", meta5.includes("5 of 24"), meta5);
+check("nav jump moves to the clicked case", meta5.includes(`5 of ${N}`), meta5);
 
 const navReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -230,16 +239,16 @@ check("solved mark survives navigating away", case1StillSolved.includes("solved"
 // Jump back to case 2 so the rest of the flow continues from where the
 // existing checks below expect to be.
 await page.locator(".nav-item").nth(1).click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`2 of ${n}`), N);
 
 // --- keyboard only ---
-// The navigator's 24 buttons come before the clauses in tab order, so the
-// guard needs enough headroom to walk past all of them first.
+// The navigator's buttons come before the clauses in tab order, so the guard
+// needs enough headroom to walk past all of them first.
 await page.keyboard.press("Tab");
 let focused = await page.evaluate(() => document.activeElement?.className);
 let guard = 0;
-while (!String(focused).includes("clause") && guard++ < 40) {
+while (!String(focused).includes("clause") && guard++ < N + 16) {
   await page.keyboard.press("Tab");
   focused = await page.evaluate(() => document.activeElement?.className);
 }
@@ -260,36 +269,34 @@ await page.reload();
 await page.waitForSelector(".clause");
 const metaAfter = await page.locator("#meta").innerText();
 const scoreAfter = await page.locator("#score").innerText();
-check("case index persists across reload", metaAfter.includes("2 of 24"), metaAfter);
+check("case index persists across reload", metaAfter.includes(`2 of ${N}`), metaAfter);
 check("score persists across reload", /of \d/.test(scoreAfter), scoreAfter);
 
 const navAfterReload = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("nav current-case marker restores after reload", navAfterReload === "2", navAfterReload);
 
 // --- end of deck wraps rather than dead-ends ---
-await page.evaluate(() => {
+await page.evaluate((n) => {
   localStorage.setItem("findthepivot.v1",
-    JSON.stringify({ index: 23, progress: {} }));
-});
+    JSON.stringify({ index: n - 1, progress: {} }));
+}, N);
 await page.reload();
 await page.waitForSelector(".clause");
 const lastCase = await page.locator("#meta").innerText();
-check("can resume at last case", lastCase.includes("24 of 24"), lastCase);
+check("can resume at last case", lastCase.includes(`${N} of ${N}`), lastCase);
 
-// Case 24 (cardio_prinzmetal_angina): the pivot is the normal-angiogram
-// finding -- "no significant stenosis" is unique to that clause.
-const pivotIdx = await page.locator(".clause").evaluateAll((els) =>
-  els.findIndex((e) => e.textContent.includes("stenosis")));
-await page.locator(".clause").nth(pivotIdx).click();
+// The last case's pivot position comes from cases.json, so this keeps working
+// whichever case ends up last.
+await page.locator(".clause").nth(LAST_PIVOT).click();
 const nextLabel = await page.locator("#next").innerText();
 check("last case offers restart, not a dead button", /again/i.test(nextLabel), nextLabel);
 
-const lastNavSolved = await page.locator(".nav-item").nth(23).getAttribute("class");
+const lastNavSolved = await page.locator(".nav-item").nth(N - 1).getAttribute("class");
 check("last case marked solved in nav after completion", lastNavSolved.includes("solved"), lastNavSolved);
 
 await page.locator("#next").click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("1 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`1 of ${n}`), N);
 const wrapped = await page.locator("#next").evaluate((e) => e.disabled);
 check("restart re-enables the button", wrapped === false);
 
