@@ -773,6 +773,43 @@
         }
       ],
       "resolution": "Chest pain at rest, characteristically clustering in the early hours, with transient ST elevation that resolves spontaneously and a coronary angiogram free of significant stenosis, is Prinzmetal's (variant) angina — coronary artery vasospasm rather than fixed atherosclerotic obstruction. This changes the pharmacology: first-line treatment is a dihydropyridine calcium channel blocker such as amlodipine or nifedipine to relax the vessel wall, with long-acting nitrates as an add-on. Beta-blockers, the default second agent in ordinary stable angina, are avoided here — unopposed alpha-mediated vasoconstriction can worsen the spasm they're meant to treat. Smoking history and family history describe her risk of atherosclerosis; the angiogram is what tells you which disease she actually has."
+    },
+    {
+      "id": "cardio_known_cad_functional",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 58-year-old man.",
+          "role": "noise",
+          "feedback": "Age picks the drug or the test in plenty of pathways. Not this one — the 2016 update removed age-weighted pre-test probability from the chest pain pathway altogether."
+        },
+        {
+          "text": "He has four months of central chest tightness on walking uphill that takes fifteen to twenty minutes to settle after he stops.",
+          "role": "contributory",
+          "feedback": "Right thread. Losing that third feature — prompt relief with rest — makes this atypical rather than typical angina, which is worth classifying correctly. But the class does not pick the test."
+        },
+        {
+          "text": "He has a past medical history of myocardial infarction three years ago.",
+          "role": "pivot",
+          "feedback": "Established disease changes the question being asked."
+        },
+        {
+          "text": "He smokes 15 cigarettes a day and his father had a myocardial infarction at 58.",
+          "role": "noise",
+          "feedback": "Real risk factors, and easy to weight. They neither add to nor subtract from disease he is already known to have."
+        },
+        {
+          "text": "His resting 12-lead ECG is normal.",
+          "role": "contributory",
+          "feedback": "Worth checking, and NICE is explicit that a normal resting ECG does not exclude angina. Here it rules nothing in and nothing out."
+        },
+        {
+          "text": "A CT coronary angiography is planned.",
+          "role": "noise",
+          "feedback": "A decision someone has already made. That a test is booked is not evidence that it is the right one."
+        }
+      ],
+      "resolution": "CT coronary angiography answers whether there is coronary disease. In a man who infarcted three years ago that question is already answered, and the useful one becomes whether his current symptoms are caused by ischaemia. NICE therefore routes people with confirmed coronary artery disease to non-invasive functional testing — stress echocardiography, myocardial perfusion scintigraphy or stress MR — rather than to first-line anatomical imaging. Neither his risk factors nor the atypical character of the pain moves him off that route, and the normal resting ECG excludes nothing. ESC 2024 arrives at the same place by a different argument, preferring functional imaging where the clinical likelihood of disease is already high."
     }
   ]
 }
