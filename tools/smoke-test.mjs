@@ -536,9 +536,12 @@ check("no horizontal scroll on index.html at 360px", landingOverflow <= 1, `over
 // thumb-sized. Links sitting inline in a sentence are excluded: their height
 // is fixed by the line-height of the prose around them, which is exactly the
 // inline exception in WCAG 2.5.8, and padding them out would tear the
-// paragraph apart.
+// paragraph apart. Controls that are not rendered at all are excluded too:
+// below 620px the bar drops its in-page anchors (see brand.css), and a
+// display:none element measures 0px without ever being a target to miss.
 const landingTargets = await landingPage.locator("a, button").evaluateAll((els) =>
   els
+    .filter((e) => e.getClientRects().length > 0)
     .filter((e) => getComputedStyle(e).display !== "inline")
     .map((e) => ({
       label: (e.textContent || "").trim().slice(0, 24),
@@ -614,6 +617,163 @@ for (const scheme of ["light", "dark"]) {
   const [l1, l2] = [lum(parse(fg)), lum(parse(bg))].sort((a, b) => b - a);
   const ratio = (l1 + 0.05) / (l2 + 0.05);
   check(`hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
+  await c.close();
+}
+
+// --- ar.html: the Arabic landing page ---
+// ar.html is the RTL counterpart of index.html: same stylesheets, same script,
+// same element ids. That shared machinery is exactly why it needs its own
+// checks -- a rule written for the LTR page can look fine there and fall apart
+// once the writing direction flips, and nothing in the English section above
+// would notice.
+const ARABIC_URL = URL.replace(/play\.html$/, "ar.html");
+
+const arabicConsoleErrors = [];
+const arabicBadResponses = [];
+const ctx5 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const arabicPage = await ctx5.newPage();
+arabicPage.on("pageerror", (e) => arabicConsoleErrors.push(String(e)));
+arabicPage.on("console", (m) => { if (m.type() === "error") arabicConsoleErrors.push(m.text()); });
+arabicPage.on("response", (r) => { if (r.status() >= 400) arabicBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await arabicPage.goto(ARABIC_URL);
+// Same as index.html: landing.js fetches cases.json, so the counted numbers
+// land after load rather than at DOMContentLoaded.
+await arabicPage.waitForLoadState("networkidle");
+
+check("no console/page errors on ar.html", arabicConsoleErrors.length === 0, arabicConsoleErrors.join(" | "));
+check("no failed requests on ar.html", arabicBadResponses.length === 0, arabicBadResponses.join(" | "));
+
+// --- the document really is Arabic and really is RTL ---
+// Both attributes carry weight and neither implies the other: `lang` is what
+// picks Arabic shaping, hyphenation and the right voice in a screen reader,
+// while `dir` is what mirrors the layout. A copy-paste of index.html that kept
+// `lang="en"`, or an `ar` page that forgot `dir`, would still render Arabic
+// glyphs and look plausible in a screenshot.
+const arabicDoc = await arabicPage.evaluate(() => ({
+  lang: document.documentElement.lang,
+  dir: document.documentElement.dir,
+}));
+check(
+  "ar.html declares Arabic and RTL on <html>",
+  arabicDoc.lang === "ar" && arabicDoc.dir === "rtl",
+  `lang=${arabicDoc.lang} dir=${arabicDoc.dir}`
+);
+
+// --- the primary CTAs actually go somewhere ---
+// The Arabic page sends people to the same two English deck pages, so a
+// renamed deck file breaks it in exactly the same silent way. Resolve the real
+// href with a real request rather than trusting the attribute.
+for (const target of ["angina.html", "play.html"]) {
+  const hrefs = await arabicPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
+    els.map((e) => e.href));
+  check(`ar.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
+  if (hrefs.length === 0) continue;
+  const res = await ctx5.request.get(hrefs[0]);
+  check(`${target} resolves with 200 from the Arabic landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+}
+
+// --- no horizontal scroll at 360px ---
+// The check that matters most on a mirrored layout: any margin, padding or
+// offset written as left/right instead of a logical property lands on the
+// wrong side under `dir="rtl"` and pushes the page sideways. On a phone that
+// shows up as content sliding out from under the thumb.
+const arabicOverflow = await arabicPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("no horizontal scroll on ar.html at 360px", arabicOverflow <= 1, `overflow ${arabicOverflow}px`);
+
+// --- the counted facts match the data ---
+// Same three numbers, same source. Passing here proves landing.js runs on this
+// page too -- the Arabic markup could easily have shipped with the ids renamed
+// or the script tag dropped, leaving three frozen numbers that drift from the
+// bank the moment a case is added.
+const arabicFacts = await arabicPage.evaluate(() => ({
+  batch: document.getElementById("factBatch")?.textContent.trim(),
+  total: document.getElementById("factTotal")?.textContent.trim(),
+  specialties: document.getElementById("factSpecialties")?.textContent.trim(),
+}));
+check(
+  "ar.html counts Batch 01 from cases.json",
+  arabicFacts.batch === String(LANDING_BATCH),
+  `${arabicFacts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "ar.html counts the total deck from cases.json",
+  arabicFacts.total === String(LANDING_TOTAL),
+  `${arabicFacts.total}, expected ${LANDING_TOTAL}`
+);
+check(
+  "ar.html counts distinct specialties from cases.json",
+  arabicFacts.specialties === String(LANDING_SPECIALTIES),
+  `${arabicFacts.specialties}, expected ${LANDING_SPECIALTIES}`
+);
+
+// --- the language switch is reciprocal ---
+// A one-way switch is a trap: a reader who lands on the Arabic page from a
+// shared link and wants the English one (or the reverse) has no route back,
+// and search engines see a dangling pair. Both halves are asserted together so
+// deleting either one fails here.
+const arabicSwitch = await arabicPage.locator('a[href="index.html"]').count();
+const landingSwitch = await landingPage.locator('a[href="ar.html"]').count();
+check(
+  "ar.html and index.html link to each other (reciprocal language switch)",
+  arabicSwitch > 0 && landingSwitch > 0,
+  `ar.html->index.html ${arabicSwitch}, index.html->ar.html ${landingSwitch}`
+);
+
+// --- the demo panel stays left-to-right ---
+// The panel is a picture of the real deck, and the real deck is English. If
+// `dir="rtl"` were allowed to cascade into it the punctuation and the clause
+// order would flip, and the page would be advertising a screen that does not
+// exist in the product.
+const demoDir = await arabicPage.locator(".demo").getAttribute("dir");
+check(
+  "ar.html demo panel stays LTR (it depicts the English interface)",
+  demoDir === "ltr",
+  `dir=${demoDir}`
+);
+
+// --- the wordmark stays on one line ---
+// The product name is Latin text sitting in an RTL bar next to three Arabic
+// links; at 360px it wrapped onto a second line and pushed the bar to double
+// height. Measuring the rendered box against the type is what keeps this
+// honest at any type scale -- one line cannot be 1.6x its own font-size tall.
+// The floor is the catch: the wordmark is also a tap target, so brand.css
+// pins it to min-height 44px and a single line already measures exactly that,
+// well past 1.6x a 17px font. So the bar is whichever of the two is taller,
+// and it still has teeth: restoring the wrap measures 96px here, over twice
+// the floor, because a second line stacks on top of it.
+const wordmark = await arabicPage.locator(".wordmark").evaluate((e) => {
+  const s = getComputedStyle(e);
+  return {
+    height: e.getBoundingClientRect().height,
+    fontSize: parseFloat(s.fontSize),
+    floor: parseFloat(s.minHeight) || 0,
+  };
+});
+const wordmarkCeiling = Math.max(wordmark.fontSize * 1.6, wordmark.floor);
+check(
+  "ar.html wordmark stays on one line at 360px",
+  wordmark.height <= wordmarkCeiling,
+  `${Math.round(wordmark.height)}px tall, one-line ceiling ${Math.round(wordmarkCeiling)}px ` +
+    `(font-size ${Math.round(wordmark.fontSize)}px, tap-target floor ${Math.round(wordmark.floor)}px)`
+);
+
+// --- contrast of the hero CTA in both schemes (WCAG AA >= 4.5) ---
+// Same button, same stylesheet, but the Arabic face renders at a different
+// weight and the button is checked here on its own so a font-driven colour
+// tweak for Arabic cannot quietly drop below AA.
+for (const scheme of ["light", "dark"]) {
+  const c = await browser.newContext({ colorScheme: scheme });
+  const pg = await c.newPage();
+  await pg.goto(ARABIC_URL);
+  const { fg, bg } = await pg.evaluate(() => {
+    const s = getComputedStyle(document.getElementById("startBatch01"));
+    return { fg: s.color, bg: s.backgroundColor };
+  });
+  const [l1, l2] = [lum(parse(fg)), lum(parse(bg))].sort((a, b) => b - a);
+  const ratio = (l1 + 0.05) / (l2 + 0.05);
+  check(`ar.html hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
   await c.close();
 }
 
