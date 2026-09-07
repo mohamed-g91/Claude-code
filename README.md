@@ -37,6 +37,24 @@ Two further rules the content follows:
   `box-decoration-break: clone` so a sentence spanning two lines keeps one
   unbroken highlight.
 
+## Pages
+
+| page | what it is |
+|---|---|
+| `index.html` | the landing page — what a friend sent the link opens first |
+| `angina.html` | Batch 01, the nine stable-angina cases |
+| `play.html` | the mixed deck, every case written so far |
+
+A deck page is a shell: the markup `src/game.js` expects, plus
+`data-batch` to narrow the deck. Everything visual lives in `src/brand.css`
+(tokens, brand bar, buttons, footer) and `src/game.css` (the deck UI), so a
+new batch page is a copy of `angina.html` with a different title and tag —
+and a line in the deploy workflow's `cp`.
+
+`src/landing.js` is enhancement only: it recounts the numbers on the landing
+page from `cases.json` and offers a returning reader their place back. The
+page is correct with it blocked.
+
 ## Running it
 
 `fetch` is blocked on `file://`, so serve the folder rather than opening the
@@ -62,6 +80,9 @@ The workflow then runs on every push to `main`, and can be triggered manually
 from any branch (Actions → Deploy to GitHub Pages → Run workflow) to preview
 before merging. The site lands at
 `https://mohamed-g91.github.io/Claude-code/`.
+
+Only the files named in the workflow's `cp` line are published. **A new page
+that is not added there does not exist in production.**
 
 All asset paths are relative, so the site works unchanged under that subpath.
 
@@ -90,20 +111,37 @@ too often, which teaches position rather than reasoning.
 npm test            # validator, then the browser suite
 ```
 
+Before committing anything a learner sees, read
+`.claude/skills/impeccable/SKILL.md` — it is the bar the pages are held to:
+tokens over hex, 44px targets, AA contrast in both schemes, and no number on
+a page that was not counted from `cases.json`.
+
 The browser suite needs the server running in another shell. It drives real
 Chromium and covers the three-state interaction, that earlier marks survive,
 locking after the pivot, keyboard-only play, focus visibility, persistence
 across reload, behaviour with `localStorage` blocked, no horizontal scroll and
 44px tap targets at 360px, and button contrast in both colour schemes.
 
+It also covers the landing page: that it loads clean, that its links to the
+decks resolve, that the counts it shows match `cases.json`, that those counts
+are still there with JavaScript off, and that its primary call to action
+clears contrast in both schemes.
+
 Set `PW_CHROMIUM` if Playwright's bundled browser is missing.
 
 ## Layout
 
 ```
-index.html              shell, styles, no embedded content
-src/game.js             rendering, three-state scoring, progress
-src/cases.json          the cases
+index.html                 landing page
+angina.html                Batch 01 deck shell
+play.html                  mixed deck shell
+src/brand.css              design tokens, brand bar, buttons, footer
+src/game.css               the deck UI
+src/landing.css            the landing page
+src/game.js                rendering, three-state scoring, progress
+src/landing.js             landing counts and resume (enhancement only)
+src/cases.json             the cases
+.claude/skills/impeccable  the shipping bar for anything a learner sees
 tools/validate-cases.mjs   schema gate
 tools/smoke-test.mjs       browser suite
 ```

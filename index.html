@@ -3,363 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Clinical reasoning practice for MRCP Part 1: find the finding that changes management.">
-<title>Find the Pivot</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='none' stroke='%232b6cb0' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%232b6cb0'/></svg>">
-<style>
-  :root {
-    color-scheme: light dark;
-    --bg: #f4f7f6;
-    --card: #ffffff;
-    --ink: #1a202c;
-    --ink-soft: #4a5568;
-    --ink-faint: #718096;
-    --line: #e2e8f0;
-    --accent: #2b6cb0;
-    --on-accent: #ffffff;
-
-    --pivot-bg: #d5f2df;
-    --pivot-ink: #1c4532;
-    --pivot-line: #48a06f;
-
-    --contrib-bg: #fdf0d5;
-    --contrib-ink: #6b4907;
-    --contrib-line: #d69e2e;
-
-    --noise-bg: #fbdede;
-    --noise-ink: #742a2a;
-    --noise-line: #e07070;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14181c;
-      --card: #1c2126;
-      --ink: #e8edf2;
-      --ink-soft: #b3bec9;
-      --ink-faint: #8b98a5;
-      --line: #2d353d;
-      --accent: #63a4e8;
-      /* Dark text on the lighter accent -- white on #63a4e8 fails contrast. */
-      --on-accent: #0c1a28;
-
-      --pivot-bg: #17352a;
-      --pivot-ink: #9ae6b4;
-      --pivot-line: #3d9970;
-
-      --contrib-bg: #3a2f14;
-      --contrib-ink: #f0cb7a;
-      --contrib-line: #b7862a;
-
-      --noise-bg: #3d1f22;
-      --noise-ink: #feb2b2;
-      --noise-line: #a34f4f;
-    }
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    margin: 0;
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-    line-height: 1.6;
-  }
-
-  .game {
-    background: var(--card);
-    padding: 1.25rem;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    max-width: 660px;
-    width: 100%;
-  }
-
-  header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: baseline;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 0.85rem;
-    margin-bottom: 1.1rem;
-  }
-  h1 {
-    margin: 0;
-    font-size: 0.95rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-  .meta { font-size: 0.85rem; color: var(--ink-faint); }
-
-  /* A contained horizontal scroll strip -- this never adds to the page's
-     own scrollWidth, so it doesn't fight the no-horizontal-scroll rule the
-     stem itself has to honour at 360px. */
-  .nav {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.4rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0.15rem 0.15rem 0.6rem;
-    margin-bottom: 1.1rem;
-    border-bottom: 1px solid var(--line);
-  }
-  .nav-item {
-    flex: 0 0 auto;
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--ink-soft);
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-  }
-  .nav-item:hover {
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-  }
-  .nav-item:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 1px;
-  }
-  /* Reuses the pivot palette -- the same green a correctly-found pivot
-     already turns, so "solved" doesn't invent a fourth colour. */
-  .nav-item.solved {
-    background: var(--pivot-bg);
-    color: var(--pivot-ink);
-    border-color: var(--pivot-line);
-  }
-  /* box-shadow rather than a border-width change: it doesn't reflow the
-     button, so the strip doesn't jiggle as the current case moves. */
-  .nav-item[aria-current="true"] {
-    box-shadow: 0 0 0 2px var(--accent);
-    color: var(--ink);
-    font-weight: 700;
-  }
-
-  .prompt {
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-    border-left: 3px solid var(--accent);
-    padding: 0.8rem 1rem;
-    border-radius: 0 8px 8px 0;
-    font-weight: 600;
-    margin-bottom: 1.2rem;
-  }
-
-  /* The stem reads as continuous prose -- a clinical stem, not a list of
-     options. The generous line-height is doing real work: it gives each
-     wrapped line enough vertical room to be a comfortable thumb target
-     without breaking the sentences apart. */
-  .stem {
-    font-size: 1.1rem;
-    line-height: 2.4;
-    margin: 0;
-  }
-
-  /* Inline spans rather than <button>: an inline-level button does not wrap
-     reliably across engines, and these sentences always wrap on a phone.
-     role="button" + tabindex keeps the semantics and keyboard behaviour. */
-  .clause {
-    /* Vertical padding, not line-height, is what makes an inline span
-       tappable: the hit area is the font box plus padding. Sized to just
-       under the line box so bands are near-contiguous without overlapping. */
-    padding: 0.6rem 0.3rem;
-    border-radius: 5px;
-    cursor: pointer;
-    /* Without this the background, padding and radius apply only to the
-       first and last line fragment, and the highlight tears mid-sentence. */
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-    /* Quiet but present at rest: there is no hover on a touchscreen, so the
-       affordance cannot depend on one -- while an underline under every
-       sentence at full strength turns the stem into noise. The breaks
-       between runs also show where one tappable finding ends. */
-    border-bottom: 1px dotted color-mix(in srgb, var(--ink-faint) 50%, transparent);
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .clause:hover:not([aria-disabled="true"]) {
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-    border-bottom-color: var(--ink);
-  }
-  .clause:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 1px;
-  }
-
-  /* Marks persist: the trail of what you tried is the point. */
-  .clause.pivot {
-    background: var(--pivot-bg); color: var(--pivot-ink);
-    border-bottom-color: var(--pivot-line);
-    font-weight: 600;
-  }
-  .clause.contributory {
-    background: var(--contrib-bg); color: var(--contrib-ink);
-    border-bottom-color: var(--contrib-line);
-  }
-  .clause.noise {
-    background: var(--noise-bg); color: var(--noise-ink);
-    border-bottom-color: var(--noise-line);
-  }
-  .clause[aria-disabled="true"] { cursor: default; }
-
-  /* An answer, not a finding -- so it sits outside the stem and is dashed
-     rather than underlined. A learner must be able to say the plan is right,
-     otherwise every case silently promises that something is wrong with it. */
-  .none-option {
-    display: block;
-    width: 100%;
-    min-height: 44px;
-    margin-top: 1rem;
-    padding: 0.7rem 1rem;
-    font: inherit;
-    text-align: left;
-    color: var(--ink);
-    background: transparent;
-    border: 1px dashed var(--line);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .none-option:hover:not([aria-disabled="true"]) {
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-    border-color: var(--ink);
-  }
-  .none-option:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 1px;
-  }
-  .none-option.pivot {
-    background: var(--pivot-bg); color: var(--pivot-ink);
-    border: 1px solid var(--pivot-line); font-weight: 600;
-  }
-  .none-option.contributory {
-    background: var(--contrib-bg); color: var(--contrib-ink);
-    border: 1px solid var(--contrib-line);
-  }
-  .none-option.noise {
-    background: var(--noise-bg); color: var(--noise-ink);
-    border: 1px solid var(--noise-line);
-  }
-  .none-option[aria-disabled="true"] { cursor: default; }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-weight: 700;
-    opacity: 0.75;
-    margin-right: 0.45rem;
-  }
-
-  .feedback {
-    margin-top: 1.1rem;
-    padding: 0.9rem 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-  }
-  .feedback:empty { display: none; }
-  .feedback.pivot { background: var(--pivot-bg); color: var(--pivot-ink); border-color: var(--pivot-line); }
-  .feedback.contributory { background: var(--contrib-bg); color: var(--contrib-ink); border-color: var(--contrib-line); }
-  .feedback.noise { background: var(--noise-bg); color: var(--noise-ink); border-color: var(--noise-line); }
-
-  .resolution {
-    margin-top: 0.9rem;
-    padding: 0.9rem 1rem;
-    background: color-mix(in srgb, var(--ink) 5%, transparent);
-    border-radius: 8px;
-    font-size: 0.96rem;
-  }
-  .resolution:empty { display: none; }
-  .resolution h2 {
-    margin: 0 0 0.4rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  .next {
-    margin-top: 1.2rem;
-    width: 100%;
-    font: inherit;
-    font-weight: 600;
-    padding: 0.85rem 1.5rem;
-    min-height: 48px;
-    background: var(--accent);
-    color: var(--on-accent);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  .next:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-  .next[hidden] { display: none; }
-
-  .score {
-    margin-top: 1rem;
-    font-size: 0.82rem;
-    color: var(--ink-faint);
-    text-align: center;
-  }
-
-  .error {
-    padding: 1rem;
-    border: 1px solid var(--noise-line);
-    background: var(--noise-bg);
-    color: var(--noise-ink);
-    border-radius: 8px;
-  }
-  .error code {
-    display: block;
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  @media (max-width: 420px) {
-    body { padding: 0.5rem; }
-    .game { padding: 1rem 0.85rem; border-radius: 10px; }
-    /* Tap targets stay 44px -- only the gap between them shrinks. */
-    .nav { gap: 0.3rem; }
-  }
-</style>
+<meta name="description" content="Find the Pivot: MRCP Part 1 clinical reasoning drills. Each stem is broken into its findings and you tap the one that changes immediate management. Batch 01 — nine stable angina cases — is free and needs no signup.">
+<title>Find the Pivot — clinical reasoning drills for MRCP Part 1</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='none' stroke='%230d5c70' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%230d5c70'/></svg>">
+<meta property="og:title" content="Find the Pivot — clinical reasoning drills for MRCP Part 1">
+<meta property="og:description" content="Exam stems are mostly noise wrapped around one decisive finding. This drills the step before the answer.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="src/brand.css">
+<link rel="stylesheet" href="src/landing.css">
 </head>
 <body>
 
-<main class="game">
-  <header>
-    <h1>Find the Pivot</h1>
-    <span class="meta" id="meta"></span>
-  </header>
+<a class="skip" href="#batches">Skip to the cases</a>
 
-  <div class="nav" id="nav" role="group" aria-label="Jump to case"></div>
+<header class="bar">
+  <div class="bar-inner">
+    <a class="wordmark" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="16" cy="16" r="5" fill="currentColor"/>
+      </svg>
+      Find the Pivot
+    </a>
+    <nav class="bar-links" aria-label="Site">
+      <a class="bar-link" href="#how">How it works</a>
+      <a class="bar-link" href="#batches">Batches</a>
+    </nav>
+  </div>
+</header>
 
-  <p class="prompt" id="prompt"></p>
+<main>
 
-  <p class="stem" id="stem"></p>
+  <!-- ---------- hero ---------- -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="badge">Free preview &middot; no signup</p>
+        <h1>Exam stems are mostly noise. Train the <em>one finding</em> that commits you.</h1>
+        <p class="hero-lead">
+          MRCP Part 1 candidates lose marks by pattern-matching the noise. Find the
+          Pivot breaks each stem into its findings and asks a single question:
+          which one changes what you do next. It drills the step before the answer.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="angina.html" id="startBatch01">Start Batch 01 &mdash; Stable Angina</a>
+          <a class="btn btn-secondary" href="play.html">Try the mixed deck</a>
+        </div>
+        <p class="hero-note">
+          Runs in your browser on a phone &middot; nothing to install &middot;
+          your progress stays on your device
+        </p>
+      </div>
 
-  <button class="none-option" id="noneOption" type="button"></button>
+      <!-- A still of the real interface, not a stock photograph: the pitch is
+           the interaction, so the page shows it. The vignette is written for
+           this panel and is not one of the cases, so nothing is spoiled. -->
+      <div>
+        <div class="demo" role="img"
+             aria-label="Screenshot of a case: the stem is split into findings, one tapped finding is marked green as the pivot, another amber as contributory, another red as not decisive, and a green panel explains why.">
+          <div class="demo-head">
+            <span>Cardiology</span>
+            <span>3 of 9</span>
+          </div>
+          <p class="demo-prompt">Tap the finding that most changes immediate management.</p>
+          <p class="demo-stem" aria-hidden="true">
+            <mark class="noise">A 68-year-old woman is treated for community-acquired pneumonia.</mark>
+            She is on clarithromycin and remains febrile.
+            <mark class="contributory">Her potassium is 3.1 mmol/L.</mark>
+            <mark class="pivot">Her QTc has lengthened to 510 ms.</mark>
+          </p>
+          <p class="demo-feedback" aria-hidden="true">
+            <span class="tag">Pivot</span>This is the finding that changes the drug, not the dose.
+          </p>
+        </div>
+        <p class="demo-caption">Illustration &mdash; the working version is one tap away.</p>
+      </div>
+    </div>
+  </section>
 
-  <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-  <div class="resolution" id="resolution"></div>
+  <!-- ---------- counted facts ---------- -->
+  <!-- Every number here is counted from src/cases.json at load, and the static
+       values are the same count written out so the page is honest with
+       JavaScript off. -->
+  <section class="facts-band" aria-label="What is in the bank">
+    <dl class="wrap facts">
+      <div class="fact">
+        <dt id="factBatch">9</dt>
+        <dd>Cases in Batch 01</dd>
+      </div>
+      <div class="fact">
+        <dt id="factTotal">33</dt>
+        <dd>Cases written</dd>
+      </div>
+      <div class="fact">
+        <dt id="factSpecialties">11</dt>
+        <dd>Specialties covered</dd>
+      </div>
+    </dl>
+  </section>
 
-  <button class="next" id="next" type="button" hidden></button>
+  <!-- ---------- three states ---------- -->
+  <section id="method">
+    <div class="wrap">
+      <p class="eyebrow">The method</p>
+      <h2 class="section-title">Three states, not right and wrong</h2>
+      <p class="section-lead">
+        Clinical reasoning is not binary, and marking it that way teaches a
+        distorted model of it. A candidate who taps a raised JVP in a
+        right-ventricular infarct is thinking correctly &mdash; so the case says so,
+        rather than marking them wrong and moving on.
+      </p>
+      <div class="cards cards-3">
+        <div class="state-card pivot">
+          <h3>Pivot</h3>
+          <p>The finding that commits you to a different action. One per case, and the case only opens up once you find it.</p>
+        </div>
+        <div class="state-card contributory">
+          <h3>Contributory</h3>
+          <p>The right line of reasoning, not decisive on its own. You are told why it is close and what it is still missing.</p>
+        </div>
+        <div class="state-card noise">
+          <h3>Not decisive</h3>
+          <p>True, often alarming, and it changes nothing you do next. Learning to leave these alone is most of the skill.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <p class="score" id="score"></p>
+  <!-- ---------- batches ---------- -->
+  <section id="batches">
+    <div class="wrap">
+      <p class="eyebrow">The bank</p>
+      <h2 class="section-title">Batches</h2>
+      <p class="section-lead">
+        Cases ship in topic batches so a sitting is one coherent piece of the
+        blueprint rather than a shuffle. Batch 01 is the place to start.
+      </p>
+      <div class="cards cards-2">
+
+        <article class="batch featured">
+          <p class="batch-tag">Batch 01 &middot; Live</p>
+          <h3>Stable angina &amp; ischaemic heart disease</h3>
+          <p>
+            Nine cases on the decisions that actually get tested: who needs
+            imaging, which test, and when the answer is to change the drug
+            rather than add one.
+          </p>
+          <ul>
+            <li>Choosing between CTCA and functional imaging</li>
+            <li>Stress agents and the comorbidity that rules one out</li>
+            <li>Non-diagnostic and non-anginal results</li>
+            <li>Anti-anginal escalation, tolerance and a dangerous pairing</li>
+          </ul>
+          <a class="btn btn-primary" href="angina.html" id="batch01Cta">Start Batch 01</a>
+        </article>
+
+        <article class="batch">
+          <p class="batch-tag muted">Everything written so far</p>
+          <h3>Mixed deck</h3>
+          <p>
+            Every case in the bank, shuffled across specialties the way the
+            paper actually comes at you &mdash; cardiology, endocrine, tox,
+            neurology, haematology and the rest.
+          </p>
+          <ul>
+            <li>Batch 01 included, plus every earlier case</li>
+            <li>Same three-state scoring and first-attempt score</li>
+            <li>Jump to any case; progress is kept separately from Batch 01</li>
+          </ul>
+          <a class="btn btn-secondary" href="play.html">Open the mixed deck</a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- how it works ---------- -->
+  <section id="how">
+    <div class="wrap">
+      <p class="eyebrow">How a case runs</p>
+      <h2 class="section-title">Three taps, about two minutes</h2>
+      <div class="steps">
+        <div class="step">
+          <h3>Read the stem</h3>
+          <p>It is written as prose, not a list. A stacked list reads as multiple choice, which is the habit this is meant to break.</p>
+        </div>
+        <div class="step">
+          <h3>Tap the finding</h3>
+          <p>Every finding is tappable and the prompt never names the answer. Marks stay on screen, so the trail of what you tried is still there when you find it.</p>
+        </div>
+        <div class="step">
+          <h3>Read why it turns</h3>
+          <p>Finding the pivot opens a short resolution: why that finding and not the others, and what it changes about the plan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- feedback ---------- -->
+  <section id="feedback">
+    <div class="wrap">
+      <div class="band">
+        <h2>You are looking at an early preview</h2>
+        <p>
+          Batch 01 is the first finished set and it is being read by a handful
+          of people before it goes further. If a case is wrong, ambiguous, or
+          just annoying, that is worth more than a compliment.
+        </p>
+        <div class="cta-row" style="justify-content:center">
+          <a class="btn btn-primary" href="angina.html">Start Batch 01</a>
+          <a class="btn btn-secondary" href="https://github.com/mohamed-g91/Claude-code/issues/new" target="_blank" rel="noopener">Send feedback</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<script src="src/game.js"></script>
+<footer class="site-footer">
+  <div class="inner">
+    <p class="disclaimer">Independent revision material. Not affiliated with, endorsed by
+    or connected to MRCP(UK), the Federation of Royal Colleges of Physicians or any
+    question-bank publisher. Cases are written originally for this site, are for
+    education only, and are not clinical advice.</p>
+    <p>&copy; 2026 Find the Pivot &middot;
+      <a href="angina.html">Batch 01</a> &middot;
+      <a href="play.html">Mixed deck</a> &middot;
+      <a href="https://github.com/mohamed-g91/Claude-code" target="_blank" rel="noopener">Source</a>
+    </p>
+  </div>
+</footer>
+
+<script src="src/landing.js"></script>
 </body>
 </html>
