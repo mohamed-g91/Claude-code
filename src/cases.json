@@ -1036,6 +1036,90 @@
         "feedback": "Restraint is the decision."
       },
       "resolution": "NICE is explicit: do not offer a third antianginal drug to someone whose stable angina is controlled on two. A third is considered only where two have failed to control symptoms and the person is awaiting revascularisation or is unsuitable for it. One episode in three months, with monthly GTN use, on a beta-blocker and a dihydropyridine calcium channel blocker both at full dose, is control. The 60% circumflex stenosis is the trap — anatomically real, functionally uncertain, and not on its own an indication to revascularise a man already controlled on medical therapy; routine invasive management in stable disease has not been shown to reduce ischaemic events, and its symptom benefit falls to those still symptomatic. The statin and the cessation clinic are secondary prevention running correctly alongside. Sometimes the finding that changes management is that there isn't one."
+    },
+    {
+      "id": "pharm_verapamil_betablocker",
+      "topic": "Clinical Pharmacology",
+      "clauses": [
+        {
+          "text": "A 70-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented with chest tightness walking to the shops, coming on more often over the past two months.",
+          "role": "contributory",
+          "feedback": "Right thread — symptoms worsening on current treatment is what makes a second agent necessary. It settles that something must change, not what."
+        },
+        {
+          "text": "He has taken verapamil 240 mg modified release for two years.",
+          "role": "pivot",
+          "feedback": "Which calcium channel blocker he is on decides what can safely join it."
+        },
+        {
+          "text": "He also takes rosuvastatin 20 mg and ramipril 5 mg.",
+          "role": "noise",
+          "feedback": "Secondary prevention and blood pressure, both appropriate. Neither is part of this decision."
+        },
+        {
+          "text": "His heart rate is 64 and blood pressure 128/76.",
+          "role": "contributory",
+          "feedback": "Reasonable to check, and on the numbers there is room for a rate-limiting agent. Headroom is necessary before adding one but not sufficient — these describe where he is now, not what happens when two drugs act on the same node."
+        },
+        {
+          "text": "Echocardiography shows normal left ventricular systolic function.",
+          "role": "contributory",
+          "feedback": "Right thread, and it removes one of the three ways this could go wrong. Preserved systolic function makes negative inotropy survivable; it does nothing about the conduction system."
+        },
+        {
+          "text": "The decision is to add a second-line agent, bisoprolol 2.5 mg daily.",
+          "role": "noise",
+          "feedback": "A decision already made, and correctly reasoned as far as it goes — he does need a second agent."
+        }
+      ],
+      "resolution": "NICE states that a calcium channel blocker combined with a beta-blocker must be a dihydropyridine, and this is why. Verapamil and diltiazem are rate-limiting calcium channel blockers, so adding a beta-blocker stacks negative chronotropy, negative dromotropy and negative inotropy onto the same targets — profound bradycardia, complete heart block and decompensated heart failure. A cautious starting dose does not make the combination safe; the interaction is pharmacodynamic, not a matter of titration. The way forward is a long-acting nitrate or nicorandil as the added agent, or switching verapamil to amlodipine so a beta-blocker becomes available. Ivabradine is not the escape it appears — it is contraindicated with verapamil and diltiazem, which inhibit CYP3A4 and slow the heart by a separate mechanism. ESC 2024 dropped the first-line and second-line labelling of antianginals in favour of choosing by haemodynamic profile, but left the combination rule untouched. The normal pulse, normal pressure and normal ejection fraction all suggest headroom. The existing prescription is what removes it."
+    },
+    {
+      "id": "pharm_nitrate_tolerance",
+      "topic": "Clinical Pharmacology",
+      "clauses": [
+        {
+          "text": "A 63-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented with exertional chest tightness, well controlled for the first month of treatment and returning over the past six weeks.",
+          "role": "contributory",
+          "feedback": "Right thread, and the shape of the story matters — treatment that worked and then stopped working points somewhere different from treatment that never worked."
+        },
+        {
+          "text": "A beta-blocker was stopped last year for symptomatic bradycardia.",
+          "role": "noise",
+          "feedback": "Explains why her options are narrower than usual. It does not explain why the drug she is on has stopped working."
+        },
+        {
+          "text": "She takes isosorbide mononitrate 20 mg at 8 am and 8 pm.",
+          "role": "pivot",
+          "feedback": "Two doses, twelve hours apart. The timing is the flaw."
+        },
+        {
+          "text": "She uses her GTN spray most days and it still relieves the pain within two minutes.",
+          "role": "contributory",
+          "feedback": "Right thread, and genuinely useful — a short-acting nitrate still working argues against the coronary disease having progressed. It narrows the cause without fixing it."
+        },
+        {
+          "text": "A recent CT coronary angiogram shows no change from the previous year.",
+          "role": "contributory",
+          "feedback": "Right thread. Unchanged anatomy makes progressive stenosis an unlikely explanation, worth establishing before changing drugs. It rules something out rather than pointing at anything."
+        },
+        {
+          "text": "Amlodipine is to be added.",
+          "role": "noise",
+          "feedback": "A decision already made, and a sensible drug in the abstract."
+        }
+      ],
+      "resolution": "Continuous nitrate exposure produces tolerance within about twenty-four hours and the antianginal effect is lost. Dosing standard-release isosorbide mononitrate at 8 am and 8 pm gives even twelve-hour intervals and so no nitrate-free period at all — the regimen manufactures the tolerance it then appears to expose as treatment failure. ESC advises a nitrate-free interval whenever a long-acting nitrate is prescribed; ten to fourteen hours is the figure usually cited, and moving the second dose to early afternoon delivers it overnight. Modified-release once-daily preparations reach the same trough through their own kinetics. That her spray still works and her anatomy is unchanged both point away from progressive disease and towards the prescription. Adding a second agent to a drug that is not being given properly treats the symptom of a dosing error — fix the interval before escalating."
     }
   ]
 }
