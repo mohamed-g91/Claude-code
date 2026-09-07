@@ -57,8 +57,16 @@ as an endorsement. Do not remove it.
 |---|---|
 | `index.html` | the landing page — what a friend sent the link opens first |
 | `ar.html` | the same page in Arabic, and the fuller explanation of how to solve a case |
-| `angina.html` | Batch 01, the nine stable-angina cases |
-| `play.html` | the mixed deck, every case written so far |
+| `angina.html` | Batch 01, the nine stable-angina cases — the only deck a reader can open |
+| `play.html` | the mixed deck, every case written so far — **in preparation, not published** |
+
+`play.html` is deliberately absent from the deploy workflow's `cp` line. The
+mixed deck is presented on both landing pages as in preparation, with no link
+to it, and a page left in `_site` is reachable by anyone who guesses the URL
+whether or not anything links to it — so the two have to agree. The file stays
+in the repo because the browser suite drives the full 33-case deck through it,
+and because it becomes the live mixed deck again the day that opens: put
+`play.html` back in the `cp` line and swap the card back to a linked one.
 
 A deck page is a shell: the markup `src/game.js` expects, plus
 `data-batch` to narrow the deck. Everything visual lives in `src/brand.css`

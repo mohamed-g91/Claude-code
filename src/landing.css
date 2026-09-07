@@ -294,6 +294,22 @@ section + section { border-top: 1px solid var(--line); }
 .batch.upcoming { background: transparent; border-style: dashed; box-shadow: none; }
 .batch.upcoming h3 { color: var(--ink-soft); }
 
+/* Sits where the button sits on an open batch, so the two cards still line
+   up along the bottom -- and reads as a state, not as something to press. */
+.batch .batch-status {
+  margin: auto 0 0;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.75rem 1.15rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-faint);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
 /* ---------- steps ---------- */
 
 .steps {
