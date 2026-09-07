@@ -320,6 +320,9 @@ section + section { border-top: 1px solid var(--line); }
 @media (min-width: 760px) {
   .steps { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
   .steps-4 { grid-template-columns: repeat(2, 1fr); }
+  /* Five does not divide into four, so the Arabic page takes a 3+2 at the
+     widest rather than stranding its fifth step alone under a row of four. */
+  .steps-5 { grid-template-columns: repeat(2, 1fr); }
 }
 .step { counter-increment: step; }
 .step h3 {
@@ -374,6 +377,7 @@ section + section { border-top: 1px solid var(--line); }
 
 @media (min-width: 1000px) {
   .steps-4 { grid-template-columns: repeat(4, 1fr); }
+  .steps-5 { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ---------- inline note ---------- */
