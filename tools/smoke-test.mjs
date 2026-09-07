@@ -515,14 +515,50 @@ check("index.html is a landing page, not a deck", landingClauses === 0, `${landi
 // --- the primary CTAs actually go somewhere ---
 // A landing page whose buttons 404 is worse than no landing page, and a
 // renamed deck file would break silently otherwise.
-for (const target of ["angina.html", "play.html"]) {
+{
+  const target = "angina.html";
   const hrefs = await landingPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
     els.map((e) => e.href));
   check(`index.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
-  if (hrefs.length === 0) continue;
-  const res = await ctx4.request.get(hrefs[0]);
-  check(`${target} resolves with 200 from the landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  if (hrefs.length > 0) {
+    const res = await ctx4.request.get(hrefs[0]);
+    check(`${target} resolves with 200 from the landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  }
 }
+
+// --- the mixed deck is in preparation, so nothing may point a reader at it ---
+// play.html still exists in the repo (the deck suite above drives the full
+// bank through it) but it is not published and not offered. Counting resolved
+// hrefs rather than the literal attribute is what catches a link that comes
+// back as "./play.html", "play.html?x" or an absolute URL.
+const mixedDeckLinks = await landingPage.locator("a[href]").evaluateAll((els) =>
+  els.map((e) => e.href).filter((h) => h.split(/[?#]/)[0].endsWith("/play.html")));
+check(
+  "index.html does not link to the mixed deck (in preparation)",
+  mixedDeckLinks.length === 0,
+  mixedDeckLinks.length ? mixedDeckLinks.join(", ") : "0 links to play.html"
+);
+
+// --- "in preparation" must be visible, not just absent ---
+// Deleting the card would also pass the link check above while quietly losing
+// the promise that a mixed deck is coming. The card has to still be there,
+// still say it is closed, and carry no anchor at all -- an anchor inside it is
+// how "in preparation" decays back into a live button.
+const mixedDeckCard = await landingPage.evaluate(() => {
+  const card = document.querySelector("article.batch.upcoming");
+  if (!card) return null;
+  return {
+    status: (card.querySelector(".batch-status")?.textContent ?? "").trim(),
+    anchors: card.querySelectorAll("a").length,
+  };
+});
+check(
+  "index.html shows the mixed deck as closed, with a status and no link",
+  !!mixedDeckCard && mixedDeckCard.status.length > 0 && mixedDeckCard.anchors === 0,
+  mixedDeckCard
+    ? `status "${mixedDeckCard.status}", ${mixedDeckCard.anchors} anchors`
+    : "no article.batch.upcoming"
+);
 
 // --- no horizontal scroll at 360px ---
 // Same phone width as the deck. The hero grid and the fact row are the two
@@ -661,17 +697,48 @@ check(
 );
 
 // --- the primary CTAs actually go somewhere ---
-// The Arabic page sends people to the same two English deck pages, so a
-// renamed deck file breaks it in exactly the same silent way. Resolve the real
-// href with a real request rather than trusting the attribute.
-for (const target of ["angina.html", "play.html"]) {
+// The Arabic page sends people to the same English deck page, so a renamed
+// deck file breaks it in exactly the same silent way. Resolve the real href
+// with a real request rather than trusting the attribute.
+{
+  const target = "angina.html";
   const hrefs = await arabicPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
     els.map((e) => e.href));
   check(`ar.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
-  if (hrefs.length === 0) continue;
-  const res = await ctx5.request.get(hrefs[0]);
-  check(`${target} resolves with 200 from the Arabic landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  if (hrefs.length > 0) {
+    const res = await ctx5.request.get(hrefs[0]);
+    check(`${target} resolves with 200 from the Arabic landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  }
 }
+
+// --- the mixed deck is closed here too ---
+// The two landing pages are maintained separately, so the policy has to be
+// asserted on each of them: translating a page is exactly the moment an old
+// CTA gets copied back in.
+const arabicMixedDeckLinks = await arabicPage.locator("a[href]").evaluateAll((els) =>
+  els.map((e) => e.href).filter((h) => h.split(/[?#]/)[0].endsWith("/play.html")));
+check(
+  "ar.html does not link to the mixed deck (in preparation)",
+  arabicMixedDeckLinks.length === 0,
+  arabicMixedDeckLinks.length ? arabicMixedDeckLinks.join(", ") : "0 links to play.html"
+);
+
+const arabicMixedDeckCard = await arabicPage.evaluate(() => {
+  const card = document.querySelector("article.batch.upcoming");
+  if (!card) return null;
+  return {
+    status: (card.querySelector(".batch-status")?.textContent ?? "").trim(),
+    anchors: card.querySelectorAll("a").length,
+  };
+});
+check(
+  "ar.html shows the mixed deck as closed, with a status and no link",
+  !!arabicMixedDeckCard && arabicMixedDeckCard.status.length > 0 &&
+    arabicMixedDeckCard.anchors === 0,
+  arabicMixedDeckCard
+    ? `status "${arabicMixedDeckCard.status}", ${arabicMixedDeckCard.anchors} anchors`
+    : "no article.batch.upcoming"
+);
 
 // --- no horizontal scroll at 360px ---
 // The check that matters most on a mirrored layout: any margin, padding or
@@ -776,6 +843,24 @@ for (const scheme of ["light", "dark"]) {
   check(`ar.html hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
   await c.close();
 }
+
+// --- the deploy workflow must not publish the mixed deck ---
+// The two link checks above only prove nothing on the site points at
+// play.html. A page copied into _site is still served, so anyone who guesses
+// the URL reaches it -- which is precisely what "in preparation" is supposed
+// to prevent. The assembly step is therefore the only place the policy is
+// actually enforced, and it is read from disk (same as cases.json above)
+// because no served page can reveal what the deploy job copies.
+const PAGES_WORKFLOW = readFileSync(
+  join(import.meta.dirname, "..", ".github", "workflows", "pages.yml"), "utf8");
+const copyLine = (PAGES_WORKFLOW.split("\n").find((l) =>
+  /^\s*cp\b[^\n]*\.html[^\n]*_site\//.test(l)) ?? "").trim();
+check(
+  "the deploy workflow copies the open pages into _site but not play.html",
+  ["index.html", "ar.html", "angina.html"].every((f) => copyLine.includes(f)) &&
+    !copyLine.includes("play.html"),
+  copyLine || "no cp ... _site/ line for .html files"
+);
 
 await browser.close();
 
