@@ -39,7 +39,8 @@ Two further rules the content follows:
 
 ## The name
 
-The site is published by **MRCP_GAFAR**; **Find the Pivot** is the product.
+The site is published by **mrcp_gafar** — lowercase, with the underscore;
+**Find the Pivot** is the product.
 Both sit in the brand bar as one lockup — company in the display face, product
 after it in a quieter weight — and the footer credits the company. Below
 360px the product half drops so the mark and the nav link still share one
@@ -83,10 +84,12 @@ line height through `:root:lang(ar)` in `brand.css`, and that is the whole
 difference.
 
 The demo panel on both landing pages shows a **real case, solved**. That
-spoils that one case, which is why it is deliberately `cardio_rv_infarct`:
-the method section already names it in prose, and it sits in the mixed deck
-rather than in Batch 01, so the batch a new reader actually starts with is
-untouched. Any future swap should keep both of those properties.
+spoils that one case, so the pick is constrained: it must come from the mixed
+deck and never from Batch 01, which is the set a new reader is actually
+pointed at. It is currently `resp_asthma_normal_co2` — a normal PaCO2 in
+acute asthma, which argues the site's whole premise better than an invented
+stem could: the reassuring number is the decisive one. Keep the
+not-in-Batch-01 rule on any future swap.
 
 Two things deliberately stay left-to-right on that page: the demo panel,
 which depicts the real English interface and would misrepresent it mirrored,
