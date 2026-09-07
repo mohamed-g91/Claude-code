@@ -25,9 +25,14 @@ model of how clinical reasoning works.
 Two further rules the content follows:
 
 - **The prompt never names the answer.** It is the same line on every case:
-  *"Tap the finding that most changes immediate management."* A prompt like
-  "tap the finding that contraindicates nitrates" hands over the answer and
-  reduces the exercise to a multiple-choice question with extra clicks.
+  *"Tap the finding that most changes immediate management, or None if it is
+  already right."* A prompt like "tap the finding that contraindicates
+  nitrates" hands over the answer and reduces the exercise to a
+  multiple-choice question with extra clicks.
+- **None is an answer, not a trick.** One Batch 01 case has its pivot on None,
+  so the prompt has to admit that possibility and both landing pages have to
+  teach it — otherwise a reader meets a case whose answer is "the plan is
+  already right" having been told, implicitly, that something always changes.
 - **Marks persist.** Once you tap something it stays coloured, so the trail of
   what you tried is still on screen when you find the pivot. That trail is the
   useful part.

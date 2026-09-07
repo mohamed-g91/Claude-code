@@ -56,7 +56,7 @@ check("cases load over HTTP", clauseCount === 5, `${clauseCount} clauses on case
 const promptText = await page.locator("#prompt").innerText();
 check(
   "prompt is generic (no answer leak)",
-  promptText === "Tap the finding that most changes immediate management.",
+  promptText === "Tap the finding that most changes immediate management, or None if it is already right.",
   promptText
 );
 

@@ -1,5 +1,5 @@
 {
-  "prompt": "Tap the finding that most changes immediate management.",
+  "prompt": "Tap the finding that most changes immediate management, or None if it is already right.",
   "roles": {
     "pivot": "The finding that commits you to a different action.",
     "contributory": "Right line of reasoning, but not decisive on its own.",
