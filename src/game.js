@@ -8,7 +8,15 @@
  * data, and it stays data.
  */
 
-const STORAGE_KEY = "findthepivot.v1";
+// document.currentScript is only valid while this script is executing
+// synchronously, which is why it is read here at module scope rather than
+// inside a later callback where it would already be null.
+const BATCH = document.currentScript?.dataset.batch ?? null;
+
+// Same-origin pages share localStorage, so an unnamespaced key would let a
+// saved index from the full 33-case deck restore onto a 9-case filtered
+// deck and point past its end.
+const STORAGE_KEY = BATCH ? `findthepivot.v1:${BATCH}` : "findthepivot.v1";
 
 // The learner has to be able to say "nothing here changes it", or every case
 // silently promises that something does and the exercise loses half its
@@ -266,10 +274,27 @@ fetch("src/cases.json")
   })
   .then((data) => {
     deck = data;
+
+    // A standalone-page filter, not a second data file -- cases.json stays
+    // the single source of truth and this page just narrows the deck.
+    if (BATCH) {
+      deck = { ...deck, cases: deck.cases.filter((c) => c.batch === BATCH) };
+      if (deck.cases.length === 0) {
+        // Wrong tag or an empty batch is a build-time mistake, not something
+        // to paper over with an empty deck -- surface it instead of leaving
+        // a blank page that looks merely slow to load.
+        throw new Error(`No cases found for batch "${BATCH}"`);
+      }
+    }
+
     buildNav();
     const saved = loadProgress();
     progress = saved.progress;
-    index = saved.index < deck.cases.length ? saved.index : 0;
+    // Defends against a stale/out-of-range stored index (e.g. left over from
+    // a longer deck, or the deck shrinking) breaking the render below.
+    index = Number.isInteger(saved.index) && saved.index >= 0 && saved.index < deck.cases.length
+      ? saved.index
+      : 0;
     renderCase();
   })
   .catch(showLoadError);

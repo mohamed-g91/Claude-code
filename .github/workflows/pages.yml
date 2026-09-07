@@ -63,7 +63,7 @@ jobs:
         # Publish only what the site needs -- not the test harness.
         run: |
           mkdir -p _site
-          cp index.html _site/
+          cp index.html angina.html _site/
           cp -r src _site/
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -390,6 +390,72 @@ for (const scheme of ["light", "dark"]) {
   await c.close();
 }
 
+// --- angina.html: the stable-angina batch served as its own page ---
+// Batch size comes from the data, same reasoning as N above -- otherwise
+// retagging a case silently breaks this suite instead of a real bug.
+const ANGINA_URL = URL.replace(/index\.html$/, "angina.html");
+const ANGINA_CASES = CASES.filter((c) => c.batch === "stable-angina");
+const ANGINA_N = ANGINA_CASES.length;
+const ANGINA_FIRST_PIVOT = ANGINA_CASES[0].clauses.findIndex((c) => c.role === "pivot");
+const ANGINA_FIRST_PIVOT_IS_NONE =
+  ANGINA_FIRST_PIVOT === -1 && ANGINA_CASES[0].none?.role === "pivot";
+
+const anginaConsoleErrors = [];
+const anginaBadResponses = [];
+const ctx3 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const anginaPage = await ctx3.newPage();
+anginaPage.on("pageerror", (e) => anginaConsoleErrors.push(String(e)));
+anginaPage.on("console", (m) => { if (m.type() === "error") anginaConsoleErrors.push(m.text()); });
+anginaPage.on("response", (r) => { if (r.status() >= 400) anginaBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await anginaPage.goto(ANGINA_URL);
+await anginaPage.waitForSelector(".clause");
+
+const anginaNavCount = await anginaPage.locator(".nav-item").count();
+check(
+  "angina.html renders exactly the stable-angina batch",
+  anginaNavCount === ANGINA_N,
+  `${anginaNavCount} nav buttons, expected ${ANGINA_N}`
+);
+
+const anginaMeta = await anginaPage.locator("#meta").innerText();
+check(
+  "angina.html meta line reports the batch size",
+  anginaMeta.includes(`of ${ANGINA_N}`),
+  anginaMeta
+);
+
+check("no console/page errors on angina.html", anginaConsoleErrors.length === 0, anginaConsoleErrors.join(" | "));
+check("no failed requests on angina.html", anginaBadResponses.length === 0, anginaBadResponses.join(" | "));
+
+// Solve the first case on angina.html, then confirm its progress lands
+// under a batch-namespaced key rather than the shared one index.html uses.
+if (ANGINA_FIRST_PIVOT_IS_NONE) {
+  await anginaPage.locator("#noneOption").click();
+} else {
+  await anginaPage.locator(".clause").nth(ANGINA_FIRST_PIVOT).click();
+}
+const anginaStorageKeys = await anginaPage.evaluate(() => Object.keys(localStorage));
+check(
+  "angina.html progress is namespaced under its own storage key",
+  anginaStorageKeys.includes("findthepivot.v1:stable-angina") &&
+    !anginaStorageKeys.includes("findthepivot.v1"),
+  anginaStorageKeys.join(", ")
+);
+
+// Same origin, same browser context -- index.html and angina.html share
+// localStorage. The point of namespacing the key is that solving a case on
+// the 9-case deck must not perturb index.html's own (unrelated) 33-case
+// count or index restoration.
+await anginaPage.goto(URL);
+await anginaPage.waitForSelector(".clause");
+const indexMetaAfterAngina = await anginaPage.locator("#meta").innerText();
+check(
+  "index.html still reports its own case count after angina.html writes to shared localStorage",
+  indexMetaAfterAngina.includes(`of ${N}`),
+  indexMetaAfterAngina
+);
+
 await browser.close();
 
 let failed = 0;

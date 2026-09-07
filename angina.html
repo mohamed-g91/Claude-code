@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Clinical reasoning practice for MRCP Part 1: find the finding that changes management.">
+<title>Find the Pivot — Stable Angina</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='none' stroke='%232b6cb0' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%232b6cb0'/></svg>">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f4f7f6;
+    --card: #ffffff;
+    --ink: #1a202c;
+    --ink-soft: #4a5568;
+    --ink-faint: #718096;
+    --line: #e2e8f0;
+    --accent: #2b6cb0;
+    --on-accent: #ffffff;
+
+    --pivot-bg: #d5f2df;
+    --pivot-ink: #1c4532;
+    --pivot-line: #48a06f;
+
+    --contrib-bg: #fdf0d5;
+    --contrib-ink: #6b4907;
+    --contrib-line: #d69e2e;
+
+    --noise-bg: #fbdede;
+    --noise-ink: #742a2a;
+    --noise-line: #e07070;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181c;
+      --card: #1c2126;
+      --ink: #e8edf2;
+      --ink-soft: #b3bec9;
+      --ink-faint: #8b98a5;
+      --line: #2d353d;
+      --accent: #63a4e8;
+      /* Dark text on the lighter accent -- white on #63a4e8 fails contrast. */
+      --on-accent: #0c1a28;
+
+      --pivot-bg: #17352a;
+      --pivot-ink: #9ae6b4;
+      --pivot-line: #3d9970;
+
+      --contrib-bg: #3a2f14;
+      --contrib-ink: #f0cb7a;
+      --contrib-line: #b7862a;
+
+      --noise-bg: #3d1f22;
+      --noise-ink: #feb2b2;
+      --noise-line: #a34f4f;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    line-height: 1.6;
+  }
+
+  .game {
+    background: var(--card);
+    padding: 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    max-width: 660px;
+    width: 100%;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.1rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .meta { font-size: 0.85rem; color: var(--ink-faint); }
+
+  /* A contained horizontal scroll strip -- this never adds to the page's
+     own scrollWidth, so it doesn't fight the no-horizontal-scroll rule the
+     stem itself has to honour at 360px. */
+  .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.15rem 0.15rem 0.6rem;
+    margin-bottom: 1.1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-item {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .nav-item:hover {
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .nav-item:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+  }
+  /* Reuses the pivot palette -- the same green a correctly-found pivot
+     already turns, so "solved" doesn't invent a fourth colour. */
+  .nav-item.solved {
+    background: var(--pivot-bg);
+    color: var(--pivot-ink);
+    border-color: var(--pivot-line);
+  }
+  /* box-shadow rather than a border-width change: it doesn't reflow the
+     button, so the strip doesn't jiggle as the current case moves. */
+  .nav-item[aria-current="true"] {
+    box-shadow: 0 0 0 2px var(--accent);
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .prompt {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-left: 3px solid var(--accent);
+    padding: 0.8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+  }
+
+  /* The stem reads as continuous prose -- a clinical stem, not a list of
+     options. The generous line-height is doing real work: it gives each
+     wrapped line enough vertical room to be a comfortable thumb target
+     without breaking the sentences apart. */
+  .stem {
+    font-size: 1.1rem;
+    line-height: 2.4;
+    margin: 0;
+  }
+
+  /* Inline spans rather than <button>: an inline-level button does not wrap
+     reliably across engines, and these sentences always wrap on a phone.
+     role="button" + tabindex keeps the semantics and keyboard behaviour. */
+  .clause {
+    /* Vertical padding, not line-height, is what makes an inline span
+       tappable: the hit area is the font box plus padding. Sized to just
+       under the line box so bands are near-contiguous without overlapping. */
+    padding: 0.6rem 0.3rem;
+    border-radius: 5px;
+    cursor: pointer;
+    /* Without this the background, padding and radius apply only to the
+       first and last line fragment, and the highlight tears mid-sentence. */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* Quiet but present at rest: there is no hover on a touchscreen, so the
+       affordance cannot depend on one -- while an underline under every
+       sentence at full strength turns the stem into noise. The breaks
+       between runs also show where one tappable finding ends. */
+    border-bottom: 1px dotted color-mix(in srgb, var(--ink-faint) 50%, transparent);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .clause:hover:not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    border-bottom-color: var(--ink);
+  }
+  .clause:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  /* Marks persist: the trail of what you tried is the point. */
+  .clause.pivot {
+    background: var(--pivot-bg); color: var(--pivot-ink);
+    border-bottom-color: var(--pivot-line);
+    font-weight: 600;
+  }
+  .clause.contributory {
+    background: var(--contrib-bg); color: var(--contrib-ink);
+    border-bottom-color: var(--contrib-line);
+  }
+  .clause.noise {
+    background: var(--noise-bg); color: var(--noise-ink);
+    border-bottom-color: var(--noise-line);
+  }
+  .clause[aria-disabled="true"] { cursor: default; }
+
+  /* An answer, not a finding -- so it sits outside the stem and is dashed
+     rather than underlined. A learner must be able to say the plan is right,
+     otherwise every case silently promises that something is wrong with it. */
+  .none-option {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    font: inherit;
+    text-align: left;
+    color: var(--ink);
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .none-option:hover:not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    border-color: var(--ink);
+  }
+  .none-option:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .none-option.pivot {
+    background: var(--pivot-bg); color: var(--pivot-ink);
+    border: 1px solid var(--pivot-line); font-weight: 600;
+  }
+  .none-option.contributory {
+    background: var(--contrib-bg); color: var(--contrib-ink);
+    border: 1px solid var(--contrib-line);
+  }
+  .none-option.noise {
+    background: var(--noise-bg); color: var(--noise-ink);
+    border: 1px solid var(--noise-line);
+  }
+  .none-option[aria-disabled="true"] { cursor: default; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    opacity: 0.75;
+    margin-right: 0.45rem;
+  }
+
+  .feedback {
+    margin-top: 1.1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .feedback:empty { display: none; }
+  .feedback.pivot { background: var(--pivot-bg); color: var(--pivot-ink); border-color: var(--pivot-line); }
+  .feedback.contributory { background: var(--contrib-bg); color: var(--contrib-ink); border-color: var(--contrib-line); }
+  .feedback.noise { background: var(--noise-bg); color: var(--noise-ink); border-color: var(--noise-line); }
+
+  .resolution {
+    margin-top: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+    border-radius: 8px;
+    font-size: 0.96rem;
+  }
+  .resolution:empty { display: none; }
+  .resolution h2 {
+    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .next {
+    margin-top: 1.2rem;
+    width: 100%;
+    font: inherit;
+    font-weight: 600;
+    padding: 0.85rem 1.5rem;
+    min-height: 48px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .next:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .next[hidden] { display: none; }
+
+  .score {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+
+  .error {
+    padding: 1rem;
+    border: 1px solid var(--noise-line);
+    background: var(--noise-bg);
+    color: var(--noise-ink);
+    border-radius: 8px;
+  }
+  .error code {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 420px) {
+    body { padding: 0.5rem; }
+    .game { padding: 1rem 0.85rem; border-radius: 10px; }
+    /* Tap targets stay 44px -- only the gap between them shrinks. */
+    .nav { gap: 0.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<main class="game">
+  <header>
+    <h1>Find the Pivot</h1>
+    <span class="meta" id="meta"></span>
+  </header>
+
+  <div class="nav" id="nav" role="group" aria-label="Jump to case"></div>
+
+  <p class="prompt" id="prompt"></p>
+
+  <p class="stem" id="stem"></p>
+
+  <button class="none-option" id="noneOption" type="button"></button>
+
+  <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+  <div class="resolution" id="resolution"></div>
+
+  <button class="next" id="next" type="button" hidden></button>
+
+  <p class="score" id="score"></p>
+</main>
+
+<script src="src/game.js" data-batch="stable-angina"></script>
+</body>
+</html>
