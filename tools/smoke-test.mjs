@@ -10,7 +10,7 @@ import { chromium } from "playwright";
 import { globSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/index.html";
+const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/play.html";
 
 // Deck size and the last case's pivot come from the data, never hardcoded --
 // otherwise adding a case fails the suite on a count rather than on a bug.
@@ -60,6 +60,17 @@ check(
   promptText
 );
 
+// --- the deck page is reachable back from itself ---
+// A learner who lands straight on a deck link (shared, bookmarked, search
+// result) has no other way back to the batch list, so the shared brand bar
+// must carry a wordmark that points at the landing page.
+const wordmarkHref = await page.locator("a.wordmark").getAttribute("href");
+check(
+  "deck page links back to the landing page from the brand bar",
+  wordmarkHref === "index.html",
+  String(wordmarkHref)
+);
+
 // --- no horizontal scroll at 360px ---
 // The navigator has its own contained overflow-x, so this also confirms
 // that scroll strip isn't leaking into the page's own scrollWidth.
@@ -82,14 +93,29 @@ check(
   `min ${Math.round(Math.min(...navSizes.map((r) => Math.min(r.width, r.height))))}px`
 );
 
-// Tab from a fresh page should reach the navigator before anything else --
-// it comes first in document order, ahead of the stem's clauses.
+// The deck page opens with the skip link, then the shared brand bar, so the
+// first tab stop is the skip link rather than the game. What still matters is
+// the order inside the game itself: the navigator comes before the stem, so a
+// keyboard user reaches "jump to another case" without walking the clauses of
+// this one first.
 await page.keyboard.press("Tab");
-const firstFocused = await page.evaluate(() => document.activeElement?.className);
+const firstStop = await page.evaluate(() => document.activeElement?.className);
+check("first tab stop is the skip link", String(firstStop).includes("skip"), String(firstStop));
+
+let gameStop = firstStop;
+let gameGuard = 0;
+while (
+  !String(gameStop).includes("nav-item") &&
+  !String(gameStop).includes("clause") &&
+  gameGuard++ < N + 16
+) {
+  await page.keyboard.press("Tab");
+  gameStop = await page.evaluate(() => document.activeElement?.className);
+}
 check(
-  "Tab reaches the navigator first",
-  String(firstFocused).includes("nav-item"),
-  String(firstFocused)
+  "Tab reaches the navigator before any clause",
+  String(gameStop).includes("nav-item"),
+  String(gameStop)
 );
 
 // --- the stem must read as prose, not as a stack of options ---
@@ -393,7 +419,7 @@ for (const scheme of ["light", "dark"]) {
 // --- angina.html: the stable-angina batch served as its own page ---
 // Batch size comes from the data, same reasoning as N above -- otherwise
 // retagging a case silently breaks this suite instead of a real bug.
-const ANGINA_URL = URL.replace(/index\.html$/, "angina.html");
+const ANGINA_URL = URL.replace(/play\.html$/, "angina.html");
 const ANGINA_CASES = CASES.filter((c) => c.batch === "stable-angina");
 const ANGINA_N = ANGINA_CASES.length;
 const ANGINA_FIRST_PIVOT = ANGINA_CASES[0].clauses.findIndex((c) => c.role === "pivot");
@@ -443,18 +469,153 @@ check(
   anginaStorageKeys.join(", ")
 );
 
-// Same origin, same browser context -- index.html and angina.html share
+// Same origin, same browser context -- play.html and angina.html share
 // localStorage. The point of namespacing the key is that solving a case on
-// the 9-case deck must not perturb index.html's own (unrelated) 33-case
-// count or index restoration.
+// the stable-angina batch must not perturb the mixed deck's own (unrelated,
+// larger) case count or index restoration.
 await anginaPage.goto(URL);
 await anginaPage.waitForSelector(".clause");
 const indexMetaAfterAngina = await anginaPage.locator("#meta").innerText();
 check(
-  "index.html still reports its own case count after angina.html writes to shared localStorage",
+  "play.html still reports its own case count after angina.html writes to shared localStorage",
   indexMetaAfterAngina.includes(`of ${N}`),
   indexMetaAfterAngina
 );
+
+// --- index.html: the landing page ---
+// index.html no longer carries a deck; it is the marketing page that sends
+// people to the two deck pages. It has its own failure modes (a broken CTA,
+// counts that drift from the data, a page that needs JS to say anything), so
+// it gets its own checks rather than riding on the deck suite above.
+const LANDING_URL = URL.replace(/play\.html$/, "index.html");
+const LANDING_BATCH = ANGINA_N;              // cases tagged stable-angina
+const LANDING_TOTAL = N;                     // every case in the bank
+const LANDING_SPECIALTIES = new Set(CASES.map((c) => c.topic)).size;
+
+const landingConsoleErrors = [];
+const landingBadResponses = [];
+const ctx4 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const landingPage = await ctx4.newPage();
+landingPage.on("pageerror", (e) => landingConsoleErrors.push(String(e)));
+landingPage.on("console", (m) => { if (m.type() === "error") landingConsoleErrors.push(m.text()); });
+landingPage.on("response", (r) => { if (r.status() >= 400) landingBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await landingPage.goto(LANDING_URL);
+// landing.js fetches cases.json, so the counted numbers land after load.
+await landingPage.waitForLoadState("networkidle");
+
+check("no console/page errors on index.html", landingConsoleErrors.length === 0, landingConsoleErrors.join(" | "));
+check("no failed requests on index.html", landingBadResponses.length === 0, landingBadResponses.join(" | "));
+
+// The landing page must not have quietly acquired a deck: if a .clause shows
+// up here it means game.js got wired back in and the page is doing two jobs.
+const landingClauses = await landingPage.locator(".clause").count();
+check("index.html is a landing page, not a deck", landingClauses === 0, `${landingClauses} clauses`);
+
+// --- the primary CTAs actually go somewhere ---
+// A landing page whose buttons 404 is worse than no landing page, and a
+// renamed deck file would break silently otherwise.
+for (const target of ["angina.html", "play.html"]) {
+  const hrefs = await landingPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
+    els.map((e) => e.href));
+  check(`index.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
+  if (hrefs.length === 0) continue;
+  const res = await ctx4.request.get(hrefs[0]);
+  check(`${target} resolves with 200 from the landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+}
+
+// --- no horizontal scroll at 360px ---
+// Same phone width as the deck. The hero grid and the fact row are the two
+// places a stray fixed width would push the page sideways.
+const landingOverflow = await landingPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("no horizontal scroll on index.html at 360px", landingOverflow <= 1, `overflow ${landingOverflow}px`);
+
+// --- tap targets ---
+// Every standalone control (brand bar links, skip link, CTA buttons) must be
+// thumb-sized. Links sitting inline in a sentence are excluded: their height
+// is fixed by the line-height of the prose around them, which is exactly the
+// inline exception in WCAG 2.5.8, and padding them out would tear the
+// paragraph apart.
+const landingTargets = await landingPage.locator("a, button").evaluateAll((els) =>
+  els
+    .filter((e) => getComputedStyle(e).display !== "inline")
+    .map((e) => ({
+      label: (e.textContent || "").trim().slice(0, 24),
+      height: e.getBoundingClientRect().height,
+    })));
+const shortTargets = landingTargets.filter((t) => t.height < 44);
+check(
+  "index.html controls are >= 44px tall",
+  landingTargets.length > 0 && shortTargets.length === 0,
+  shortTargets.length
+    ? shortTargets.map((t) => `${t.label} ${Math.round(t.height)}px`).join(", ")
+    : `${landingTargets.length} controls, min ${Math.round(
+        Math.min(...landingTargets.map((t) => t.height)))}px`
+);
+
+// --- the counted facts match the data ---
+// These three numbers are the page's only factual claims. They are counted
+// from cases.json by landing.js, so this both proves the script ran and that
+// the marketing copy cannot drift away from the bank behind it.
+const facts = await landingPage.evaluate(() => ({
+  batch: document.getElementById("factBatch")?.textContent.trim(),
+  total: document.getElementById("factTotal")?.textContent.trim(),
+  specialties: document.getElementById("factSpecialties")?.textContent.trim(),
+}));
+check(
+  "index.html counts Batch 01 from cases.json",
+  facts.batch === String(LANDING_BATCH),
+  `${facts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "index.html counts the total deck from cases.json",
+  facts.total === String(LANDING_TOTAL),
+  `${facts.total}, expected ${LANDING_TOTAL}`
+);
+check(
+  "index.html counts distinct specialties from cases.json",
+  facts.specialties === String(LANDING_SPECIALTIES),
+  `${facts.specialties}, expected ${LANDING_SPECIALTIES}`
+);
+
+// --- the page still says something with JavaScript off ---
+// The same numbers are written into the markup, so a blocked or failed
+// landing.js must leave a complete page rather than three empty slots.
+const ctxNoJs = await browser.newContext({
+  viewport: { width: 360, height: 740 },
+  javaScriptEnabled: false,
+});
+const noJsPage = await ctxNoJs.newPage();
+await noJsPage.goto(LANDING_URL);
+const noJsText = {
+  batch: (await noJsPage.locator("#factBatch").innerText()).trim(),
+  total: (await noJsPage.locator("#factTotal").innerText()).trim(),
+  specialties: (await noJsPage.locator("#factSpecialties").innerText()).trim(),
+};
+check(
+  "index.html renders its counts with JavaScript disabled",
+  noJsText.batch !== "" && noJsText.total !== "" && noJsText.specialties !== "",
+  JSON.stringify(noJsText)
+);
+await ctxNoJs.close();
+
+// --- contrast of the hero CTA in both schemes (WCAG AA >= 4.5) ---
+// The one control the whole page is built to get tapped; it has to be
+// readable in whichever scheme the phone is set to.
+for (const scheme of ["light", "dark"]) {
+  const c = await browser.newContext({ colorScheme: scheme });
+  const pg = await c.newPage();
+  await pg.goto(LANDING_URL);
+  const { fg, bg } = await pg.evaluate(() => {
+    const s = getComputedStyle(document.getElementById("startBatch01"));
+    return { fg: s.color, bg: s.backgroundColor };
+  });
+  const [l1, l2] = [lum(parse(fg)), lum(parse(bg))].sort((a, b) => b - a);
+  const ratio = (l1 + 0.05) / (l2 + 0.05);
+  check(`hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
+  await c.close();
+}
 
 await browser.close();
 
