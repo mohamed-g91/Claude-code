@@ -69,6 +69,12 @@ does the mirroring on its own. Arabic swaps the type stack and loosens the
 line height through `:root:lang(ar)` in `brand.css`, and that is the whole
 difference.
 
+The demo panel on both landing pages shows a **real case, solved**. That
+spoils that one case, which is why it is deliberately `cardio_rv_infarct`:
+the method section already names it in prose, and it sits in the mixed deck
+rather than in Batch 01, so the batch a new reader actually starts with is
+untouched. Any future swap should keep both of those properties.
+
 Two things deliberately stay left-to-right on that page: the demo panel,
 which depicts the real English interface and would misrepresent it mirrored,
 and the cases themselves. **The cases are in English and stay in English** —
