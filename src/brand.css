@@ -147,9 +147,41 @@ body {
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  /* The bar is the one place the product's name must never break across
-     two lines, however many links sit beside it. */
+  /* The bar is the one place the name must never break across two lines,
+     however many links sit beside it. */
   white-space: nowrap;
+}
+
+/* The company carries the mark; the product is what the reader came to use.
+   Both belong in the bar, so the company leads in the display face and the
+   product follows in a quieter weight after a separator. */
+.wordmark-company { font-weight: 700; letter-spacing: 0.01em; }
+.wordmark-product {
+  font-family: var(--font-ui);
+  font-size: 0.86em;
+  font-weight: 550;
+  color: var(--ink-soft);
+}
+.wordmark-product::before {
+  content: "·";
+  margin-inline: 0 0.4rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+/* Only the narrowest phones lose the product name; at 360px and up the whole
+   lockup and the language switch still fit on one line. Measured, not
+   guessed -- see the bar checks in tools/smoke-test.mjs. */
+/* On a phone the lockup shares a 360px bar with a nav link, so it steps down
+   a size first and only drops the product name when even that will not fit.
+   Both thresholds are measured against the widest bar in the site -- a deck
+   page's -- not guessed. */
+@media (max-width: 440px) {
+  .wordmark { font-size: 0.95rem; }
+  .wordmark-product { font-size: 0.82em; }
+  .bar-inner { padding-inline: 0.75rem; }
+}
+@media (max-width: 359px) {
+  .wordmark-product { display: none; }
 }
 .wordmark svg { display: block; flex: 0 0 auto; }
 .wordmark:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }

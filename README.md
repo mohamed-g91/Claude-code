@@ -37,6 +37,19 @@ Two further rules the content follows:
   `box-decoration-break: clone` so a sentence spanning two lines keeps one
   unbroken highlight.
 
+## The name
+
+The site is published by **MRCP_GAFAR**; **Find the Pivot** is the product.
+Both sit in the brand bar as one lockup — company in the display face, product
+after it in a quieter weight — and the footer credits the company. Below
+360px the product half drops so the mark and the nav link still share one
+line; the thresholds in `brand.css` were measured against a deck page's bar,
+which is the widest in the site.
+
+Because the company name contains "MRCP", the independence notice in every
+footer is not boilerplate: it is the thing that keeps the name from reading
+as an endorsement. Do not remove it.
+
 ## Pages
 
 | page | what it is |
