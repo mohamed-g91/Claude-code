@@ -42,6 +42,7 @@ Two further rules the content follows:
 | page | what it is |
 |---|---|
 | `index.html` | the landing page — what a friend sent the link opens first |
+| `ar.html` | the same page in Arabic, and the fuller explanation of how to solve a case |
 | `angina.html` | Batch 01, the nine stable-angina cases |
 | `play.html` | the mixed deck, every case written so far |
 
@@ -54,6 +55,26 @@ and a line in the deploy workflow's `cp`.
 `src/landing.js` is enhancement only: it recounts the numbers on the landing
 page from `cases.json` and offers a returning reader their place back. The
 page is correct with it blocked.
+
+### Arabic
+
+`ar.html` is not a translation of `index.html` — it carries a section the
+English page does not, explaining what a case is asking and how to work
+through one, because that is what a reader arriving in Arabic most needs.
+
+It shares every stylesheet and script with the English page. Nothing in
+`src/` is direction-specific: spacing and borders use logical properties
+(`border-inline-start`, `margin-inline-end`, `text-align: start`), so `dir`
+does the mirroring on its own. Arabic swaps the type stack and loosens the
+line height through `:root:lang(ar)` in `brand.css`, and that is the whole
+difference.
+
+Two things deliberately stay left-to-right on that page: the demo panel,
+which depicts the real English interface and would misrepresent it mirrored,
+and the cases themselves. **The cases are in English and stay in English** —
+the exam is in English, and translating the stems would drill vocabulary the
+candidate will never meet in the hall. `ar.html` says so plainly rather than
+letting a reader discover it by clicking through.
 
 ## Running it
 
@@ -111,10 +132,16 @@ too often, which teaches position rather than reasoning.
 npm test            # validator, then the browser suite
 ```
 
-Before committing anything a learner sees, read
-`.claude/skills/impeccable/SKILL.md` — it is the bar the pages are held to:
-tokens over hex, 44px targets, AA contrast in both schemes, and no number on
-a page that was not counted from `cases.json`.
+Design work on these pages goes through the vendored
+[Impeccable](https://github.com/pbakaus/impeccable) skill in
+`.claude/skills/impeccable` — run `/impeccable audit index.html` or
+`/impeccable polish ar.html`. See `.claude/skills/impeccable/VENDORED.md` for
+where the copy came from and how to update it.
+
+House rules that skill does not know about: no number appears on a page that
+was not counted from `cases.json`, no page claims a user count, an
+endorsement or a pass rate, and every footer says the site is independent of
+MRCP(UK) and the Royal Colleges.
 
 The browser suite needs the server running in another shell. It drives real
 Chromium and covers the three-state interaction, that earlier marks survive,
@@ -122,10 +149,12 @@ locking after the pivot, keyboard-only play, focus visibility, persistence
 across reload, behaviour with `localStorage` blocked, no horizontal scroll and
 44px tap targets at 360px, and button contrast in both colour schemes.
 
-It also covers the landing page: that it loads clean, that its links to the
-decks resolve, that the counts it shows match `cases.json`, that those counts
-are still there with JavaScript off, and that its primary call to action
-clears contrast in both schemes.
+It also covers both landing pages: that they load clean, that their links to
+the decks resolve, that the counts they show match `cases.json`, that those
+counts are still there with JavaScript off, and that the primary call to
+action clears contrast in both schemes. The Arabic page additionally has to
+prove it is really RTL, that the mirrored layout does not scroll sideways at
+360px, and that the language switch between the two pages goes both ways.
 
 Set `PW_CHROMIUM` if Playwright's bundled browser is missing.
 
@@ -133,6 +162,7 @@ Set `PW_CHROMIUM` if Playwright's bundled browser is missing.
 
 ```
 index.html                 landing page
+ar.html                    landing page, Arabic
 angina.html                Batch 01 deck shell
 play.html                  mixed deck shell
 src/brand.css              design tokens, brand bar, buttons, footer
@@ -141,7 +171,7 @@ src/landing.css            the landing page
 src/game.js                rendering, three-state scoring, progress
 src/landing.js             landing counts and resume (enhancement only)
 src/cases.json             the cases
-.claude/skills/impeccable  the shipping bar for anything a learner sees
+.claude/skills/impeccable  vendored Impeccable design skill
 tools/validate-cases.mjs   schema gate
 tools/smoke-test.mjs       browser suite
 ```

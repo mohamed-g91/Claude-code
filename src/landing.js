@@ -32,9 +32,15 @@ function offerResume(batchSize) {
   const solved = Object.values(saved.progress ?? {}).filter((p) => p?.solved).length;
   if (solved >= batchSize) return;
 
+  // The only string this file writes, so it carries both languages rather
+  // than dropping English onto the Arabic page.
+  const label = document.documentElement.lang === "ar"
+    ? `تابع المجموعة الأولى — الحالة ${saved.index + 1} من ${batchSize}`
+    : `Resume Batch 01 — case ${saved.index + 1} of ${batchSize}`;
+
   for (const id of ["startBatch01", "batch01Cta"]) {
     const cta = document.getElementById(id);
-    if (cta) cta.textContent = `Resume Batch 01 — case ${saved.index + 1} of ${batchSize}`;
+    if (cta) cta.textContent = label;
   }
 }
 
