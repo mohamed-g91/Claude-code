@@ -40,9 +40,15 @@ exact boundary that case turns on.
 
 The full enumeration of all 142 recommendations — id, page, NICE's own
 year-of-evidence tag, and each recommendation's opening sentence verbatim — is
-not reproduced here. 24 candidates were selected from it and walked one by one.
-Of those: **12 pivot-worthy** (yielding 13 cases), 1 held, 9 passed over, 1
-undecided, 1 approved at screening then discarded at drafting.
+not reproduced here. The recommendations these cases actually cite are quoted in
+full in [type-2-diabetes-ng28-reference.md](type-2-diabetes-ng28-reference.md),
+and the item-by-item screening record, including writing constraints, is in
+[type-2-diabetes-ng28-ledger.md](type-2-diabetes-ng28-ledger.md).
+
+From that enumeration, 24 candidates were selected and walked one by one. Of
+those: **12 pivot-worthy**, yielding 13 cases; 1 held for a future pass; 9
+passed over; 1 undecided; and 1 approved at screening then discarded once
+drafted.
 
 ### Pivot-worthy
 
@@ -62,9 +68,9 @@ undecided, 1 approved at screening then discarded at drafting.
 | **1.29.2 (b)** | 96 | 2026 | HbA1c already within target | The second ANDed condition fails, so the answer is not to add |
 | **1.32.2** | 107 | 2015, amended 2026 | the patient with ASCVD starting insulin | Metformin continues unconditionally; drugs there *solely* for glucose stop; drugs there for cardiovascular or weight benefit are discussed, not reflexively stopped |
 
-Two definitions from NG28's Terms section are load-bearing across several of
-these and are worth quoting, because cases turn on them rather than on the
-recommendations alone:
+Four definitions from NG28's Terms section are load-bearing across these cases
+and are worth quoting, because several of them turn on the definition rather
+than on the recommendation:
 
 > **Atherosclerotic cardiovascular disease.** …It includes: coronary artery
 > disease such as myocardial infarction and unstable angina; cerebrovascular
