@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Find the Pivot: the full mixed deck of MRCP Part 1 clinical reasoning cases across every specialty written so far.">
+<title>Mixed deck — mrcp_gafar · Find the Pivot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='none' stroke='%230d5c70' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%230d5c70'/></svg>">
+<link rel="stylesheet" href="src/brand.css">
+<link rel="stylesheet" href="src/game.css">
+</head>
+<body>
+
+<a class="skip" href="#stem">Skip to the case</a>
+
+<!-- The same bar the landing page carries: a learner who arrives straight on
+     a deck link still knows what this is, and has one tap back. -->
+<header class="bar">
+  <div class="bar-inner">
+    <a class="wordmark" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="16" cy="16" r="5" fill="currentColor"/>
+      </svg>
+      <span class="wordmark-company">mrcp_gafar</span><span class="wordmark-product">Find the Pivot</span>
+    </a>
+    <nav class="bar-links" aria-label="Site">
+      <a class="bar-link" href="index.html">Batches</a>
+    </nav>
+  </div>
+</header>
+
+<div class="deck-wrap">
+  <main class="game">
+    <header>
+      <h1>Mixed deck</h1>
+      <span class="meta" id="meta"></span>
+    </header>
+
+    <div class="nav" id="nav" role="group" aria-label="Jump to case"></div>
+
+    <p class="prompt" id="prompt"></p>
+
+    <p class="stem" id="stem" tabindex="-1"></p>
+
+    <button class="none-option" id="noneOption" type="button"></button>
+
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+    <div class="resolution" id="resolution"></div>
+
+    <button class="next" id="next" type="button" hidden></button>
+
+    <p class="score" id="score"></p>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <p class="disclaimer">Independent revision material. Not affiliated with, endorsed by
+    or connected to MRCP(UK), the Federation of Royal Colleges of Physicians or any
+    question-bank publisher. Cases are written originally for this site, are for
+    education only, and are not clinical advice.</p>
+    <p>&copy; 2026 mrcp_gafar &middot; Find the Pivot &middot; <a href="index.html">All batches</a></p>
+  </div>
+</footer>
+
+<script src="src/game.js"></script>
+</body>
+</html>

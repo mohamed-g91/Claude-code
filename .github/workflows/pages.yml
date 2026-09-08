@@ -60,10 +60,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - name: Assemble site
-        # Publish only what the site needs -- not the test harness.
+        # Publish only what the site needs -- not the test harness, and not
+        # play.html: the mixed deck is in preparation, and leaving it deployed
+        # would hand it to anyone who guessed the URL. The file stays in the
+        # repo because the browser suite drives the full deck through it.
         run: |
           mkdir -p _site
-          cp index.html _site/
+          cp index.html ar.html angina.html _site/
           cp -r src _site/
       - uses: actions/upload-pages-artifact@v3
         with:

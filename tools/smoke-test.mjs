@@ -7,9 +7,22 @@
 // Set PW_CHROMIUM to a Chromium binary if Playwright's bundled one is absent.
 
 import { chromium } from "playwright";
-import { globSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
-const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/index.html";
+const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/play.html";
+
+// Deck size and the last case's pivot come from the data, never hardcoded --
+// otherwise adding a case fails the suite on a count rather than on a bug.
+// join(), not new URL() -- the page address below shadows the global URL.
+const CASES = JSON.parse(readFileSync(
+  join(import.meta.dirname, "..", "src", "cases.json"), "utf8")).cases;
+const N = CASES.length;
+// The last case's pivot may live on a stem clause, or (for a case whose plan
+// is already right) on `none` instead -- there is never both, so exactly one
+// of these resolves to a usable target for solving the last case below.
+const LAST_PIVOT = CASES[N - 1].clauses.findIndex((c) => c.role === "pivot");
+const LAST_PIVOT_IS_NONE = LAST_PIVOT === -1 && CASES[N - 1].none?.role === "pivot";
 const results = [];
 const check = (name, ok, detail = "") =>
   results.push({ name, ok, detail });
@@ -43,8 +56,19 @@ check("cases load over HTTP", clauseCount === 5, `${clauseCount} clauses on case
 const promptText = await page.locator("#prompt").innerText();
 check(
   "prompt is generic (no answer leak)",
-  promptText === "Tap the finding that most changes immediate management.",
+  promptText === "Tap the finding that most changes immediate management, or None if it is already right.",
   promptText
+);
+
+// --- the deck page is reachable back from itself ---
+// A learner who lands straight on a deck link (shared, bookmarked, search
+// result) has no other way back to the batch list, so the shared brand bar
+// must carry a wordmark that points at the landing page.
+const wordmarkHref = await page.locator("a.wordmark").getAttribute("href");
+check(
+  "deck page links back to the landing page from the brand bar",
+  wordmarkHref === "index.html",
+  String(wordmarkHref)
 );
 
 // --- no horizontal scroll at 360px ---
@@ -56,7 +80,7 @@ check("no horizontal scroll at 360px", overflow <= 0, `overflow ${overflow}px`);
 
 // --- navigator ---
 const navCount = await page.locator(".nav-item").count();
-check("nav renders one button per case", navCount === 24, `${navCount} nav buttons`);
+check("nav renders one button per case", navCount === N, `${navCount} nav buttons`);
 
 const firstCurrent = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("case 1 marked current on load", firstCurrent === "1", firstCurrent);
@@ -69,14 +93,29 @@ check(
   `min ${Math.round(Math.min(...navSizes.map((r) => Math.min(r.width, r.height))))}px`
 );
 
-// Tab from a fresh page should reach the navigator before anything else --
-// it comes first in document order, ahead of the stem's clauses.
+// The deck page opens with the skip link, then the shared brand bar, so the
+// first tab stop is the skip link rather than the game. What still matters is
+// the order inside the game itself: the navigator comes before the stem, so a
+// keyboard user reaches "jump to another case" without walking the clauses of
+// this one first.
 await page.keyboard.press("Tab");
-const firstFocused = await page.evaluate(() => document.activeElement?.className);
+const firstStop = await page.evaluate(() => document.activeElement?.className);
+check("first tab stop is the skip link", String(firstStop).includes("skip"), String(firstStop));
+
+let gameStop = firstStop;
+let gameGuard = 0;
+while (
+  !String(gameStop).includes("nav-item") &&
+  !String(gameStop).includes("clause") &&
+  gameGuard++ < N + 16
+) {
+  await page.keyboard.press("Tab");
+  gameStop = await page.evaluate(() => document.activeElement?.className);
+}
 check(
-  "Tab reaches the navigator first",
-  String(firstFocused).includes("nav-item"),
-  String(firstFocused)
+  "Tab reaches the navigator before any clause",
+  String(gameStop).includes("nav-item"),
+  String(gameStop)
 );
 
 // --- the stem must read as prose, not as a stack of options ---
@@ -185,10 +224,10 @@ check(
 
 // --- next button ---
 await page.locator("#next").click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`2 of ${n}`), N);
 const meta2 = await page.locator("#meta").innerText();
-check("next advances", meta2.includes("2 of 24"), meta2);
+check("next advances", meta2.includes(`2 of ${N}`), meta2);
 
 const cleanReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -201,14 +240,56 @@ check("feedback/resolution/button reset on new case",
   cleanReset.fb === "" && cleanReset.res === "" && cleanReset.nextHidden &&
   cleanReset.marks === 0, JSON.stringify(cleanReset));
 
+// --- None option ---
+// Case 2 carries no `none` override, so DEFAULT_NONE (role noise, since its
+// plan is in fact wrong) is what answering None resolves to.
+const noneText = await page.locator("#noneOption").innerText();
+check("None button renders with a label", noneText.trim().length > 0, noneText);
+
+const noneBox = await page.locator("#noneOption").boundingBox();
+check(
+  "None button meets 44px tap target at 360px",
+  !!noneBox && noneBox.width >= 44 && noneBox.height >= 44,
+  noneBox ? `${Math.round(noneBox.width)}x${Math.round(noneBox.height)}` : "no box"
+);
+
+await page.locator("#noneOption").click();
+const noneCls = await page.locator("#noneOption").getAttribute("class");
+const noneFb = await page.locator("#feedback").innerText();
+check("tapping None on a wrong-plan case marks it noise", noneCls.includes("noise"), noneCls);
+check(
+  "tapping None shows the default feedback",
+  noneFb.endsWith("Something in this stem does change what you do next."),
+  noneFb
+);
+
+const noneAriaDisabled = await page.locator("#noneOption").getAttribute("aria-disabled");
+check("a noise None tap does not lock the case", noneAriaDisabled !== "true", String(noneAriaDisabled));
+
+const clausesTappableAfterNone = await page.locator(".clause").evaluateAll((els) =>
+  els.every((e) => e.getAttribute("aria-disabled") !== "true"));
+check("clauses remain tappable after tapping None", clausesTappableAfterNone);
+
 // --- navigator jump ---
 // Jump to case 5 directly, skipping cases 3-4 entirely -- something only
 // the navigator makes possible.
 await page.locator(".nav-item").nth(4).click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("5 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`5 of ${n}`), N);
 const meta5 = await page.locator("#meta").innerText();
-check("nav jump moves to the clicked case", meta5.includes("5 of 24"), meta5);
+check("nav jump moves to the clicked case", meta5.includes(`5 of ${N}`), meta5);
+
+// --- moving to another case resets the None button ---
+// Case 2's None was just marked noise; landing on a fresh case must clear it.
+const noneAfterJump = await page.evaluate(() => {
+  const b = document.getElementById("noneOption");
+  return { cls: b.className, ariaDisabled: b.getAttribute("aria-disabled") };
+});
+check(
+  "None button resets to bare class on a new case",
+  noneAfterJump.cls === "none-option" && noneAfterJump.ariaDisabled === null,
+  JSON.stringify(noneAfterJump)
+);
 
 const navReset = await page.evaluate(() => ({
   fb: document.getElementById("feedback").textContent,
@@ -230,16 +311,16 @@ check("solved mark survives navigating away", case1StillSolved.includes("solved"
 // Jump back to case 2 so the rest of the flow continues from where the
 // existing checks below expect to be.
 await page.locator(".nav-item").nth(1).click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("2 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`2 of ${n}`), N);
 
 // --- keyboard only ---
-// The navigator's 24 buttons come before the clauses in tab order, so the
-// guard needs enough headroom to walk past all of them first.
+// The navigator's buttons come before the clauses in tab order, so the guard
+// needs enough headroom to walk past all of them first.
 await page.keyboard.press("Tab");
 let focused = await page.evaluate(() => document.activeElement?.className);
 let guard = 0;
-while (!String(focused).includes("clause") && guard++ < 40) {
+while (!String(focused).includes("clause") && guard++ < N + 16) {
   await page.keyboard.press("Tab");
   focused = await page.evaluate(() => document.activeElement?.className);
 }
@@ -260,36 +341,39 @@ await page.reload();
 await page.waitForSelector(".clause");
 const metaAfter = await page.locator("#meta").innerText();
 const scoreAfter = await page.locator("#score").innerText();
-check("case index persists across reload", metaAfter.includes("2 of 24"), metaAfter);
+check("case index persists across reload", metaAfter.includes(`2 of ${N}`), metaAfter);
 check("score persists across reload", /of \d/.test(scoreAfter), scoreAfter);
 
 const navAfterReload = await page.locator('.nav-item[aria-current="true"]').innerText();
 check("nav current-case marker restores after reload", navAfterReload === "2", navAfterReload);
 
 // --- end of deck wraps rather than dead-ends ---
-await page.evaluate(() => {
+await page.evaluate((n) => {
   localStorage.setItem("findthepivot.v1",
-    JSON.stringify({ index: 23, progress: {} }));
-});
+    JSON.stringify({ index: n - 1, progress: {} }));
+}, N);
 await page.reload();
 await page.waitForSelector(".clause");
 const lastCase = await page.locator("#meta").innerText();
-check("can resume at last case", lastCase.includes("24 of 24"), lastCase);
+check("can resume at last case", lastCase.includes(`${N} of ${N}`), lastCase);
 
-// Case 24 (cardio_prinzmetal_angina): the pivot is the normal-angiogram
-// finding -- "no significant stenosis" is unique to that clause.
-const pivotIdx = await page.locator(".clause").evaluateAll((els) =>
-  els.findIndex((e) => e.textContent.includes("stenosis")));
-await page.locator(".clause").nth(pivotIdx).click();
+// The last case's pivot position comes from cases.json, so this keeps working
+// whichever case ends up last -- click the pivot clause if it has one,
+// otherwise the last case's answer is None, so click that instead.
+if (LAST_PIVOT_IS_NONE) {
+  await page.locator("#noneOption").click();
+} else {
+  await page.locator(".clause").nth(LAST_PIVOT).click();
+}
 const nextLabel = await page.locator("#next").innerText();
 check("last case offers restart, not a dead button", /again/i.test(nextLabel), nextLabel);
 
-const lastNavSolved = await page.locator(".nav-item").nth(23).getAttribute("class");
+const lastNavSolved = await page.locator(".nav-item").nth(N - 1).getAttribute("class");
 check("last case marked solved in nav after completion", lastNavSolved.includes("solved"), lastNavSolved);
 
 await page.locator("#next").click();
-await page.waitForFunction(() =>
-  document.getElementById("meta").textContent.includes("1 of 24"));
+await page.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`1 of ${n}`), N);
 const wrapped = await page.locator("#next").evaluate((e) => e.disabled);
 check("restart re-enables the button", wrapped === false);
 
@@ -331,6 +415,452 @@ for (const scheme of ["light", "dark"]) {
   check(`next button contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
   await c.close();
 }
+
+// --- angina.html: the stable-angina batch served as its own page ---
+// Batch size comes from the data, same reasoning as N above -- otherwise
+// retagging a case silently breaks this suite instead of a real bug.
+const ANGINA_URL = URL.replace(/play\.html$/, "angina.html");
+const ANGINA_CASES = CASES.filter((c) => c.batch === "stable-angina");
+const ANGINA_N = ANGINA_CASES.length;
+const ANGINA_FIRST_PIVOT = ANGINA_CASES[0].clauses.findIndex((c) => c.role === "pivot");
+const ANGINA_FIRST_PIVOT_IS_NONE =
+  ANGINA_FIRST_PIVOT === -1 && ANGINA_CASES[0].none?.role === "pivot";
+
+const anginaConsoleErrors = [];
+const anginaBadResponses = [];
+const ctx3 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const anginaPage = await ctx3.newPage();
+anginaPage.on("pageerror", (e) => anginaConsoleErrors.push(String(e)));
+anginaPage.on("console", (m) => { if (m.type() === "error") anginaConsoleErrors.push(m.text()); });
+anginaPage.on("response", (r) => { if (r.status() >= 400) anginaBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await anginaPage.goto(ANGINA_URL);
+await anginaPage.waitForSelector(".clause");
+
+const anginaNavCount = await anginaPage.locator(".nav-item").count();
+check(
+  "angina.html renders exactly the stable-angina batch",
+  anginaNavCount === ANGINA_N,
+  `${anginaNavCount} nav buttons, expected ${ANGINA_N}`
+);
+
+const anginaMeta = await anginaPage.locator("#meta").innerText();
+check(
+  "angina.html meta line reports the batch size",
+  anginaMeta.includes(`of ${ANGINA_N}`),
+  anginaMeta
+);
+
+check("no console/page errors on angina.html", anginaConsoleErrors.length === 0, anginaConsoleErrors.join(" | "));
+check("no failed requests on angina.html", anginaBadResponses.length === 0, anginaBadResponses.join(" | "));
+
+// Solve the first case on angina.html, then confirm its progress lands
+// under a batch-namespaced key rather than the shared one index.html uses.
+if (ANGINA_FIRST_PIVOT_IS_NONE) {
+  await anginaPage.locator("#noneOption").click();
+} else {
+  await anginaPage.locator(".clause").nth(ANGINA_FIRST_PIVOT).click();
+}
+const anginaStorageKeys = await anginaPage.evaluate(() => Object.keys(localStorage));
+check(
+  "angina.html progress is namespaced under its own storage key",
+  anginaStorageKeys.includes("findthepivot.v1:stable-angina") &&
+    !anginaStorageKeys.includes("findthepivot.v1"),
+  anginaStorageKeys.join(", ")
+);
+
+// Same origin, same browser context -- play.html and angina.html share
+// localStorage. The point of namespacing the key is that solving a case on
+// the stable-angina batch must not perturb the mixed deck's own (unrelated,
+// larger) case count or index restoration.
+await anginaPage.goto(URL);
+await anginaPage.waitForSelector(".clause");
+const indexMetaAfterAngina = await anginaPage.locator("#meta").innerText();
+check(
+  "play.html still reports its own case count after angina.html writes to shared localStorage",
+  indexMetaAfterAngina.includes(`of ${N}`),
+  indexMetaAfterAngina
+);
+
+// --- index.html: the landing page ---
+// index.html no longer carries a deck; it is the marketing page that sends
+// people to the two deck pages. It has its own failure modes (a broken CTA,
+// counts that drift from the data, a page that needs JS to say anything), so
+// it gets its own checks rather than riding on the deck suite above.
+const LANDING_URL = URL.replace(/play\.html$/, "index.html");
+const LANDING_BATCH = ANGINA_N;              // cases tagged stable-angina
+const LANDING_TOTAL = N;                     // every case in the bank
+const LANDING_SPECIALTIES = new Set(CASES.map((c) => c.topic)).size;
+
+const landingConsoleErrors = [];
+const landingBadResponses = [];
+const ctx4 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const landingPage = await ctx4.newPage();
+landingPage.on("pageerror", (e) => landingConsoleErrors.push(String(e)));
+landingPage.on("console", (m) => { if (m.type() === "error") landingConsoleErrors.push(m.text()); });
+landingPage.on("response", (r) => { if (r.status() >= 400) landingBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await landingPage.goto(LANDING_URL);
+// landing.js fetches cases.json, so the counted numbers land after load.
+await landingPage.waitForLoadState("networkidle");
+
+check("no console/page errors on index.html", landingConsoleErrors.length === 0, landingConsoleErrors.join(" | "));
+check("no failed requests on index.html", landingBadResponses.length === 0, landingBadResponses.join(" | "));
+
+// The landing page must not have quietly acquired a deck: if a .clause shows
+// up here it means game.js got wired back in and the page is doing two jobs.
+const landingClauses = await landingPage.locator(".clause").count();
+check("index.html is a landing page, not a deck", landingClauses === 0, `${landingClauses} clauses`);
+
+// --- the primary CTAs actually go somewhere ---
+// A landing page whose buttons 404 is worse than no landing page, and a
+// renamed deck file would break silently otherwise.
+{
+  const target = "angina.html";
+  const hrefs = await landingPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
+    els.map((e) => e.href));
+  check(`index.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
+  if (hrefs.length > 0) {
+    const res = await ctx4.request.get(hrefs[0]);
+    check(`${target} resolves with 200 from the landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  }
+}
+
+// --- the mixed deck is in preparation, so nothing may point a reader at it ---
+// play.html still exists in the repo (the deck suite above drives the full
+// bank through it) but it is not published and not offered. Counting resolved
+// hrefs rather than the literal attribute is what catches a link that comes
+// back as "./play.html", "play.html?x" or an absolute URL.
+const mixedDeckLinks = await landingPage.locator("a[href]").evaluateAll((els) =>
+  els.map((e) => e.href).filter((h) => h.split(/[?#]/)[0].endsWith("/play.html")));
+check(
+  "index.html does not link to the mixed deck (in preparation)",
+  mixedDeckLinks.length === 0,
+  mixedDeckLinks.length ? mixedDeckLinks.join(", ") : "0 links to play.html"
+);
+
+// --- "in preparation" must be visible, not just absent ---
+// Deleting the card would also pass the link check above while quietly losing
+// the promise that a mixed deck is coming. The card has to still be there,
+// still say it is closed, and carry no anchor at all -- an anchor inside it is
+// how "in preparation" decays back into a live button.
+const mixedDeckCard = await landingPage.evaluate(() => {
+  const card = document.querySelector("article.batch.upcoming");
+  if (!card) return null;
+  return {
+    status: (card.querySelector(".batch-status")?.textContent ?? "").trim(),
+    anchors: card.querySelectorAll("a").length,
+  };
+});
+check(
+  "index.html shows the mixed deck as closed, with a status and no link",
+  !!mixedDeckCard && mixedDeckCard.status.length > 0 && mixedDeckCard.anchors === 0,
+  mixedDeckCard
+    ? `status "${mixedDeckCard.status}", ${mixedDeckCard.anchors} anchors`
+    : "no article.batch.upcoming"
+);
+
+// --- no horizontal scroll at 360px ---
+// Same phone width as the deck. The hero grid and the fact row are the two
+// places a stray fixed width would push the page sideways.
+const landingOverflow = await landingPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("no horizontal scroll on index.html at 360px", landingOverflow <= 1, `overflow ${landingOverflow}px`);
+
+// --- tap targets ---
+// Every standalone control (brand bar links, skip link, CTA buttons) must be
+// thumb-sized. Links sitting inline in a sentence are excluded: their height
+// is fixed by the line-height of the prose around them, which is exactly the
+// inline exception in WCAG 2.5.8, and padding them out would tear the
+// paragraph apart. Controls that are not rendered at all are excluded too:
+// below 620px the bar drops its in-page anchors (see brand.css), and a
+// display:none element measures 0px without ever being a target to miss.
+const landingTargets = await landingPage.locator("a, button").evaluateAll((els) =>
+  els
+    .filter((e) => e.getClientRects().length > 0)
+    .filter((e) => getComputedStyle(e).display !== "inline")
+    .map((e) => ({
+      label: (e.textContent || "").trim().slice(0, 24),
+      height: e.getBoundingClientRect().height,
+    })));
+const shortTargets = landingTargets.filter((t) => t.height < 44);
+check(
+  "index.html controls are >= 44px tall",
+  landingTargets.length > 0 && shortTargets.length === 0,
+  shortTargets.length
+    ? shortTargets.map((t) => `${t.label} ${Math.round(t.height)}px`).join(", ")
+    : `${landingTargets.length} controls, min ${Math.round(
+        Math.min(...landingTargets.map((t) => t.height)))}px`
+);
+
+// --- the counted facts match the data ---
+// These three numbers are the page's only factual claims. They are counted
+// from cases.json by landing.js, so this both proves the script ran and that
+// the marketing copy cannot drift away from the bank behind it.
+const facts = await landingPage.evaluate(() => ({
+  batch: document.getElementById("factBatch")?.textContent.trim(),
+  total: document.getElementById("factTotal")?.textContent.trim(),
+  specialties: document.getElementById("factSpecialties")?.textContent.trim(),
+}));
+check(
+  "index.html counts Batch 01 from cases.json",
+  facts.batch === String(LANDING_BATCH),
+  `${facts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "index.html counts the total deck from cases.json",
+  facts.total === String(LANDING_TOTAL),
+  `${facts.total}, expected ${LANDING_TOTAL}`
+);
+check(
+  "index.html counts distinct specialties from cases.json",
+  facts.specialties === String(LANDING_SPECIALTIES),
+  `${facts.specialties}, expected ${LANDING_SPECIALTIES}`
+);
+
+// --- the page still says something with JavaScript off ---
+// The same numbers are written into the markup, so a blocked or failed
+// landing.js must leave a complete page rather than three empty slots.
+const ctxNoJs = await browser.newContext({
+  viewport: { width: 360, height: 740 },
+  javaScriptEnabled: false,
+});
+const noJsPage = await ctxNoJs.newPage();
+await noJsPage.goto(LANDING_URL);
+const noJsText = {
+  batch: (await noJsPage.locator("#factBatch").innerText()).trim(),
+  total: (await noJsPage.locator("#factTotal").innerText()).trim(),
+  specialties: (await noJsPage.locator("#factSpecialties").innerText()).trim(),
+};
+check(
+  "index.html renders its counts with JavaScript disabled",
+  noJsText.batch !== "" && noJsText.total !== "" && noJsText.specialties !== "",
+  JSON.stringify(noJsText)
+);
+await ctxNoJs.close();
+
+// --- contrast of the hero CTA in both schemes (WCAG AA >= 4.5) ---
+// The one control the whole page is built to get tapped; it has to be
+// readable in whichever scheme the phone is set to.
+for (const scheme of ["light", "dark"]) {
+  const c = await browser.newContext({ colorScheme: scheme });
+  const pg = await c.newPage();
+  await pg.goto(LANDING_URL);
+  const { fg, bg } = await pg.evaluate(() => {
+    const s = getComputedStyle(document.getElementById("startBatch01"));
+    return { fg: s.color, bg: s.backgroundColor };
+  });
+  const [l1, l2] = [lum(parse(fg)), lum(parse(bg))].sort((a, b) => b - a);
+  const ratio = (l1 + 0.05) / (l2 + 0.05);
+  check(`hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
+  await c.close();
+}
+
+// --- ar.html: the Arabic landing page ---
+// ar.html is the RTL counterpart of index.html: same stylesheets, same script,
+// same element ids. That shared machinery is exactly why it needs its own
+// checks -- a rule written for the LTR page can look fine there and fall apart
+// once the writing direction flips, and nothing in the English section above
+// would notice.
+const ARABIC_URL = URL.replace(/play\.html$/, "ar.html");
+
+const arabicConsoleErrors = [];
+const arabicBadResponses = [];
+const ctx5 = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const arabicPage = await ctx5.newPage();
+arabicPage.on("pageerror", (e) => arabicConsoleErrors.push(String(e)));
+arabicPage.on("console", (m) => { if (m.type() === "error") arabicConsoleErrors.push(m.text()); });
+arabicPage.on("response", (r) => { if (r.status() >= 400) arabicBadResponses.push(`${r.status()} ${r.url()}`); });
+
+await arabicPage.goto(ARABIC_URL);
+// Same as index.html: landing.js fetches cases.json, so the counted numbers
+// land after load rather than at DOMContentLoaded.
+await arabicPage.waitForLoadState("networkidle");
+
+check("no console/page errors on ar.html", arabicConsoleErrors.length === 0, arabicConsoleErrors.join(" | "));
+check("no failed requests on ar.html", arabicBadResponses.length === 0, arabicBadResponses.join(" | "));
+
+// --- the document really is Arabic and really is RTL ---
+// Both attributes carry weight and neither implies the other: `lang` is what
+// picks Arabic shaping, hyphenation and the right voice in a screen reader,
+// while `dir` is what mirrors the layout. A copy-paste of index.html that kept
+// `lang="en"`, or an `ar` page that forgot `dir`, would still render Arabic
+// glyphs and look plausible in a screenshot.
+const arabicDoc = await arabicPage.evaluate(() => ({
+  lang: document.documentElement.lang,
+  dir: document.documentElement.dir,
+}));
+check(
+  "ar.html declares Arabic and RTL on <html>",
+  arabicDoc.lang === "ar" && arabicDoc.dir === "rtl",
+  `lang=${arabicDoc.lang} dir=${arabicDoc.dir}`
+);
+
+// --- the primary CTAs actually go somewhere ---
+// The Arabic page sends people to the same English deck page, so a renamed
+// deck file breaks it in exactly the same silent way. Resolve the real href
+// with a real request rather than trusting the attribute.
+{
+  const target = "angina.html";
+  const hrefs = await arabicPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
+    els.map((e) => e.href));
+  check(`ar.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
+  if (hrefs.length > 0) {
+    const res = await ctx5.request.get(hrefs[0]);
+    check(`${target} resolves with 200 from the Arabic landing page link`, res.status() === 200, `${res.status()} ${hrefs[0]}`);
+  }
+}
+
+// --- the mixed deck is closed here too ---
+// The two landing pages are maintained separately, so the policy has to be
+// asserted on each of them: translating a page is exactly the moment an old
+// CTA gets copied back in.
+const arabicMixedDeckLinks = await arabicPage.locator("a[href]").evaluateAll((els) =>
+  els.map((e) => e.href).filter((h) => h.split(/[?#]/)[0].endsWith("/play.html")));
+check(
+  "ar.html does not link to the mixed deck (in preparation)",
+  arabicMixedDeckLinks.length === 0,
+  arabicMixedDeckLinks.length ? arabicMixedDeckLinks.join(", ") : "0 links to play.html"
+);
+
+const arabicMixedDeckCard = await arabicPage.evaluate(() => {
+  const card = document.querySelector("article.batch.upcoming");
+  if (!card) return null;
+  return {
+    status: (card.querySelector(".batch-status")?.textContent ?? "").trim(),
+    anchors: card.querySelectorAll("a").length,
+  };
+});
+check(
+  "ar.html shows the mixed deck as closed, with a status and no link",
+  !!arabicMixedDeckCard && arabicMixedDeckCard.status.length > 0 &&
+    arabicMixedDeckCard.anchors === 0,
+  arabicMixedDeckCard
+    ? `status "${arabicMixedDeckCard.status}", ${arabicMixedDeckCard.anchors} anchors`
+    : "no article.batch.upcoming"
+);
+
+// --- no horizontal scroll at 360px ---
+// The check that matters most on a mirrored layout: any margin, padding or
+// offset written as left/right instead of a logical property lands on the
+// wrong side under `dir="rtl"` and pushes the page sideways. On a phone that
+// shows up as content sliding out from under the thumb.
+const arabicOverflow = await arabicPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("no horizontal scroll on ar.html at 360px", arabicOverflow <= 1, `overflow ${arabicOverflow}px`);
+
+// --- the counted facts match the data ---
+// Same three numbers, same source. Passing here proves landing.js runs on this
+// page too -- the Arabic markup could easily have shipped with the ids renamed
+// or the script tag dropped, leaving three frozen numbers that drift from the
+// bank the moment a case is added.
+const arabicFacts = await arabicPage.evaluate(() => ({
+  batch: document.getElementById("factBatch")?.textContent.trim(),
+  total: document.getElementById("factTotal")?.textContent.trim(),
+  specialties: document.getElementById("factSpecialties")?.textContent.trim(),
+}));
+check(
+  "ar.html counts Batch 01 from cases.json",
+  arabicFacts.batch === String(LANDING_BATCH),
+  `${arabicFacts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "ar.html counts the total deck from cases.json",
+  arabicFacts.total === String(LANDING_TOTAL),
+  `${arabicFacts.total}, expected ${LANDING_TOTAL}`
+);
+check(
+  "ar.html counts distinct specialties from cases.json",
+  arabicFacts.specialties === String(LANDING_SPECIALTIES),
+  `${arabicFacts.specialties}, expected ${LANDING_SPECIALTIES}`
+);
+
+// --- the language switch is reciprocal ---
+// A one-way switch is a trap: a reader who lands on the Arabic page from a
+// shared link and wants the English one (or the reverse) has no route back,
+// and search engines see a dangling pair. Both halves are asserted together so
+// deleting either one fails here.
+const arabicSwitch = await arabicPage.locator('a[href="index.html"]').count();
+const landingSwitch = await landingPage.locator('a[href="ar.html"]').count();
+check(
+  "ar.html and index.html link to each other (reciprocal language switch)",
+  arabicSwitch > 0 && landingSwitch > 0,
+  `ar.html->index.html ${arabicSwitch}, index.html->ar.html ${landingSwitch}`
+);
+
+// --- the demo panel stays left-to-right ---
+// The panel is a picture of the real deck, and the real deck is English. If
+// `dir="rtl"` were allowed to cascade into it the punctuation and the clause
+// order would flip, and the page would be advertising a screen that does not
+// exist in the product.
+const demoDir = await arabicPage.locator(".demo").getAttribute("dir");
+check(
+  "ar.html demo panel stays LTR (it depicts the English interface)",
+  demoDir === "ltr",
+  `dir=${demoDir}`
+);
+
+// --- the wordmark stays on one line ---
+// The product name is Latin text sitting in an RTL bar next to three Arabic
+// links; at 360px it wrapped onto a second line and pushed the bar to double
+// height. Measuring the rendered box against the type is what keeps this
+// honest at any type scale -- one line cannot be 1.6x its own font-size tall.
+// The floor is the catch: the wordmark is also a tap target, so brand.css
+// pins it to min-height 44px and a single line already measures exactly that,
+// well past 1.6x a 17px font. So the bar is whichever of the two is taller,
+// and it still has teeth: restoring the wrap measures 96px here, over twice
+// the floor, because a second line stacks on top of it.
+const wordmark = await arabicPage.locator(".wordmark").evaluate((e) => {
+  const s = getComputedStyle(e);
+  return {
+    height: e.getBoundingClientRect().height,
+    fontSize: parseFloat(s.fontSize),
+    floor: parseFloat(s.minHeight) || 0,
+  };
+});
+const wordmarkCeiling = Math.max(wordmark.fontSize * 1.6, wordmark.floor);
+check(
+  "ar.html wordmark stays on one line at 360px",
+  wordmark.height <= wordmarkCeiling,
+  `${Math.round(wordmark.height)}px tall, one-line ceiling ${Math.round(wordmarkCeiling)}px ` +
+    `(font-size ${Math.round(wordmark.fontSize)}px, tap-target floor ${Math.round(wordmark.floor)}px)`
+);
+
+// --- contrast of the hero CTA in both schemes (WCAG AA >= 4.5) ---
+// Same button, same stylesheet, but the Arabic face renders at a different
+// weight and the button is checked here on its own so a font-driven colour
+// tweak for Arabic cannot quietly drop below AA.
+for (const scheme of ["light", "dark"]) {
+  const c = await browser.newContext({ colorScheme: scheme });
+  const pg = await c.newPage();
+  await pg.goto(ARABIC_URL);
+  const { fg, bg } = await pg.evaluate(() => {
+    const s = getComputedStyle(document.getElementById("startBatch01"));
+    return { fg: s.color, bg: s.backgroundColor };
+  });
+  const [l1, l2] = [lum(parse(fg)), lum(parse(bg))].sort((a, b) => b - a);
+  const ratio = (l1 + 0.05) / (l2 + 0.05);
+  check(`ar.html hero CTA contrast (${scheme})`, ratio >= 4.5, `${ratio.toFixed(2)}:1`);
+  await c.close();
+}
+
+// --- the deploy workflow must not publish the mixed deck ---
+// The two link checks above only prove nothing on the site points at
+// play.html. A page copied into _site is still served, so anyone who guesses
+// the URL reaches it -- which is precisely what "in preparation" is supposed
+// to prevent. The assembly step is therefore the only place the policy is
+// actually enforced, and it is read from disk (same as cases.json above)
+// because no served page can reveal what the deploy job copies.
+const PAGES_WORKFLOW = readFileSync(
+  join(import.meta.dirname, "..", ".github", "workflows", "pages.yml"), "utf8");
+const copyLine = (PAGES_WORKFLOW.split("\n").find((l) =>
+  /^\s*cp\b[^\n]*\.html[^\n]*_site\//.test(l)) ?? "").trim();
+check(
+  "the deploy workflow copies the open pages into _site but not play.html",
+  ["index.html", "ar.html", "angina.html"].every((f) => copyLine.includes(f)) &&
+    !copyLine.includes("play.html"),
+  copyLine || "no cp ... _site/ line for .html files"
+);
 
 await browser.close();
 

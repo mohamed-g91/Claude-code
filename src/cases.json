@@ -1,5 +1,5 @@
 {
-  "prompt": "Tap the finding that most changes immediate management.",
+  "prompt": "Tap the finding that most changes immediate management, or None if it is already right.",
   "roles": {
     "pivot": "The finding that commits you to a different action.",
     "contributory": "Right line of reasoning, but not decisive on its own.",
@@ -773,6 +773,362 @@
         }
       ],
       "resolution": "Chest pain at rest, characteristically clustering in the early hours, with transient ST elevation that resolves spontaneously and a coronary angiogram free of significant stenosis, is Prinzmetal's (variant) angina — coronary artery vasospasm rather than fixed atherosclerotic obstruction. This changes the pharmacology: first-line treatment is a dihydropyridine calcium channel blocker such as amlodipine or nifedipine to relax the vessel wall, with long-acting nitrates as an add-on. Beta-blockers, the default second agent in ordinary stable angina, are avoided here — unopposed alpha-mediated vasoconstriction can worsen the spasm they're meant to treat. Smoking history and family history describe her risk of atherosclerosis; the angiogram is what tells you which disease she actually has."
+    },
+    {
+      "id": "cardio_known_cad_functional",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 58-year-old man",
+          "role": "noise",
+          "feedback": "Age picks the drug or the test in plenty of pathways. Not this one — the 2016 update removed age-weighted pre-test probability from the chest pain pathway altogether."
+        },
+        {
+          "text": "presented with four months of central chest tightness on walking uphill that takes fifteen to twenty minutes to settle after he stops.",
+          "role": "contributory",
+          "feedback": "Right thread. Losing that third feature — prompt relief with rest — makes this atypical rather than typical angina, which is worth classifying correctly. But the class does not pick the test."
+        },
+        {
+          "text": "He has a past medical history of myocardial infarction three years ago.",
+          "role": "pivot",
+          "feedback": "Established disease changes the question being asked."
+        },
+        {
+          "text": "He smokes 15 cigarettes a day and his father had a myocardial infarction at 58.",
+          "role": "noise",
+          "feedback": "Real risk factors, and easy to weight. They neither add to nor subtract from disease he is already known to have."
+        },
+        {
+          "text": "His resting 12-lead ECG is normal.",
+          "role": "contributory",
+          "feedback": "Worth checking, and NICE is explicit that a normal resting ECG does not exclude angina. Here it rules nothing in and nothing out."
+        },
+        {
+          "text": "A CT coronary angiography is planned.",
+          "role": "noise",
+          "feedback": "A decision someone has already made. That a test is booked is not evidence that it is the right one."
+        }
+      ],
+      "resolution": "CT coronary angiography answers whether there is coronary disease. In a man who infarcted three years ago that question is already answered, and the useful one becomes whether his current symptoms are caused by ischaemia. NICE therefore routes people with confirmed coronary artery disease to non-invasive functional testing — stress echocardiography, myocardial perfusion scintigraphy or stress MR — rather than to first-line anatomical imaging. Neither his risk factors nor the atypical character of the pain moves him off that route, and the normal resting ECG excludes nothing. ESC 2024 arrives at the same place by a different argument, preferring functional imaging where the clinical likelihood of disease is already high.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_cad_naive_ctca",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 64-year-old woman",
+          "role": "noise",
+          "feedback": "Age and sex drive the estimate in some pathways. Since 2016 the NICE chest pain pathway has used neither."
+        },
+        {
+          "text": "presented with six weeks of central chest tightness on walking to the bus stop, relieved within two minutes of stopping.",
+          "role": "contributory",
+          "feedback": "Right thread. All three features are present, so this is typical angina — worth classifying, but the class does not pick the test."
+        },
+        {
+          "text": "She has no past medical history.",
+          "role": "pivot",
+          "feedback": "Whether disease is already established is what decides where in the pathway she starts."
+        },
+        {
+          "text": "She has smoked since her twenties and her total cholesterol is 6.4 mmol/L.",
+          "role": "noise",
+          "feedback": "Substantial risk factors, and they raise her chance of having disease. They do not change how it is looked for."
+        },
+        {
+          "text": "Physical examination and her resting 12-lead ECG are normal.",
+          "role": "contributory",
+          "feedback": "Right to check, and NICE is explicit that a normal resting ECG does not exclude angina. A normal examination does not either — neither result moves her along the pathway or off it."
+        },
+        {
+          "text": "A stress echocardiogram is planned.",
+          "role": "noise",
+          "feedback": "Already booked. A test on the list is not a test that is justified."
+        }
+      ],
+      "resolution": "Non-invasive functional imaging — stress echocardiography, myocardial perfusion scintigraphy, stress MR — is second-line in the NICE pathway. It is what you reach for once CT coronary angiography has shown disease of uncertain functional significance or come back non-diagnostic. With no past medical history she has no established coronary disease and has not yet had the first-line test, which is 64-slice or better CT coronary angiography. Neither her risk factors nor the typical character of her pain changes that, the 2016 update having removed pre-test probability from the pathway. An exercise ECG would be wrong here too, for a different reason: NICE prohibits it outright for diagnosing or excluding angina in anyone without known coronary disease. ESC 2024 is the exception worth knowing — there functional imaging may be chosen first-line where clinical likelihood is high, so this ordering is NICE's rather than universal.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_stress_agent_asthma",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 71-year-old man with a history of coronary stenting five years ago",
+          "role": "contributory",
+          "feedback": "Right thread. Established disease is why he is having a functional study rather than a CT, and that decision has been made correctly. The age adds nothing to it."
+        },
+        {
+          "text": "presented with six months of chest tightness on climbing stairs, easing after a few minutes' rest.",
+          "role": "noise",
+          "feedback": "Why he is being investigated. With disease already established, the character of the pain does not steer the test."
+        },
+        {
+          "text": "He also has a long history of asthma controlled on regular inhalers.",
+          "role": "pivot",
+          "feedback": "One of the three stress agents is not available to him."
+        },
+        {
+          "text": "Hip osteoarthritis limits him to about twenty metres.",
+          "role": "contributory",
+          "feedback": "Very close. Someone who cannot reach an adequate workload gives a submaximal, uninterpretable study, so pharmacological stress is right. That chooses the method, not the drug — and there are three of them."
+        },
+        {
+          "text": "A myocardial perfusion scan with adenosine stress is planned.",
+          "role": "noise",
+          "feedback": "A decision already made, down to the drug."
+        }
+      ],
+      "resolution": "Adenosine and dipyridamole are coronary vasodilators and both provoke bronchospasm, so they are contraindicated in significant reversible airways disease — as they are in second- or third-degree atrioventricular block without a pacemaker. NICE lists adenosine, dipyridamole or dobutamine as acceptable stressors for myocardial perfusion scintigraphy, so the guideline supplies its own way out: dobutamine, which raises myocardial oxygen demand by increasing contractility and heart rate rather than redistributing coronary flow. Two decisions sit inside this case and candidates collapse them into one. Inability to exercise is what makes the stress pharmacological; the airway is what chooses which drug. Caffeine within twenty-four hours matters too, but it postpones a scan rather than redesigning it. ESC says the same — this is pharmacology, not pathway policy.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_nonanginal_ecg_rescue",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 52-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this pathway since 2016."
+        },
+        {
+          "text": "presented with three weeks of sharp left-sided chest pain lasting a few seconds at a time, unrelated to exertion.",
+          "role": "contributory",
+          "feedback": "Right thread, and correctly classified: none of the three features, so this is non-anginal chest pain, which usually ends the diagnostic pathway."
+        },
+        {
+          "text": "She has no past medical history.",
+          "role": "noise",
+          "feedback": "No established disease, which keeps her out of the known-CAD route. It does not decide whether she needs a pathway at all."
+        },
+        {
+          "text": "She has a family history of ischaemic heart disease and a BMI of 31.",
+          "role": "noise",
+          "feedback": "Genuine risk factors. Since 2016 the NICE pathway has not used them to select anyone for testing."
+        },
+        {
+          "text": "The pain is reproduced by pressing over the costochondral junctions.",
+          "role": "contributory",
+          "feedback": "Strong support for a musculoskeletal cause, and the reason the plan looks reasonable. But chest wall tenderness and coronary disease can coexist."
+        },
+        {
+          "text": "Her resting 12-lead ECG shows ST-segment flattening and T-wave inversion in the lateral leads.",
+          "role": "pivot",
+          "feedback": "The one objective finding that overrides the history."
+        },
+        {
+          "text": "Ibuprofen and a muscle relaxant are prescribed, with follow-up with her GP in two days.",
+          "role": "noise",
+          "feedback": "A decision already made, and a careful-looking one for the diagnosis it assumes."
+        }
+      ],
+      "resolution": "Non-anginal chest pain — none of the three features — normally ends the diagnostic pathway, and musculoskeletal or gastro-oesophageal causes become the sensible place to look. NICE builds in one exception. Where the resting 12-lead ECG shows ST-T changes or pathological Q waves, non-anginal pain is routed back into first-line 64-slice or better CT coronary angiography, because those changes suggest myocardial damage or ischaemia that the history has failed to declare. Reproducible chest wall tenderness supports a musculoskeletal cause without excluding coexisting coronary disease, and her risk factors play no part either way. This rescue is NICE-specific: ESC 2024 routes by clinical likelihood rather than by the resting ECG, so there an abnormal ECG raises suspicion without being the switch that reopens the pathway.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_microvascular_angina",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 56-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented with central chest tightness on exertion, relieved by rest within two minutes.",
+          "role": "pivot",
+          "feedback": "The symptoms are what refuse the label she is being given."
+        },
+        {
+          "text": "She has hypertension and a family history of ischaemic heart disease.",
+          "role": "noise",
+          "feedback": "Real risk factors. They neither support nor undermine the diagnosis being made here."
+        },
+        {
+          "text": "Echocardiography shows normal left ventricular function and no valve disease.",
+          "role": "contributory",
+          "feedback": "Right thread, and worth doing — it rules out aortic stenosis and hypertrophic cardiomyopathy, both of which cause exertional angina with clean coronaries. Ruling those out narrows the field without settling it."
+        },
+        {
+          "text": "CT coronary angiography shows smooth, unobstructed coronary arteries.",
+          "role": "contributory",
+          "feedback": "Right thread, and a genuinely reassuring scan — there is no obstructive epicardial disease and nothing to stent. But it explains what she does not have, not what she does."
+        },
+        {
+          "text": "She is reassured that her arteries are normal and discharged with a diagnosis of non-cardiac chest pain.",
+          "role": "noise",
+          "feedback": "A decision already made, and the one the scan appears to license."
+        }
+      ],
+      "resolution": "A normal CT coronary angiogram excludes obstructive epicardial disease. It does not explain her symptoms and it does not make them non-cardiac. All three features are present — constricting discomfort, brought on by exertion, relieved promptly by rest — and typical angina with unobstructed coronary arteries is microvascular angina until shown otherwise. The next step is functional imaging, myocardial perfusion scintigraphy or stress MR perfusion, to establish whether the myocardium is actually ischaemic; the diagnosis rests on demonstrating ischaemia, not on the absence of stenosis. ESC 2024 goes further and gives invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries. The outlook is not benign and the treatment is medical. Distinguish it from vasospastic angina, which presents at rest with transient ST elevation rather than on exertion.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_ctca_nondiagnostic",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 61-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this pathway."
+        },
+        {
+          "text": "presented with five months of central chest tightness on exertion, relieved by rest within a few minutes.",
+          "role": "contributory",
+          "feedback": "Right thread, and correctly classified — typical angina, which is what put him into the pathway at the right entry point."
+        },
+        {
+          "text": "He has type 2 diabetes and hypertension.",
+          "role": "noise",
+          "feedback": "Genuine risk factors, and they raise his chance of disease. They do not decide which test comes next."
+        },
+        {
+          "text": "His coronary artery calcium score is 890.",
+          "role": "contributory",
+          "feedback": "Right thread — a score that high is a real marker of risk and predicts exactly the problem that follows. But a number describing burden does not tell you what to do next."
+        },
+        {
+          "text": "The CT coronary angiogram is reported as non-diagnostic, the vessels being too heavily calcified to assess.",
+          "role": "pivot",
+          "feedback": "A test that could not answer the question is not the same as a test that answered it."
+        },
+        {
+          "text": "Invasive coronary angiography is planned.",
+          "role": "noise",
+          "feedback": "A decision already made, and the one that feels decisive."
+        }
+      ],
+      "resolution": "NICE sequences three lines. CT coronary angiography is first. Where it shows disease of uncertain functional significance or comes back non-diagnostic, non-invasive functional imaging is second. Invasive coronary angiography is third, for when functional imaging is inconclusive. A non-diagnostic scan moves him to the second line, not past it. Heavy calcification is the commonest reason a CTCA cannot be read, and a calcium score in the high hundreds warns of it in advance without itself justifying a skipped step. ESC sequences the same way. Going straight to the catheter lab commits him to an arterial procedure to answer a question stress imaging will usually answer without one.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "cardio_third_antianginal_restraint",
+      "topic": "Cardiology",
+      "clauses": [
+        {
+          "text": "A 67-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented for review having had one episode of chest tightness in the past three months, on carrying shopping uphill and relieved by rest.",
+          "role": "contributory",
+          "feedback": "Right thread — symptom frequency is the measure this turns on. On its own it does not tell you whether anything needs to change."
+        },
+        {
+          "text": "He takes bisoprolol 10 mg and amlodipine 10 mg daily and uses his GTN spray about once a month.",
+          "role": "contributory",
+          "feedback": "Right thread, and worth reading closely: two antianginal agents, both at full dose, and a spray that is barely touched."
+        },
+        {
+          "text": "He takes atorvastatin 80 mg and attends a smoking cessation clinic.",
+          "role": "noise",
+          "feedback": "Secondary prevention, already in hand. Nothing here is being neglected."
+        },
+        {
+          "text": "A CT coronary angiogram six months ago showed a 60% stenosis in the left circumflex artery.",
+          "role": "contributory",
+          "feedback": "The tempting one. A stenosis in that range is anatomically real but functionally uncertain, and it was not what put him on treatment."
+        },
+        {
+          "text": "The patient is reassured and scheduled for follow-up in three months.",
+          "role": "noise",
+          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+        }
+      ],
+      "none": {
+        "role": "pivot",
+        "feedback": "Restraint is the decision."
+      },
+      "resolution": "NICE is explicit: do not offer a third antianginal drug to someone whose stable angina is controlled on two. A third is considered only where two have failed to control symptoms and the person is awaiting revascularisation or is unsuitable for it. One episode in three months, with monthly GTN use, on a beta-blocker and a dihydropyridine calcium channel blocker both at full dose, is control. The 60% circumflex stenosis is the trap — anatomically real, functionally uncertain, and not on its own an indication to revascularise a man already controlled on medical therapy; routine invasive management in stable disease has not been shown to reduce ischaemic events, and its symptom benefit falls to those still symptomatic. The statin and the cessation clinic are secondary prevention running correctly alongside. Sometimes the finding that changes management is that there isn't one.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "pharm_verapamil_betablocker",
+      "topic": "Clinical Pharmacology",
+      "clauses": [
+        {
+          "text": "A 70-year-old man",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented with chest tightness walking to the shops, coming on more often over the past two months.",
+          "role": "contributory",
+          "feedback": "Right thread — symptoms worsening on current treatment is what makes a second agent necessary. It settles that something must change, not what."
+        },
+        {
+          "text": "He has taken verapamil 240 mg modified release for two years.",
+          "role": "pivot",
+          "feedback": "Which calcium channel blocker he is on decides what can safely join it."
+        },
+        {
+          "text": "He also takes rosuvastatin 20 mg and ramipril 5 mg.",
+          "role": "noise",
+          "feedback": "Secondary prevention and blood pressure, both appropriate. Neither is part of this decision."
+        },
+        {
+          "text": "His heart rate is 64 and blood pressure 128/76.",
+          "role": "contributory",
+          "feedback": "Reasonable to check, and on the numbers there is room for a rate-limiting agent. Headroom is necessary before adding one but not sufficient — these describe where he is now, not what happens when two drugs act on the same node."
+        },
+        {
+          "text": "Echocardiography shows normal left ventricular systolic function.",
+          "role": "contributory",
+          "feedback": "Right thread, and it removes one of the three ways this could go wrong. Preserved systolic function makes negative inotropy survivable; it does nothing about the conduction system."
+        },
+        {
+          "text": "The decision is to add a second-line agent, bisoprolol 2.5 mg daily.",
+          "role": "noise",
+          "feedback": "A decision already made, and correctly reasoned as far as it goes — he does need a second agent."
+        }
+      ],
+      "resolution": "NICE states that a calcium channel blocker combined with a beta-blocker must be a dihydropyridine, and this is why. Verapamil and diltiazem are rate-limiting calcium channel blockers, so adding a beta-blocker stacks negative chronotropy, negative dromotropy and negative inotropy onto the same targets — profound bradycardia, complete heart block and decompensated heart failure. A cautious starting dose does not make the combination safe; the interaction is pharmacodynamic, not a matter of titration. The way forward is a long-acting nitrate or nicorandil as the added agent, or switching verapamil to amlodipine so a beta-blocker becomes available. Ivabradine is not the escape it appears — it is contraindicated with verapamil and diltiazem, which inhibit CYP3A4 and slow the heart by a separate mechanism. ESC 2024 dropped the first-line and second-line labelling of antianginals in favour of choosing by haemodynamic profile, but left the combination rule untouched. The normal pulse, normal pressure and normal ejection fraction all suggest headroom. The existing prescription is what removes it.",
+      "batch": "stable-angina"
+    },
+    {
+      "id": "pharm_nitrate_tolerance",
+      "topic": "Clinical Pharmacology",
+      "clauses": [
+        {
+          "text": "A 63-year-old woman",
+          "role": "noise",
+          "feedback": "Not a variable in this decision."
+        },
+        {
+          "text": "presented with exertional chest tightness, well controlled for the first month of treatment and returning over the past six weeks.",
+          "role": "contributory",
+          "feedback": "Right thread, and the shape of the story matters — treatment that worked and then stopped working points somewhere different from treatment that never worked."
+        },
+        {
+          "text": "A beta-blocker was stopped last year for symptomatic bradycardia.",
+          "role": "noise",
+          "feedback": "Explains why her options are narrower than usual. It does not explain why the drug she is on has stopped working."
+        },
+        {
+          "text": "She takes isosorbide mononitrate 20 mg at 8 am and 8 pm.",
+          "role": "pivot",
+          "feedback": "Two doses, twelve hours apart. The timing is the flaw."
+        },
+        {
+          "text": "She uses her GTN spray most days and it still relieves the pain within two minutes.",
+          "role": "contributory",
+          "feedback": "Right thread, and genuinely useful — a short-acting nitrate still working argues against the coronary disease having progressed. It narrows the cause without fixing it."
+        },
+        {
+          "text": "A recent CT coronary angiogram shows no change from the previous year.",
+          "role": "contributory",
+          "feedback": "Right thread. Unchanged anatomy makes progressive stenosis an unlikely explanation, worth establishing before changing drugs. It rules something out rather than pointing at anything."
+        },
+        {
+          "text": "Amlodipine is to be added.",
+          "role": "noise",
+          "feedback": "A decision already made, and a sensible drug in the abstract."
+        }
+      ],
+      "resolution": "Continuous nitrate exposure produces tolerance within about twenty-four hours and the antianginal effect is lost. Dosing standard-release isosorbide mononitrate at 8 am and 8 pm gives even twelve-hour intervals and so no nitrate-free period at all — the regimen manufactures the tolerance it then appears to expose as treatment failure. ESC advises a nitrate-free interval whenever a long-acting nitrate is prescribed; ten to fourteen hours is the figure usually cited, and moving the second dose to early afternoon delivers it overnight. Modified-release once-daily preparations reach the same trough through their own kinetics. That her spray still works and her anatomy is unchanged both point away from progressive disease and towards the prescription. Adding a second agent to a drug that is not being given properly treats the symptom of a dosing error — fix the interval before escalating.",
+      "batch": "stable-angina"
     }
   ]
 }

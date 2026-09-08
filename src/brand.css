@@ -1,0 +1,293 @@
+/* Find the Pivot -- design tokens and the furniture every page shares.
+ *
+ * Every colour in the project is named here. A raw hex anywhere else is a bug:
+ * the landing page and the decks have to stay visibly one product, and they
+ * only do that if they are reading the same variables.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces and ink */
+  --bg: #f2f6f9;
+  --card: #ffffff;
+  --card-2: #eaf1f6;
+  --ink: #0f1d2e;
+  --ink-soft: #475569;
+  --ink-faint: #64748b;
+  --line: #dbe4ec;
+
+  /* Brand. --brand is the deep navy of the wordmark and section headings;
+     --accent is the interactive teal that buttons and focus rings use. */
+  --brand: #10344f;
+  --accent: #0d5c70;
+  --accent-soft: #0f7d96;
+  --on-accent: #ffffff;
+  --on-brand: #ffffff;
+
+  /* The three answer states. These are the product's signature -- anything
+     that means "decisive", "right line" or "not decisive" reuses them, and
+     nothing invents a fourth colour. */
+  --pivot-bg: #d5f2df;
+  --pivot-ink: #1c4532;
+  --pivot-line: #48a06f;
+
+  --contrib-bg: #fdf0d5;
+  --contrib-ink: #6b4907;
+  --contrib-line: #d69e2e;
+
+  --noise-bg: #fbdede;
+  --noise-ink: #742a2a;
+  --noise-line: #e07070;
+
+  /* Shape */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --maxw: 1080px;
+  --maxw-read: 660px;
+  --shadow: 0 1px 3px rgba(15, 29, 46, 0.08);
+  --shadow-lift: 0 10px 30px -12px rgba(15, 29, 46, 0.28);
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Arabic gets its own stack rather than falling through to a Latin face:
+     the platform Naskh faces below carry proper joining and diacritic
+     spacing, and a Latin fallback renders Arabic in whatever the browser
+     can find, usually badly. Self-hosting a face would be better still, but
+     the site ships no webfont on purpose -- it has to load on hospital
+     wifi and work offline. */
+  --font-ar: "SF Arabic", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI",
+             Tahoma, "Traditional Arabic", "Arial", sans-serif;
+  /* A serif for the wordmark and headings: it reads as a reference text
+     rather than a startup, and it costs no network request. */
+  --font-display: ui-serif, Georgia, "Times New Roman", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1418;
+    --card: #171d23;
+    --card-2: #1e262d;
+    --ink: #e8edf2;
+    --ink-soft: #b3bec9;
+    --ink-faint: #8b98a5;
+    --line: #2d353d;
+
+    --brand: #cfe3ef;
+    --accent: #3fb6c9;
+    --accent-soft: #7fd3e0;
+    /* Dark ink on the lighter accent -- white on #3fb6c9 fails contrast. */
+    --on-accent: #04222a;
+    --on-brand: #0f1418;
+
+    --pivot-bg: #17352a;
+    --pivot-ink: #9ae6b4;
+    --pivot-line: #3d9970;
+
+    --contrib-bg: #3a2f14;
+    --contrib-ink: #f0cb7a;
+    --contrib-line: #b7862a;
+
+    --noise-bg: #3d1f22;
+    --noise-ink: #feb2b2;
+    --noise-line: #a34f4f;
+
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-lift: 0 10px 30px -12px rgba(0, 0, 0, 0.7);
+  }
+}
+
+* { box-sizing: border-box; }
+
+/* Arabic runs in the same layout, mirrored: the tokens, the brand bar, the
+   buttons and the footer are all direction-agnostic above, so only the face
+   and the line height change here. */
+:root:lang(ar) {
+  --font-ui: var(--font-ar);
+  --font-display: var(--font-ar);
+}
+:lang(ar) body,
+body:lang(ar) { line-height: 1.9; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---------- brand bar ---------- */
+
+/* The same bar on the landing page and on every deck, so a learner who
+   arrives on a deck link still knows what they are looking at and has one
+   tap back to the rest of it. */
+.bar {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.bar-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  text-decoration: none;
+  color: var(--brand);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  /* The bar is the one place the name must never break across two lines,
+     however many links sit beside it. */
+  white-space: nowrap;
+}
+
+/* The company carries the mark; the product is what the reader came to use.
+   Both belong in the bar, so the company leads in the display face and the
+   product follows in a quieter weight after a separator. */
+.wordmark-company { font-weight: 700; letter-spacing: 0.01em; }
+.wordmark-product {
+  font-family: var(--font-ui);
+  font-size: 0.86em;
+  font-weight: 550;
+  color: var(--ink-soft);
+}
+.wordmark-product::before {
+  content: "·";
+  margin-inline: 0 0.4rem;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+/* Only the narrowest phones lose the product name; at 360px and up the whole
+   lockup and the language switch still fit on one line. Measured, not
+   guessed -- see the bar checks in tools/smoke-test.mjs. */
+/* On a phone the lockup shares a 360px bar with a nav link, so it steps down
+   a size first and only drops the product name when even that will not fit.
+   Both thresholds are measured against the widest bar in the site -- a deck
+   page's -- not guessed. */
+@media (max-width: 440px) {
+  .wordmark { font-size: 0.95rem; }
+  .wordmark-product { font-size: 0.82em; }
+  .bar-inner { padding-inline: 0.75rem; }
+}
+@media (max-width: 359px) {
+  .wordmark-product { display: none; }
+}
+.wordmark svg { display: block; flex: 0 0 auto; }
+.wordmark:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.bar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.bar-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.bar-link:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); }
+.bar-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+
+/* On a phone the bar keeps the name and the language switch. The in-page
+   anchors are pure convenience -- the sections they point at are a thumb
+   away -- and dropping them is what keeps the wordmark on one line. */
+@media (max-width: 620px) {
+  .bar-link[href^="#"] { display: none; }
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.75rem 1.35rem;
+  font: inherit;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-soft); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-secondary:hover { border-color: var(--ink-faint); }
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: var(--card);
+  margin-top: 3rem;
+}
+.site-footer .inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 1.75rem 1rem 2.25rem;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  display: grid;
+  gap: 0.6rem;
+}
+.site-footer a { color: var(--ink-soft); }
+.site-footer a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.site-footer .disclaimer { max-width: 60ch; }
+
+/* Available to any page: hidden visually, still read aloud. */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Skip link -- the deck pages put a lot of nav buttons before the stem. */
+.skip {
+  position: absolute;
+  inset-inline-start: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 var(--radius-sm) 0;
+  z-index: 10;
+}
+.skip:focus {
+  inset-inline-start: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
