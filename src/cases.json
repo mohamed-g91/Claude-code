@@ -1343,17 +1343,17 @@
         {
           "text": "He had an ischaemic stroke three years ago.",
           "role": "pivot",
-          "feedback": "NG28 counts cerebrovascular disease as atherosclerotic cardiovascular disease. That stream adds subcutaneous semaglutide to modified-release metformin and an SGLT-2 inhibitor."
+          "feedback": "NG28 counts cerebrovascular disease as atherosclerotic cardiovascular disease. This comorbidity adds subcutaneous semaglutide to modified-release metformin and an SGLT-2 inhibitor."
         },
         {
           "text": "He has never smoked and his mother has type 2 diabetes.",
           "role": "noise",
-          "feedback": "Both are real risk factors, but neither is a comorbidity NG28 streams on, so neither changes what he is offered."
+          "feedback": "Both are real risk factors, but neither is a comorbidity NG28 relies on, so neither changes what he is offered."
         },
         {
           "text": "His HbA1c is 61 mmol/mol, his eGFR is 88 ml/min/1.73 m² and his body mass index is 27 kg/m².",
           "role": "contributory",
-          "feedback": "An eGFR of 88 and a body mass index of 27 rule out the chronic kidney disease and obesity streams. Neither names the right one."
+          "feedback": "An eGFR of 88 and a body mass index of 27 rule out the chronic kidney disease and obesity pathways."
         },
         {
           "text": "Modified-release metformin and an SGLT-2 inhibitor are planned.",
@@ -1362,13 +1362,13 @@
         }
       ],
       "resolution": {
-        "lead": "NG28 counts an ischaemic stroke as atherosclerotic cardiovascular disease, and that stream adds subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to modified-release metformin and an SGLT-2 inhibitor.",
+        "lead": "NG28 counts an ischaemic stroke as atherosclerotic cardiovascular disease, and this comorbidity adds subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to modified-release metformin and an SGLT-2 inhibitor.",
         "points": [
           "Coronary artery disease — myocardial infarction, unstable angina",
           "Cerebrovascular disease — transient ischaemic attack, ischaemic stroke",
           "Peripheral arterial disease"
         ],
-        "trap": "Without the stroke he would have no relevant comorbidity and the planned pairing would be right. The third agent is added for its cardiovascular, renal and glycaemic benefits, so it goes in at initiation rather than waiting for the HbA1c to fall short."
+        "trap": "Without the stroke he would have no relevant comorbidity and the planned pairing would be right. The third agent is added for its cardiovascular benefits, so it goes in at initiation."
       },
       "batch": "type-2-diabetes"
     },
@@ -1384,22 +1384,22 @@
         {
           "text": "was diagnosed with type 2 diabetes at a routine review two weeks ago.",
           "role": "noise",
-          "feedback": "This is initial therapy rather than a review of existing treatment, but it does not say what the regimen should contain."
+          "feedback": "This is her diagnosis history, in this case doesn't affect her management."
         },
         {
           "text": "She has chronic kidney disease and hypertension, and takes ramipril.",
           "role": "contributory",
-          "feedback": "Chronic kidney disease is one of the comorbidities NG28 streams on, so she is in that pathway. It does not say where in it."
+          "feedback": "Chronic kidney disease is one of the comorbidities NG28 relies on, so she is in that pathway."
         },
         {
           "text": "She has never smoked and her body mass index is 26 kg/m².",
           "role": "noise",
-          "feedback": "A body mass index of 26 keeps her out of the obesity stream, and the smoking history changes nothing she is offered."
+          "feedback": "A body mass index of 26 keeps her out of the obesity pathway, and the smoking history changes nothing she is offered."
         },
         {
           "text": "Her eGFR is 32 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "NG28's renal limit on metformin begins below 30, not at it. 32 sits in the band where modified-release metformin is still offered."
+          "feedback": "NG28's renal limit on metformin begins below 30. 32 sits in the range where modified-release metformin is still offered."
         },
         {
           "text": "Her HbA1c is 64 mmol/mol and her urine albumin-to-creatinine ratio is 12 mg/mmol.",
@@ -1420,10 +1420,10 @@
         "lead": "NG28 splits its chronic kidney disease recommendations at an eGFR of 30 ml/min/1.73 m². At 30 or more it offers modified-release metformin and an SGLT-2 inhibitor, which is what is planned.",
         "points": [
           "30 or more: modified-release metformin and an SGLT-2 inhibitor. Hers is 32.",
-          "20 to under 30: dapagliflozin or empagliflozin and a DPP-4 inhibitor. Metformin drops out.",
+          "20 to under 30: dapagliflozin or empagliflozin and a DPP-4 inhibitor. Metformin is contraindicated.",
           "Under 20: consider a DPP-4 inhibitor."
         ],
-        "trap": "Changing to dapagliflozin or empagliflozin with a DPP-4 inhibitor would apply the lower band and withdraw a drug she is still entitled to. The wording of both recommendations was amended in September 2026 to clarify exactly when each of them applies."
+        "trap": "Changing to dapagliflozin or empagliflozin with a DPP-4 inhibitor would withdraw a drug that is not contraindicated and offer another one without evidence."
       },
       "batch": "type-2-diabetes"
     },
@@ -1434,17 +1434,17 @@
         {
           "text": "An 84-year-old woman",
           "role": "noise",
-          "feedback": "Age is not the criterion — NG28 streams on frailty, which an 84-year-old may or may not have."
+          "feedback": "Age is not the criterion for frailty."
         },
         {
           "text": "was diagnosed with type 2 diabetes at a routine review.",
           "role": "noise",
-          "feedback": "This is initial therapy, so the question is which regimen to start; how she was found does not pick it."
+          "feedback": "This is diagnosis history and doesn't affect management in this case."
         },
         {
           "text": "She lives alone, uses a stick indoors and had two falls in the past year.",
           "role": "contributory",
-          "feedback": "These put her in the frailty stream. Frailty decides that a question about the SGLT-2 inhibitor gets asked, not how it is answered."
+          "feedback": "These points to frailty pathway. But Nice states two adverse events specifically."
         },
         {
           "text": "She takes amlodipine and furosemide.",
@@ -1474,7 +1474,7 @@
           "Postural hypotension on examination is that risk already present, not estimated.",
           "So the metformin proceeds and the SGLT-2 inhibitor does not."
         ],
-        "trap": "No score, scale or blood pressure threshold defines frailty here, so the judgment rests on findings like this one. Had metformin been contraindicated or not tolerated, the same assessment would have decided between SGLT-2 inhibitor monotherapy and a DPP-4 inhibitor."
+        "trap": "No score, scale or blood pressure threshold defines frailty here, so the judgment rests on findings like this one. If metformin has been contraindicated or not tolerated, the same assessment would have decided between SGLT-2 inhibitor monotherapy and a DPP-4 inhibitor."
       },
       "batch": "type-2-diabetes"
     },
@@ -1490,12 +1490,12 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed three years ago.",
           "role": "noise",
-          "feedback": "He is established on treatment, so the question is what to change; this does not say what."
+          "feedback": "This is diagnosis history and doesn't affect management."
         },
         {
           "text": "He has taken dapagliflozin since diagnosis.",
           "role": "contributory",
-          "feedback": "The SGLT-2 inhibitor is where NG28 expects it, alongside metformin, so the gap in this regimen is not a missing agent."
+          "feedback": "The SGLT-2 inhibitor is what NICE recommends initially with metformin."
         },
         {
           "text": "He also takes metformin 500 mg twice daily.",
@@ -1505,12 +1505,12 @@
         {
           "text": "He reports no side effects and collects his prescriptions on time.",
           "role": "contributory",
-          "feedback": "Adverse effects and adherence are two items on NG28's optimisation list, and both are clear. A third item on that list is not."
+          "feedback": "Adverse effects and adherence are two of three optimization steps before escalating therapy. The third item is not met."
         },
         {
           "text": "His HbA1c has risen from 54 to 62 mmol/mol, his eGFR is 84 ml/min/1.73 m² and his body mass index is 29 kg/m².",
           "role": "contributory",
-          "feedback": "The rise shows something must change. The eGFR and body mass index rule out the renal and obesity streams. Neither says what to change."
+          "feedback": "The rise shows something must change. The eGFR and body mass index rule out the renal and obesity pathways. Neither says what to change."
         },
         {
           "text": "A DPP-4 inhibitor is to be added.",
@@ -1534,7 +1534,7 @@
             "state": "failed"
           }
         ],
-        "trap": "A DPP-4 inhibitor is the right next drug for someone with no relevant comorbidity; the error is reaching for it now. Maximum tolerated dose means the highest dose he can take without adverse effects, and 500 mg twice daily has never been tested against that."
+        "trap": "A DPP-4 inhibitor is the right next drug for someone with no relevant comorbidity; but after optimization first. Maximum tolerated dose means the highest dose he can take without adverse effects ( usually 2 grams )."
       },
       "batch": "type-2-diabetes"
     },
@@ -1550,22 +1550,22 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed two years ago.",
           "role": "noise",
-          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She takes standard-release metformin and empagliflozin.",
           "role": "pivot",
-          "feedback": "Standard-release is the preparation NG28 offers to switch, not to abandon: modified-release metformin has not been tried."
+          "feedback": "Standard-release is the preparation NG28 offers to switch, not to abandon if adverse effects are encountered: modified-release metformin has not been tried."
         },
         {
           "text": "She has had loose stools since her metformin dose was increased.",
           "role": "contributory",
-          "feedback": "The timing points at the drug rather than a coincidence. It shows something must change, not that metformin must go."
+          "feedback": "The timing points at the drug rather than a coincidence. It shows something must change."
         },
         {
           "text": "She has no abdominal pain, blood in the stool or weight loss.",
           "role": "contributory",
-          "feedback": "Nothing here points to an organic cause needing investigation, so the drug remains the explanation. It does not say what to do about it."
+          "feedback": "Nothing here points to an organic cause needing investigation, so the drug remains the explanation."
         },
         {
           "text": "Her HbA1c is 51 mmol/mol and her eGFR is 91 ml/min/1.73 m².",
@@ -1585,7 +1585,7 @@
           "People can experience fewer gastrointestinal adverse events with modified-release metformin.",
           "Not tolerated is a conclusion to reach after the other preparation has been tried, not before."
         ],
-        "trap": "Nine recommendations open by routing around metformin when it is contraindicated or not tolerated, each to a different class, which is what makes stopping it look defensible. Losing metformin here costs a drug she tolerates in another form."
+        "trap": "Switch to modified release formulation before considering stopping metformin"
       },
       "batch": "type-2-diabetes"
     },
@@ -1601,22 +1601,22 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed six years ago.",
           "role": "noise",
-          "feedback": "She is established on treatment, so the question is what to change about it."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She takes metformin, empagliflozin and semaglutide.",
           "role": "contributory",
-          "feedback": "NG28 attaches a stopping rule at low weight to one of these three drugs and not to the other two."
+          "feedback": "NG28 attaches a stopping rule at low weight to one of these three drugs."
         },
         {
           "text": "She has lost 14 kg over the year since semaglutide was started and is pleased with the result.",
           "role": "contributory",
-          "feedback": "Weight loss is what this drug is for, so a good result is no warning. The history cannot say whether it has gone too far."
+          "feedback": "Weight loss is what this drug is for, so a good result is no warning. The history cannot say if it crossed a threshold."
         },
         {
           "text": "Her body mass index is 18.1 kg/m².",
           "role": "pivot",
-          "feedback": "Below 18.5 kg/m² is underweight, and NG28 attaches an unconditional stop to that number for a GLP-1 receptor agonist."
+          "feedback": "Below 18.5 kg/m² is underweight, and NG28 attaches an unconditional stop below that number for a GLP-1 receptor agonist."
         },
         {
           "text": "Her HbA1c is 46 mmol/mol and her eGFR is 79 ml/min/1.73 m².",
@@ -1633,10 +1633,10 @@
         "lead": "NG28 says to stop a GLP-1 receptor agonist or tirzepatide if the person becomes underweight, which it defines as a body mass index below 18.5 kg/m². Hers is 18.1, so the semaglutide stops.",
         "points": [
           "Semaglutide is the only one of her three drugs the rule reaches; metformin and empagliflozin continue.",
-          "The instruction carries no conditions: benefit, satisfaction and glycaemic control do not enter it.",
+          "The instruction carries no conditions: benefit, satisfaction and glycaemic control do not prevent stopping it.",
           "The weight loss is the reason to look at the number; the number is the reason to act."
         ],
-        "trap": "Elsewhere in this section the decision turns on why a drug is there — an SGLT-2 inhibitor continues for cardiovascular or renal benefit, a GLP-1 receptor agonist stops only if it is not working and has no cardiovascular indication. This rule is the exception."
+        "trap": "SGLT-2 inhibitor continues for cardiovascular or renal benefit, a GLP-1 receptor agonist stops only if it is not working and has no cardiovascular indication or the patient BMI is below 18.5 kg/m²."
       },
       "batch": "type-2-diabetes"
     },
@@ -1652,27 +1652,27 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed five years ago.",
           "role": "noise",
-          "feedback": "He is established on treatment, so the question is what to change about it."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "He has no past medical history.",
           "role": "contributory",
-          "feedback": "With no cardiovascular disease, nothing indicates the dulaglutide beyond glucose. That is one of two conditions met — one left to check."
+          "feedback": "With no cardiovascular disease, nothing indicates the dulaglutide beyond glycemic control. That is one of two conditions met — one left to check."
         },
         {
           "text": "He takes metformin, dapagliflozin and dulaglutide for one year.",
           "role": "contributory",
-          "feedback": "A year is long enough to judge the drug, and NG28's stopping rules do not treat these three alike."
+          "feedback": "A year is long enough to judge the drug, but not a specific threshold to stop any of them."
         },
         {
           "text": "His body mass index is 33 kg/m².",
           "role": "contributory",
-          "feedback": "Obesity is why a GLP-1 receptor agonist was started and sets what comes next. It does not protect a drug that is not working."
+          "feedback": "Obesity is why a GLP-1 receptor agonist was started. It does not prevent stopping a drug that is not working."
         },
         {
           "text": "His HbA1c is 67 mmol/mol and his eGFR is 86 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "An HbA1c well above target means the dulaglutide has not worked. That is one of two conditions met — one left to check."
+          "feedback": "An HbA1c well above target means the dulaglutide has failed. That is the second condition met."
         },
         {
           "text": "Dulaglutide is to be stopped and a DPP-4 inhibitor added.",
@@ -1696,7 +1696,7 @@
             "state": "met"
           }
         ],
-        "trap": "Had he infarcted, the same HbA1c would have argued for keeping the drug. A sulfonylurea, pioglitazone or an insulin-based treatment come only if the DPP-4 inhibitor is contraindicated, not tolerated or not effective, and stopping the dulaglutide first keeps him clear of the one combination the guideline prohibits outright."
+        "trap": "A sulfonylurea, pioglitazone or an insulin-based treatment come only if the DPP-4 inhibitor is contraindicated, not tolerated or not effective."
       },
       "batch": "type-2-diabetes"
     },
@@ -1712,22 +1712,22 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed five years ago.",
           "role": "noise",
-          "feedback": "He is established on treatment, so the question is what to add; this does not say what."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "He takes modified-release metformin, sitagliptin and dapagliflozin, all at the maximum tolerated dose.",
           "role": "pivot",
-          "feedback": "Sitagliptin is a DPP-4 inhibitor, and NG28 does not allow it alongside a GLP-1 receptor agonist or tirzepatide."
+          "feedback": "Sitagliptin is a DPP-4 inhibitor, and NG28 does not allow it alongside a GLP-1 receptor agonist or tirzepatide. Same mechanism pathway"
         },
         {
           "text": "His body mass index is 34 kg/m² and he has no cardiovascular or renal disease.",
           "role": "contributory",
-          "feedback": "A body mass index of 34 puts him in the obesity stream, with no cardiovascular or renal disease to override it. That settles the options."
+          "feedback": "A body mass index of 34 puts him in the obesity category, which makes him indicated for a GLP-1 receptor agonist or tirzepatide."
         },
         {
           "text": "His HbA1c is 69 mmol/mol and his eGFR is 82 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "An HbA1c of 69 mmol/mol shows further medicines are needed, which is a precondition for adding anything. The eGFR raises no obstacle."
+          "feedback": "An HbA1c of 69 mmol/mol shows further medicines are needed, which is a precondition for escalating. The eGFR raises no concern."
         },
         {
           "text": "The plan is to start tirzepatide.",
@@ -1736,7 +1736,7 @@
         }
       ],
       "resolution": {
-        "lead": "NG28 carries one outright prohibition: never a GLP-1 receptor agonist or tirzepatide together with a DPP-4 inhibitor. Sitagliptin is a DPP-4 inhibitor, so it comes out as the tirzepatide goes in.",
+        "lead": "NG28 states the following: never a GLP-1 receptor agonist or tirzepatide together with a DPP-4 inhibitor. Sitagliptin is a DPP-4 inhibitor, so it should be stopped before tirzepatide starts.",
         "points": [
           {
             "text": "At least 3 months on initial therapy. He is 5 years in.",
@@ -1751,7 +1751,7 @@
             "state": "met"
           }
         ],
-        "trap": "No reason for the prohibition is given anywhere — it is stated and never explained, so it is a fact to hold rather than derive. The guideline routes around it consistently: someone already taking one of these drugs is offered a sulfonylurea, pioglitazone or an insulin-based treatment, and never a DPP-4 inhibitor."
+        "trap": "Patient is on DPP-4 inhibitor, so a GLP-1 receptor agonist or tirzepatide can't be started untill it is stopped"
       },
       "batch": "type-2-diabetes"
     },
@@ -1767,7 +1767,7 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed four years ago.",
           "role": "noise",
-          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She had a non-ST-elevation myocardial infarction six weeks ago.",
@@ -1782,12 +1782,12 @@
         {
           "text": "Her blood pressure is 128/76 mmHg and she has never smoked.",
           "role": "noise",
-          "feedback": "Both are unremarkable, and neither changes what she is offered. A tidy set of background numbers is not evidence that nothing is outstanding."
+          "feedback": "Both are unremarkable, and neither changes what she is offered."
         },
         {
           "text": "Her HbA1c is 42 mmol/mol and her eGFR is 76 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "An HbA1c of 42 is below target and the eGFR raises no obstacle, so nothing here argues for more glucose lowering."
+          "feedback": "An HbA1c of 42 is below target and the eGFR raises no concern, so nothing here argues for more glucose lowering."
         },
         {
           "text": "Regular follow-up in three months is planned.",
@@ -1799,10 +1799,9 @@
         "lead": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, for its cardiovascular and renal benefits.",
         "points": [
           "The addition is not glycaemic: her HbA1c is 42 mmol/mol, below target, and the drug is offered anyway.",
-          "The sibling recommendation fires on a glycaemic shortfall instead, and routes to a sulfonylurea, pioglitazone or an insulin-based treatment.",
-          "Two triggers, an event or a shortfall. Here it is the event."
+          "Two triggers, an event or a glycemic control. Here it is the event."
         ],
-        "trap": "Had she arrived with this history at diagnosis, all three drugs would have been offered from the outset — this is the same regimen reached late. The comorbidity streams are decided at initiation, and events do not wait for them."
+        "trap": "If she presented with this history at diagnosis, all three drugs would have been offered from the start."
       },
       "batch": "type-2-diabetes"
     },
@@ -1823,17 +1822,17 @@
         {
           "text": "He started modified-release metformin and then empagliflozin, and both are at the maximum tolerated dose.",
           "role": "contributory",
-          "feedback": "Metformin first, then the SGLT-2 inhibitor at metformin's maximum tolerated dose, is the sequence NG28 asks for. That step is done; another is not."
+          "feedback": "Metformin first, then the SGLT-2 inhibitor at metformin's maximum tolerated dose, is the sequence NG28 asks for."
         },
         {
           "text": "He has had no side effects and has not missed a dose.",
           "role": "contributory",
-          "feedback": "Adverse effects and adherence are two things NG28 asks you to optimise before changing treatment; neither is in play. That removes the obvious alternative."
+          "feedback": "Adverse effects and adherence are two things NG28 asks you to optimise before changing treatment; neither is present."
         },
         {
           "text": "His body mass index is 36 kg/m².",
           "role": "contributory",
-          "feedback": "Obesity is why this class of drug is on the table. It does not settle whether he has reached the point of using it."
+          "feedback": "Obesity is why this class of drug is being offered, but after meeting the criteria."
         },
         {
           "text": "His HbA1c was 88 mmol/mol at diagnosis and is 71 mmol/mol today.",
@@ -1847,7 +1846,7 @@
         }
       ],
       "resolution": {
-        "lead": "NG28 considers a GLP-1 receptor agonist or tirzepatide for obesity only if all three of these hold at once; here the answer is to complete the 3 months on initial therapy and repeat the HbA1c.",
+        "lead": "NG28 considers a GLP-1 receptor agonist or tirzepatide for obesity only if all three of these are present:",
         "points": [
           {
             "text": "At least 3 months on initial therapy. He is 6 weeks in.",
@@ -1862,7 +1861,7 @@
             "state": "met"
           }
         ],
-        "trap": "The guideline does say to intensify medicines when HbA1c is not adequately controlled by the initial regimen and reaches 58 mmol/mol or higher, but that verdict belongs to a regimen that has had its time. The sequencing rule about maximum tolerated dose governs building the initial regimen, which is already built."
+        "trap": "The guideline does say to intensify medicines when HbA1c is not adequately controlled by the initial regimen and reaches 58 mmol/mol or higher, but this rule if the regimen has had its time."
       },
       "batch": "type-2-diabetes"
     },
@@ -1878,7 +1877,7 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed three years ago.",
           "role": "noise",
-          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She has taken modified-release metformin and dapagliflozin for two years.",
@@ -1893,7 +1892,7 @@
         {
           "text": "She has no cardiovascular or renal disease and her eGFR is 88 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "No cardiovascular disease and no renal impairment rule out the streams that name a particular drug, leaving her in the obesity pathway."
+          "feedback": "No cardiovascular disease and no renal impairment leaves her in the obesity pathway."
         },
         {
           "text": "Her HbA1c is 46 mmol/mol.",
@@ -1922,7 +1921,7 @@
             "state": "met"
           }
         ],
-        "trap": "NG28 sends prescribing aimed primarily at weight out to its obesity guideline — it is not a diabetes indication. The 4 kg gain is worth addressing, but not with this drug."
+        "trap": "This is not a diabetes indication. The 4 kg gain is worth addressing, but not with this drug."
       },
       "batch": "type-2-diabetes",
       "none": {
