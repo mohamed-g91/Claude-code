@@ -126,7 +126,8 @@ then open http://127.0.0.1:8000.
 
 `.github/workflows/pages.yml` builds and publishes to GitHub Pages. It runs the
 validator and the browser suite first, so a broken case cannot reach the live
-site. Only `index.html` and `src/` are published — the test harness is not.
+site. Only the open pages and `src/` are published — not the test harness, and
+not `play.html`, the mixed deck that is still in preparation.
 
 One setting has to be changed by hand, once:
 
@@ -135,7 +136,7 @@ One setting has to be changed by hand, once:
 The workflow then runs on every push to `main`, and can be triggered manually
 from any branch (Actions → Deploy to GitHub Pages → Run workflow) to preview
 before merging. The site lands at
-`https://mohamed-g91.github.io/Claude-code/`.
+`https://mohamed-g91.github.io/find-the-pivot/`.
 
 Only the files named in the workflow's `cp` line are published. **A new page
 that is not added there does not exist in production.**

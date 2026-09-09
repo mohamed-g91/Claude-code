@@ -826,6 +826,29 @@ check(
   `${arabicFacts.specialties}, expected ${LANDING_SPECIALTIES}`
 );
 
+// --- the announcement bar points at the batch it announces ---
+// The bar is hand-written copy on two separately maintained pages, so the one
+// thing that can be asserted mechanically is that it exists, is a real link,
+// and goes to the newest batch page rather than to the one it replaced. A bar
+// still shouting about Batch 02 with a link to angina.html is the failure this
+// catches; stale wording is not something a test can see.
+for (const [label, pg] of [["index.html", landingPage], ["ar.html", arabicPage]]) {
+  const announce = await pg.evaluate(() => {
+    const a = document.querySelector("a.announce");
+    if (!a) return null;
+    return {
+      href: a.getAttribute("href"),
+      text: (a.textContent || "").replace(/\s+/g, " ").trim(),
+      height: a.getBoundingClientRect().height,
+    };
+  });
+  check(
+    `${label} carries an announcement linking to the newest batch`,
+    !!announce && announce.href === "diabetes.html" && announce.text.length > 0,
+    announce ? `href=${announce.href}, "${announce.text.slice(0, 48)}"` : "no a.announce"
+  );
+}
+
 // --- the language switch is reciprocal ---
 // A one-way switch is a trap: a reader who lands on the Arabic page from a
 // shared link and wants the English one (or the reverse) has no route back,

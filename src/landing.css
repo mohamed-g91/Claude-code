@@ -214,6 +214,48 @@ section + section { border-top: 1px solid var(--line); }
   color: var(--ink-faint);
 }
 
+/* ---------- announcement bar ---------- */
+
+/* Sits above the brand bar and spans the page, because its whole job is to be
+   the first thing a returning candidate sees. The entire bar is the link: a
+   band of colour with a small "read more" inside it is a 44px target hiding in
+   a 60px strip of dead space, and on a phone the thumb lands anywhere.
+   Wrapping rather than shrinking keeps it off the horizontal scrollbar at
+   360px, and every colour here is the --accent/--on-accent pair .btn-primary
+   already uses, so it carries a contrast the browser suite holds above 4.5:1
+   in both schemes. */
+.announce {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem 0.7rem;
+  min-height: 48px;
+  padding: 0.7rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  text-decoration: none;
+  text-align: center;
+}
+.announce:hover { background: var(--accent-soft); }
+.announce:focus-visible { outline: 3px solid var(--brand); outline-offset: -3px; }
+
+/* The inverse of the bar's own pair, so the pill reads as a stamp on the
+   colour rather than a second button competing with it. */
+.announce-tag {
+  background: var(--on-accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.14em 0.62em;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.announce-text { font-weight: 650; font-size: 0.97rem; }
+.announce-go { font-weight: 700; }
+
 /* ---------- state cards ---------- */
 
 .cards {
