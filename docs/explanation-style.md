@@ -88,16 +88,28 @@ For scale: the case that drew the complaint ran to 243 words.
    plainly — *"That is one of three conditions met — two left to check"* — and
    without naming the pivot.
 
-7. **A noise clause says why it does not matter**, in one sentence, and stops.
-   *"Her age does not affect this decision."*
+7. **A noise clause says why it does not matter**, and stops. *"Her age does
+   not affect this decision."*
+
+   One sentence where the finding is inert. Two where it is a real finding that
+   simply does not bear on *this* decision — it gets its credit first, then the
+   reason it changes nothing: *"Smoking and family history raise the chance of
+   coronary disease, but they add nothing in a man whose disease is already
+   known."* Refusing the credit reads as a scolding, and the candidate was not
+   wrong to notice.
 
 8. **The plan clause is not a finding.** Where the stem ends on an inherited
    plan, its feedback says so: *"This is the plan you are being asked to judge,
    not a finding about the patient."*
 
-9. **Name the guideline once.** `NG28`, `NICE`, `ESC 2024` — in the rule
-   sentence, where it carries weight. Repeating it in every bullet turns the
-   panel into a citation list.
+9. **Name the guideline once per resolution.** `NG28`, `NICE`, `ESC 2024` — in
+   the rule sentence, where it carries weight. Repeating it in every bullet
+   turns the panel into a citation list.
+
+   This is scoped to the resolution. Clause feedback is read on its own, hours
+   or days from the rest, so it may name a guideline where the fact does not
+   stand up without one — and should leave it out where the fact stands alone:
+   *"A normal resting ECG does not exclude angina"* needs no citation.
 
 10. **The closing paragraph must not recap the clauses.** Every finding in the
     stem already has feedback, delivered at the moment the candidate tapped it.
