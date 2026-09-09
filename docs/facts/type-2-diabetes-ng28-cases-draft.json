@@ -322,14 +322,9 @@
           "feedback": "Five years in and on treatment, so the question is what to add. It does not tell you what."
         },
         {
-          "text": "He takes modified-release metformin and dapagliflozin, both at the maximum tolerated dose.",
-          "role": "contributory",
-          "feedback": "Right thread, and it closes a door. Both initial drugs are where NG28 expects them and there is no headroom left in either, so what is missing here is not a dose."
-        },
-        {
-          "text": "Sitagliptin was added two years ago.",
+          "text": "He takes modified-release metformin, sitagliptin and dapagliflozin, all at the maximum tolerated dose.",
           "role": "pivot",
-          "feedback": "There is a class this one cannot be put beside."
+          "feedback": "One of these three cannot stand beside what is planned."
         },
         {
           "text": "His body mass index is 34 kg/m² and he has no cardiovascular or renal disease.",
@@ -342,12 +337,12 @@
           "feedback": "Right line. The HbA1c establishes that further medicines are needed, which is a precondition for adding anything at all, and the eGFR keeps the renal thresholds out of it. Neither picks the medicine."
         },
         {
-          "text": "Tirzepatide is to be added.",
+          "text": "The plan is to start tirzepatide.",
           "role": "noise",
           "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
         }
       ],
-      "resolution": "NG28 carries one outright prohibition among its medicine recommendations: do not offer both a GLP-1 receptor agonist or tirzepatide and a DPP-4 inhibitor together to treat type 2 diabetes. Everything else about this plan follows the guideline. For an adult living with obesity, NG28 considers adding a GLP-1 receptor agonist or tirzepatide if they have been on initial therapy for at least 3 months, further medicines are needed to reach their glycaemic targets, and they are not already taking one of these drugs — and all three hold. Two years on metformin and dapagliflozin, an HbA1c of 69 mmol/mol, and no incretin mimetic in the regimen. The obstacle is not in that recommendation at all. It is the sitagliptin, which is a DPP-4 inhibitor, and it is why tirzepatide cannot simply be added: the DPP-4 inhibitor comes out as the tirzepatide goes in. NG28 gives no reason anywhere for the prohibition — it is stated and never explained, so it is a fact to hold rather than one to derive. The guideline does route around it consistently: for someone already taking a GLP-1 receptor agonist or tirzepatide who needs more, it offers a sulfonylurea, pioglitazone or an insulin-based treatment, and pointedly not a DPP-4 inhibitor. That is the same prohibition seen from the other side.",
+      "resolution": "NG28 carries one outright prohibition among its medicine recommendations: do not offer both a GLP-1 receptor agonist or tirzepatide and a DPP-4 inhibitor together to treat type 2 diabetes. Everything else about this plan follows the guideline. For an adult living with obesity, NG28 considers adding a GLP-1 receptor agonist or tirzepatide if they have been on initial therapy for at least 3 months, further medicines are needed to reach their glycaemic targets, and they are not already taking one of these drugs — and all three hold. Five years since diagnosis and long established on initial therapy, an HbA1c of 69 mmol/mol, and no GLP-1 receptor agonist or tirzepatide anywhere in the regimen. The obstacle is not in that recommendation at all. It is the sitagliptin sitting third in that list, which is a DPP-4 inhibitor, and it is why tirzepatide cannot simply be started alongside: the DPP-4 inhibitor comes out as the tirzepatide goes in. NG28 gives no reason anywhere for the prohibition — it is stated and never explained, so it is a fact to hold rather than one to derive. The guideline does route around it consistently: for someone already taking a GLP-1 receptor agonist or tirzepatide who needs more, it offers a sulfonylurea, pioglitazone or an insulin-based treatment, and pointedly not a DPP-4 inhibitor. That is the same prohibition seen from the other side.",
       "batch": "type-2-diabetes"
     },
     {
@@ -380,60 +375,17 @@
           "feedback": "Both are unremarkable, and neither changes what she is offered. A tidy set of background numbers is not evidence that nothing is outstanding."
         },
         {
-          "text": "Her HbA1c is 49 mmol/mol and her eGFR is 76 ml/min/1.73 m².",
+          "text": "Her HbA1c is 42 mmol/mol and her eGFR is 76 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "The tempting one, and it points away from the answer. An HbA1c of 49 is at target and the eGFR raises no obstacle, so nothing here argues for more glucose lowering. Read on its own, it suggests the regimen needs nothing."
+          "feedback": "The tempting one, and it points away from the answer. An HbA1c of 42 is below target and the eGFR raises no obstacle, so nothing here argues for more glucose lowering. Read on its own, it suggests the regimen needs nothing."
         },
         {
-          "text": "No change to her diabetes medicines is planned.",
+          "text": "Regular follow-up in three months is planned.",
           "role": "noise",
-          "feedback": "A plan, not a finding. That nothing is planned is not evidence that nothing is needed."
+          "feedback": "A plan, not a finding. Booking a review is not the same as establishing that nothing is due before it."
         }
       ],
-      "resolution": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to their current treatment, for its cardiovascular and renal benefits. An infarct six weeks ago is that development, and the recommendation exists precisely because the comorbidity streams are decided at initiation and events do not wait for them. The addition is not glycaemic. Her HbA1c is 49 mmol/mol, at target, and NG28 asks for the drug anyway, naming cardiovascular and renal benefit as the reason. That is what separates this from the sibling recommendation, which fires when someone with established atherosclerotic cardiovascular disease needs further medicines to reach their glycaemic targets and routes instead to a sulfonylurea, pioglitazone or an insulin-based treatment. Two triggers, and they must not be blurred: an event, or a shortfall. Here it is the event, so it is semaglutide and not a sulfonylurea. Had she arrived with this history at diagnosis, all three drugs would have been offered from the outset — this is the same regimen reached late.",
-      "batch": "type-2-diabetes"
-    },
-    {
-      "id": "endo_t2dm_early_onset_pregnancy",
-      "topic": "Endocrinology",
-      "clauses": [
-        {
-          "text": "A 31-year-old woman",
-          "role": "contributory",
-          "feedback": "Right thread, though it is the weaker half of it. Her age now matters only when it is read against the age at which she was diagnosed."
-        },
-        {
-          "text": "attends for review of type 2 diabetes diagnosed at the age of 26.",
-          "role": "contributory",
-          "feedback": "Worth reading closely, and this is the half that does the work. NG28 defines early onset type 2 diabetes by a number — diagnosis before the age of 40 — and twenty-six is what puts her in that group. It decides which list of options she is on, not which option."
-        },
-        {
-          "text": "She takes modified-release metformin and dapagliflozin at maximum tolerated doses, with no side effects from either.",
-          "role": "contributory",
-          "feedback": "Right line, and it rules out the obvious alternative. There is nothing left to optimise in what she already takes, so a further medicine is genuinely due."
-        },
-        {
-          "text": "She plans to become pregnant this year.",
-          "role": "pivot",
-          "feedback": "A medicine can be wrong for someone it would otherwise suit."
-        },
-        {
-          "text": "She has never smoked and her body mass index is 28 kg/m².",
-          "role": "noise",
-          "feedback": "A body mass index of 28 is below the obesity threshold NG28 streams on, and the smoking history changes nothing she is offered."
-        },
-        {
-          "text": "Her HbA1c is 63 mmol/mol and her eGFR is 94 ml/min/1.73 m².",
-          "role": "contributory",
-          "feedback": "Right line. The HbA1c establishes that further medicines are needed, which every recommendation in this section is conditional on, and the eGFR keeps the renal thresholds out of it. Neither picks the drug."
-        },
-        {
-          "text": "Tirzepatide is to be added.",
-          "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
-        }
-      ],
-      "resolution": "For an adult with early onset type 2 diabetes who needs further medicines, NG28's first move is to consider adding a GLP-1 receptor agonist or tirzepatide — so the plan follows the guideline's own preference rather than ignoring it. The next recommendation supplies the exception, and it is worded with three escapes rather than the usual two: contraindicated, not tolerated, or not appropriate. That third phrase appears nowhere else in NG28's medicine recommendations, and the guideline gives it content elsewhere. When discussing these medicines with women, trans men and non-binary people of childbearing potential, NG28 says to tell them that effective contraception must be used while taking the medicine, and that contraception should continue for a period after stopping it before trying to conceive. A woman intending to conceive this year is the situation that phrase was written for, and the committee ties the advice to this age group explicitly. So the route is the alternative: add a DPP-4 inhibitor, reaching for a sulfonylurea, pioglitazone or an insulin-based treatment only if that is in turn contraindicated, not tolerated or not effective. Note what this is not. NG28 prohibits a DPP-4 inhibitor and a GLP-1 receptor agonist or tirzepatide together; here the incretin-based option is being replaced rather than joined, which is substitution and not combination. NG28 says nothing about her existing metformin and dapagliflozin in this situation — the decision it governs is the one being added.",
+      "resolution": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to their current treatment, for its cardiovascular and renal benefits. An infarct six weeks ago is that development, and the recommendation exists precisely because the comorbidity streams are decided at initiation and events do not wait for them. The addition is not glycaemic. Her HbA1c is 42 mmol/mol, below target, and NG28 asks for the drug anyway, naming cardiovascular and renal benefit as the reason. That is what separates this from the sibling recommendation, which fires when someone with established atherosclerotic cardiovascular disease needs further medicines to reach their glycaemic targets and routes instead to a sulfonylurea, pioglitazone or an insulin-based treatment. Two triggers, and they must not be blurred: an event, or a shortfall. Here it is the event, so it is semaglutide and not a sulfonylurea. Had she arrived with this history at diagnosis, all three drugs would have been offered from the outset — this is the same regimen reached late.",
       "batch": "type-2-diabetes"
     },
     {
@@ -471,9 +423,9 @@
           "feedback": "The tempting one, and it repays reading as a pair rather than a number. Seventy-one is well above target and demands that something be done — but it has fallen seventeen points, which is what a regimen still working looks like."
         },
         {
-          "text": "Tirzepatide is to be added.",
+          "text": "Tirzepatide has been started.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "An action already taken, not a finding about the patient. That it has been started is not evidence that it should have been."
         }
       ],
       "resolution": "NG28 considers adding a GLP-1 receptor agonist or tirzepatide for adults living with obesity on three conditions, and all three have to hold at once: they have been taking initial therapy for at least 3 months, further medicines are needed to reach their individualised glycaemic targets, and they are not already taking one of these drugs. Two are satisfied. The first is not — he is six weeks in. It is the only duration threshold in the whole selection, and it is there because initial therapy has not yet finished doing its work: 88 to 71 mmol/mol in six weeks is a regimen still moving. Adding a drug now escalates a decision that has not been made, and makes it impossible to say afterwards which drug produced the result. The pull in the other direction is real and worth naming. NG28 does say to intensify medicines when HbA1c is not adequately controlled by the initial regimen and rises to 58 mmol/mol or higher — but not adequately controlled is a verdict on a regimen that has had its time, and his is falling steeply on treatment only weeks old. Nor is this the sequencing rule about starting the next agent as soon as the previous one reaches its maximum tolerated dose: that rule governs building the initial regimen, which is already built. What is owed here is the rest of the three months and a repeat HbA1c at the end of it.",
@@ -510,60 +462,21 @@
         },
         {
           "text": "Her HbA1c is 46 mmol/mol.",
-          "role": "pivot",
-          "feedback": "This is not a number that asks for another drug."
+          "role": "contributory",
+          "feedback": "Right line, and it is the strongest single reason to leave things alone. Forty-six is inside the target NG28 supports for a regimen not associated with hypoglycaemia. It tells you her glucose does not need another drug; it does not, on its own, settle what to do about the weight."
         },
         {
-          "text": "Tirzepatide is to be added.",
+          "text": "The decision is to continue her current regimen.",
           "role": "noise",
           "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
         }
       ],
-      "resolution": "NG28 considers adding a GLP-1 receptor agonist or tirzepatide for adults living with obesity only if three things are true together: at least 3 months on initial therapy, further medicines needed to reach their individualised glycaemic targets, and not already taking one of these drugs. The first and third hold. The second does not. For someone whose regimen is not associated with hypoglycaemia — modified-release metformin and an SGLT-2 inhibitor are exactly that — NG28 supports aiming for an HbA1c of 48 mmol/mol, and hers is 46. No further medicine is needed to reach her glycaemic target because she is already past it. The weight is the genuine pull, and it is the part this recommendation does not answer: NG28 sends prescribing aimed primarily at weight management out to NICE's guideline on overweight and obesity management rather than settling it here. Four kilograms gained is worth addressing, and adding tirzepatide to her diabetes treatment is not how NG28 addresses it. The uncomfortable part is that the drug would very likely work on both counts. Its being effective is not the test the guideline sets; the test is whether the conditions for reaching for it are met, and one of them plainly is not.",
-      "batch": "type-2-diabetes"
-    },
-    {
-      "id": "endo_t2dm_insulin_initiation_ascvd",
-      "topic": "Endocrinology",
-      "clauses": [
-        {
-          "text": "A 68-year-old man",
-          "role": "noise",
-          "feedback": "Not a variable here."
-        },
-        {
-          "text": "attends for review of type 2 diabetes diagnosed twelve years ago.",
-          "role": "noise",
-          "feedback": "Twelve years in and on treatment. It tells you a change is due, not what the change should be."
-        },
-        {
-          "text": "He had a myocardial infarction two years ago.",
-          "role": "pivot",
-          "feedback": "This is why one of his drugs is doing more than one job."
-        },
-        {
-          "text": "He takes modified-release metformin, empagliflozin and gliclazide, all at maximum tolerated doses.",
-          "role": "contributory",
-          "feedback": "Worth reading closely, and the list matters more than it looks. Three drugs, and NG28 does not treat them alike when insulin goes in."
-        },
-        {
-          "text": "His HbA1c is 79 mmol/mol and his eGFR is 71 ml/min/1.73 m².",
-          "role": "contributory",
-          "feedback": "Right line. An HbA1c of 79 on maximum tolerated oral treatment is what justifies starting insulin at all, and the eGFR puts no obstacle in the way of any of it. Neither decides what happens to the rest of the regimen."
-        },
-        {
-          "text": "He has been taught injection technique, self-monitoring and dose titration.",
-          "role": "noise",
-          "feedback": "Correct, and required: NG28 asks for a structured education programme covering exactly this when insulin starts. It is about how insulin is begun, not about what is stopped alongside it."
-        },
-        {
-          "text": "Insulin is to be started and his other glucose-lowering medicines stopped.",
-          "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
-        }
-      ],
-      "resolution": "When insulin is initiated, NG28 sorts the existing regimen into three: continue metformin for anyone already taking it, stop any other medicine being used solely to manage hyperglycaemia, and discuss the risks and benefits of continuing medicines that are there for other benefits such as cardiovascular protection or weight management. The plan applies the middle rule to everything. For the gliclazide that is right — a sulfonylurea in this regimen is doing glycaemic work and nothing else, and keeping it alongside insulin adds hypoglycaemia for no other return. The metformin is not a judgment call at all; it continues, unconditionally. What the plan gets wrong is the empagliflozin, and the infarct is the reason: in a man with atherosclerotic cardiovascular disease an SGLT-2 inhibitor is not there solely to manage hyperglycaemia, so it does not fall to the stopping rule that catches the sulfonylurea. NG28 does not say to continue it automatically — it says to discuss the risks and benefits with him — but that discussion is the point, and it is what the plan skips by sweeping the drug out with the rest on the assumption that insulin replaces it. The same logic runs through the reviewing recommendations, where an SGLT-2 inhibitor may be continued for cardiovascular or renal benefit even when it is not helping the person reach a glycaemic target. Why a drug is there decides what happens to it.",
-      "batch": "type-2-diabetes"
+      "resolution": "NG28 considers adding a GLP-1 receptor agonist or tirzepatide for adults living with obesity only if three things are true together: at least 3 months on initial therapy, further medicines needed to reach their individualised glycaemic targets, and not already taking one of these drugs. The first and third hold. The second does not. For someone whose regimen is not associated with hypoglycaemia — modified-release metformin and an SGLT-2 inhibitor are exactly that — NG28 supports aiming for an HbA1c of 48 mmol/mol, and hers is 46. No further medicine is needed to reach her glycaemic target because she is already inside it, so nothing about her diabetes control calls for a change. The weight is the genuine pull, and it is the part this recommendation does not answer: NG28 sends prescribing aimed primarily at weight management out to NICE's guideline on overweight and obesity management rather than settling it here. Four kilograms gained is worth addressing, and reaching for tirzepatide as a diabetes medicine is not how NG28 addresses it. The guideline points the same way from the other side, considering that medicines which got someone to their individualised target be continued. So the regimen stands. The discomfort in this one is that a drug which would very likely help on both counts is being left on the shelf — but whether it would work is not the test the guideline sets, and the condition that would license it is not met.",
+      "batch": "type-2-diabetes",
+      "none": {
+        "role": "pivot",
+        "feedback": "Continuing is a decision, and it is the right one."
+      }
     }
   ]
 }

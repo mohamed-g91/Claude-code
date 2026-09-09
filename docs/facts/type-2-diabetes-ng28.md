@@ -131,11 +131,11 @@ prescribing to NICE's overweight and obesity guideline.
 
 ## Step 3–4: cases
 
-All thirteen are written and are in
+Thirteen were drafted. **Eleven survive review**; 1.28.2 and 1.32.2 were
+discarded at review, after drafting. The eleven are in
 [`type-2-diabetes-ng28-cases-draft.json`](type-2-diabetes-ng28-cases-draft.json),
 validated against `tools/validate-cases.mjs` — no errors and no warnings, alone
-or merged into the existing deck. They are **not** yet in `src/cases.json`: what
-ships is the composition question below, not a drafting one.
+or merged into the existing deck. They are **not** yet in `src/cases.json`.
 
 | # | id | from | pivot |
 |---|---|---|---|
@@ -146,16 +146,32 @@ ships is the composition question below, not a drafting one.
 | 5 | `endo_t2dm_modified_release_switch` | 1.23.1 | standard-release metformin |
 | 6 | `endo_t2dm_glp1_underweight_stop` | 1.24.3 | body mass index 18.1 kg/m² |
 | 7 | `endo_t2dm_glp1_glycaemic_failure` | 1.24.4 | **None** — the plan is already right |
-| 8 | `endo_t2dm_incretin_combination` | 1.24.6 | sitagliptin added two years ago |
+| 8 | `endo_t2dm_incretin_combination` | 1.24.6 | the drug list, and the sitagliptin in it |
 | 9 | `endo_t2dm_ascvd_developed_later` | 1.27.1 | the infarct six weeks ago |
-| 10 | `endo_t2dm_early_onset_pregnancy` | 1.28.2 | plans to become pregnant this year |
-| 11 | `endo_t2dm_three_months_initial_therapy` | 1.29.2 (a) | diagnosed six weeks ago |
-| 12 | `endo_t2dm_glycaemic_target_met` | 1.29.2 (b) | HbA1c 46 mmol/mol |
-| 13 | `endo_t2dm_insulin_initiation_ascvd` | 1.32.2 | the infarct two years ago |
+| 10 | `endo_t2dm_three_months_initial_therapy` | 1.29.2 (a) | diagnosed six weeks ago |
+| 11 | `endo_t2dm_glycaemic_target_met` | 1.29.2 (b) | **None** — the plan is already right |
 
-Pivot position across the thirteen is 2:1, 3:4, 4:3, 5:2, 6:1 and None:2 — no
-position carries more than four, which keeps the deck under the validator's
+Pivot position across the eleven is 2:1, 3:4, 4:1, 5:2 and None:3 — no position
+carries more than four, which keeps the deck under the validator's
 pattern-matching warning.
+
+### Discarded at review
+
+Two of the thirteen were cut after drafting, on the author's decision.
+
+| id | from | why it was written | disposition |
+|---|---|---|---|
+| `endo_t2dm_early_onset_pregnancy` | 1.28.2 | early onset type 2 diabetes, pivot on childbearing potential | discarded |
+| `endo_t2dm_insulin_initiation_ascvd` | 1.32.2 | insulin initiation, pivot on the cardioprotective agent surviving | discarded |
+
+Both were flagged before the cut, and the flags are worth keeping. 1.28.2 rested
+on an inference rather than on NG28's own text: the guideline never says that
+planning a pregnancy makes a GLP-1 receptor agonist "not appropriate" — that
+joins 1.28.2's wording to the contraception advice in 1.9.4, which is the
+committee's reasoning rather than a numbered recommendation. And 1.32.2's answer
+was *discuss the risks and benefits*, a softer action than any other pivot in the
+batch. Neither recommendation is retired: both remain pivot-worthy on the
+screening pass, and a future batch can rewrite them from scratch.
 
 Prose is original per the repo's rule against lifting stems from PassMedicine,
 Pastest or any other commercial bank; the rubric decides which facts and what
@@ -163,23 +179,23 @@ role, never the wording. Stems follow [stem-style.md](../stem-style.md).
 
 ## Open questions for batch composition
 
-1. **ASCVD carries three of the thirteen** — 1.15.1, 1.27.1 and 1.32.2 — and
-   1.24.4 turns on the same cardiovascular-benefit distinction. Batch 1 used
-   exactly this repetition test to hold 1.18.3 back. Now that all three are
-   written the closeness is easier to judge: 1.15.1 and 1.27.1 are near mirror
-   images — same finding, same drug added, same stated reason, differing only in
-   whether the disease was there at initiation or arrived afterwards — while
-   1.32.2 is a different move, sorting an existing regimen by why each drug is
-   there. If one is held back on the batch-1 precedent it should be 1.27.1.
-2. **Restraint cases — settled at drafting.** 1.29.2 (b) was written as an
-   ordinary pivot case, the HbA1c already at target, rather than as a third
-   None-answer. Its plan is an active one to overturn (tirzepatide is to be
-   added), so there is a pivot to find; making it None as well would have put
-   three None-answers in thirteen against batch 1's one in nine. None stays at
-   two of thirteen.
-3. **Thirteen against batch 1's nine.** No decision yet on whether batch 02
-   ships whole or splits.
+1. **ASCVD now carries two of the eleven, and they are the closest pair.**
+   Discarding 1.32.2 removed the ASCVD case that asked a *different* question
+   (sorting an existing regimen by why each drug is in it) and left 1.15.1 and
+   1.27.1, which are near mirror images: same finding, same drug added, same
+   stated reason, differing only in whether the disease was present at initiation
+   or arrived after it. The repetition test that held 1.18.3 back in batch 1 bears
+   on this pair more directly than it did on the original three. Undecided, and
+   the only case-selection question left.
+2. **Restraint cases — settled at review, the other way.** 1.29.2 (b) was first
+   drafted as an ordinary pivot case, on the reasoning that a third None-answer
+   would be one too many. At review its plan was changed to *continue the current
+   regimen*, which makes None the correct answer, and it was rewritten in that
+   form. None therefore stands at **three of eleven** — a materially higher share
+   than batch 1's one in nine, and a deliberate choice rather than an oversight.
+3. **11 cases against batch 1's nine.** Close enough in size that a split no
+   longer looks necessary.
 4. **Topic spread.** Batch 1 was Cardiology 7 / Clinical Pharmacology 2. These
-   are all tagged Endocrinology, though 1.24.6, 1.23.1 and 1.38.3 are
-   pharmacology in substance.
+   eleven are all tagged Endocrinology, though 1.24.6 and 1.23.1 are pharmacology
+   in substance.
 5. `1.43.3` undecided; `1.18.3` held.
