@@ -76,10 +76,13 @@ For scale: the case that drew the complaint ran to 243 words.
    work by exclusion*. Every one of these was in shipped copy, and each one asks
    the reader to decode a figure of speech to reach a fact.
 
-   What is banned is the construction, not the vocabulary. *Stream* is the
-   working term in `docs/facts/` for NG28's comorbidity groups, so *"puts him
-   in the obesity stream"* is the plainest available phrasing and stays; *"the
-   stream she is in"*, standing in for a verdict, does not.
+   ***Stream* is banned outright**, including as a noun. It is the working term
+   in `docs/facts/` for NG28's comorbidity groups, and an earlier draft of this
+   document allowed it on that basis. Review overruled that and removed all 23
+   uses from the deck: it is internal drafting vocabulary, not a word a
+   candidate meets in a guideline or on a ward. **The word is `pathway`** —
+   *"leaves her in the obesity pathway"*, *"one of the comorbidities NG28
+   relies on"*.
 
 3. **The tag already gave the verdict.** The coloured chip above the feedback
    says `Pivot`, `Contributory` or `Not decisive` before the candidate reads a
@@ -93,10 +96,23 @@ For scale: the case that drew the complaint ran to 243 words.
    diabetes needs it too"*. The register is a consultant explaining on a ward
    round: direct, unhurried, and not casual.
 
-6. **A contributory clause must say what is still missing.** Otherwise the
-   candidate knows they were close and has no idea where to look next. Say it
-   plainly — *"That is one of three conditions met — two left to check"* — and
-   without naming the pivot.
+6. **Never end on a trailing hint.** A contributory clause may say what is
+   still outstanding, but only by naming it. *"That is one of three conditions
+   met — two left to check"* names it. These do not, and all four were cut from
+   shipped copy in review:
+
+   > ~~"Neither names the right one."~~
+   > ~~"It does not say where in it."~~
+   > ~~"It does not say what to do about it."~~
+   > ~~"That step is done; another is not."~~
+
+   Each gestures at something it refuses to name, which is the puzzle register
+   this whole document exists to remove — the candidate is told a nameless
+   other thing exists and sent looking for it. The fix is not to name the pivot
+   instead. It is to state the fact and stop: *"Nothing here points to an
+   organic cause needing investigation, so the drug remains the explanation."*
+   A reader who wants to know what is still missing taps another clause, which
+   is the exercise working as designed.
 
 7. **A noise clause says why it does not matter**, and stops. *"Her age does
    not affect this decision."*
@@ -112,22 +128,41 @@ For scale: the case that drew the complaint ran to 243 words.
    plan, its feedback says so: *"This is the plan you are being asked to judge,
    not a finding about the patient."*
 
-9. **Name the guideline where it carries weight, not everywhere.** `NG28`,
+9. **Recurring clauses get one fixed line, not a fresh paraphrase.** Some
+   clauses appear in case after case. Writing a new variation each time buys
+   nothing and drifts:
+
+   | clause | feedback |
+   |---|---|
+   | *"…diagnosed N years ago"* | "Diagnosis history, not relevant in this case." |
+   | *"A 56-year-old woman"* (age inert) | "Her age does not affect this decision." |
+   | *"The decision is to…"* (inherited plan) | "This is the plan you are being asked to judge, not a finding about the patient." |
+
+   Six variations of the diagnosis-history line were written across batch 02 —
+   *"She is established on treatment, so the question is what to change about
+   it, not whether to treat"* and five near-misses — and all six were replaced
+   in review with the single line above. Where the clause genuinely does bear
+   on the decision, write the real reason instead; the formula is for when it
+   does not.
+
+10. **Name the guideline where it carries weight, not everywhere.** `NG28`,
    `NICE`, `ESC 2024` belong in the rule sentence. Repeating the name in every
    bullet turns the panel into a citation list; second references become "the
    guideline".
 
-   Not a hard count. Where the guideline is the actor in a second sentence —
-   *"NG28 sends prescribing aimed primarily at weight out to its obesity
-   guideline"* — naming it again is what makes the sentence true, and the
-   worked example below does exactly that.
+   Not a hard count, but close to one in practice. An earlier draft argued a
+   second mention was fine where the guideline is the actor in the sentence,
+   citing a closing paragraph that opened *"NG28 sends prescribing aimed
+   primarily at weight out to its obesity guideline"*. Review cut it to *"This
+   is not a diabetes indication."* — same fact, no second citation, and the
+   sentence is about the patient rather than about the document. Prefer that.
 
    Clause feedback is read on its own, hours or days from the rest, so it may
    name a guideline where the fact does not stand up without one — and should
    leave it out where the fact stands alone: *"A normal resting ECG does not
    exclude angina"* needs no citation.
 
-10. **The closing paragraph must not recap the clauses.** Every finding in the
+11. **The closing paragraph must not recap the clauses.** Every finding in the
     stem already has feedback, delivered at the moment the candidate tapped it.
     Saying it again after they have solved the case adds nothing and costs them
     the attention the paragraph actually needs.
@@ -141,14 +176,14 @@ For scale: the case that drew the complaint ran to 243 words.
     feedback did not already say, it was a recap and should not have been
     written.
 
-11. **No new clinical claims when rewriting.** Every fact in a revised
+12. **No new clinical claims when rewriting.** Every fact in a revised
     resolution must already be in the resolution it replaces or in
     `docs/facts/`. Those facts were checked against the guidelines before they
     shipped; a rewrite is a compression job, not a fresh authoring pass.
 
 ## Worked example
 
-`endo_t2dm_glycaemic_target_met`, 243 words before, 102 after.
+`endo_t2dm_glycaemic_target_met`, 243 words before, 72 after.
 
 > NG28 only considers a GLP-1 receptor agonist or tirzepatide for obesity if
 > all three of these hold at once:
@@ -158,9 +193,8 @@ For scale: the case that drew the complaint ran to 243 words.
 >   HbA1c is 46, and target is 48.
 > - **met** — Not already taking one of these drugs.
 >
-> NG28 sends prescribing aimed primarily at weight out to its obesity
-> guideline — it is not a diabetes indication. The 4 kg gain is worth
-> addressing, but not with this drug.
+> This is not a diabetes indication. The 4 kg gain is worth addressing, but
+> not with this drug.
 
 And its clause feedback, before and after:
 
@@ -195,7 +229,7 @@ happens to the patient.
 An earlier draft of that last paragraph opened by observing that his normal
 pulse, normal blood pressure and normal ejection fraction all look like room to
 add a beta-blocker. Every one of those findings is a clause with its own
-feedback saying exactly that, so the sentence was cut under rule 10 — it spent
+feedback saying exactly that, so the sentence was cut under rule 11 — it spent
 the paragraph on what the candidate had already been told, and left no room for
 the ivabradine trap, which nothing else in the case could warn them about.
 

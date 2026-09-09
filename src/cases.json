@@ -1384,7 +1384,7 @@
         {
           "text": "was diagnosed with type 2 diabetes at a routine review two weeks ago.",
           "role": "noise",
-          "feedback": "This is her diagnosis history, in this case doesn't affect her management."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She has chronic kidney disease and hypertension, and takes ramipril.",
@@ -1439,12 +1439,12 @@
         {
           "text": "was diagnosed with type 2 diabetes at a routine review.",
           "role": "noise",
-          "feedback": "This is diagnosis history and doesn't affect management in this case."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "She lives alone, uses a stick indoors and had two falls in the past year.",
           "role": "contributory",
-          "feedback": "These points to frailty pathway. But Nice states two adverse events specifically."
+          "feedback": "These point to the frailty pathway. NICE names two adverse events specifically."
         },
         {
           "text": "She takes amlodipine and furosemide.",
@@ -1490,7 +1490,7 @@
         {
           "text": "attends for review of type 2 diabetes diagnosed three years ago.",
           "role": "noise",
-          "feedback": "This is diagnosis history and doesn't affect management."
+          "feedback": "Diagnosis history, not relevant in this case."
         },
         {
           "text": "He has taken dapagliflozin since diagnosis.",
@@ -1505,7 +1505,7 @@
         {
           "text": "He reports no side effects and collects his prescriptions on time.",
           "role": "contributory",
-          "feedback": "Adverse effects and adherence are two of three optimization steps before escalating therapy. The third item is not met."
+          "feedback": "Adverse effects and adherence are two items on NG28's optimisation list, and both are clear. The prescribed dose is not."
         },
         {
           "text": "His HbA1c has risen from 54 to 62 mmol/mol, his eGFR is 84 ml/min/1.73 m² and his body mass index is 29 kg/m².",
@@ -1534,7 +1534,7 @@
             "state": "failed"
           }
         ],
-        "trap": "A DPP-4 inhibitor is the right next drug for someone with no relevant comorbidity; but after optimization first. Maximum tolerated dose means the highest dose he can take without adverse effects ( usually 2 grams )."
+        "trap": "A DPP-4 inhibitor is the right next drug for someone with no relevant comorbidity, but only after optimisation. Maximum tolerated dose means the highest dose he can take without adverse effects (usually 2 g)."
       },
       "batch": "type-2-diabetes"
     },
@@ -1657,7 +1657,7 @@
         {
           "text": "He has no past medical history.",
           "role": "contributory",
-          "feedback": "With no cardiovascular disease, nothing indicates the dulaglutide beyond glycemic control. That is one of two conditions met — one left to check."
+          "feedback": "With no cardiovascular disease, nothing indicates the dulaglutide beyond glycaemic control. That is one of two conditions met — one left to check."
         },
         {
           "text": "He takes metformin, dapagliflozin and dulaglutide for one year.",
@@ -1751,7 +1751,7 @@
             "state": "met"
           }
         ],
-        "trap": "Patient is on DPP-4 inhibitor, so a GLP-1 receptor agonist or tirzepatide can't be started untill it is stopped"
+        "trap": "He is on a DPP-4 inhibitor, so a GLP-1 receptor agonist or tirzepatide cannot start until it is stopped."
       },
       "batch": "type-2-diabetes"
     },
@@ -1799,7 +1799,7 @@
         "lead": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, for its cardiovascular and renal benefits.",
         "points": [
           "The addition is not glycaemic: her HbA1c is 42 mmol/mol, below target, and the drug is offered anyway.",
-          "Two triggers, an event or a glycemic control. Here it is the event."
+          "Two triggers: an event, or a glycaemic shortfall. Here it is the event."
         ],
         "trap": "If she presented with this history at diagnosis, all three drugs would have been offered from the start."
       },
