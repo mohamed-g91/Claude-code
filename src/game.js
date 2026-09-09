@@ -280,7 +280,11 @@ function showNext() {
   const last = index >= deck.cases.length - 1;
   el.next.textContent = last ? "Start again from the top" : "Next case";
   el.next.hidden = false;
-  el.next.focus();
+  // Deliberately does not take focus. Focusing the button scrolled the
+  // viewport down to it, which jumped the reader straight past the
+  // resolution they had just earned -- the one thing the pivot is for.
+  // Focus stays on the clause they activated, and Tab still reaches the
+  // button from there.
 }
 
 // Shared by the "Next case" button and the navigator -- both just move to
