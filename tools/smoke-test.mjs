@@ -416,70 +416,98 @@ for (const scheme of ["light", "dark"]) {
   await c.close();
 }
 
-// --- angina.html: the stable-angina batch served as its own page ---
-// Batch size comes from the data, same reasoning as N above -- otherwise
+// --- the batch pages: each batch served as its own deck ---
+// One page per open batch, each filtering cases.json by its own `data-batch`.
+// They share every line of game.js, which is exactly why both are driven here
+// rather than only the first: a page whose tag is misspelled, or whose storage
+// key collides with another deck, renders perfectly and fails silently.
+//
+// Batch sizes come from the data, same reasoning as N above -- otherwise
 // retagging a case silently breaks this suite instead of a real bug.
-const ANGINA_URL = URL.replace(/play\.html$/, "angina.html");
-const ANGINA_CASES = CASES.filter((c) => c.batch === "stable-angina");
-const ANGINA_N = ANGINA_CASES.length;
-const ANGINA_FIRST_PIVOT = ANGINA_CASES[0].clauses.findIndex((c) => c.role === "pivot");
-const ANGINA_FIRST_PIVOT_IS_NONE =
-  ANGINA_FIRST_PIVOT === -1 && ANGINA_CASES[0].none?.role === "pivot";
+const BATCH_PAGES = [
+  { file: "angina.html", tag: "stable-angina" },
+  { file: "diabetes.html", tag: "type-2-diabetes" },
+];
 
-const anginaConsoleErrors = [];
-const anginaBadResponses = [];
-const ctx3 = await browser.newContext({ viewport: { width: 360, height: 740 } });
-const anginaPage = await ctx3.newPage();
-anginaPage.on("pageerror", (e) => anginaConsoleErrors.push(String(e)));
-anginaPage.on("console", (m) => { if (m.type() === "error") anginaConsoleErrors.push(m.text()); });
-anginaPage.on("response", (r) => { if (r.status() >= 400) anginaBadResponses.push(`${r.status()} ${r.url()}`); });
+for (const { file, tag } of BATCH_PAGES) {
+  const batchUrl = URL.replace(/play\.html$/, file);
+  const batchCases = CASES.filter((c) => c.batch === tag);
+  const batchN = batchCases.length;
+  const firstPivot = batchCases[0]?.clauses.findIndex((c) => c.role === "pivot");
+  const firstPivotIsNone = firstPivot === -1 && batchCases[0]?.none?.role === "pivot";
 
-await anginaPage.goto(ANGINA_URL);
-await anginaPage.waitForSelector(".clause");
+  // A page whose tag matches nothing would throw in game.js rather than render
+  // an empty deck, but the count is asserted here too so the failure names the
+  // cause instead of surfacing as a console error.
+  check(`${file} has cases tagged "${tag}"`, batchN > 0, `${batchN} cases`);
+  if (batchN === 0) continue;
 
-const anginaNavCount = await anginaPage.locator(".nav-item").count();
-check(
-  "angina.html renders exactly the stable-angina batch",
-  anginaNavCount === ANGINA_N,
-  `${anginaNavCount} nav buttons, expected ${ANGINA_N}`
-);
+  const batchConsoleErrors = [];
+  const batchBadResponses = [];
+  const batchCtx = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  const batchPage = await batchCtx.newPage();
+  batchPage.on("pageerror", (e) => batchConsoleErrors.push(String(e)));
+  batchPage.on("console", (m) => { if (m.type() === "error") batchConsoleErrors.push(m.text()); });
+  batchPage.on("response", (r) => { if (r.status() >= 400) batchBadResponses.push(`${r.status()} ${r.url()}`); });
 
-const anginaMeta = await anginaPage.locator("#meta").innerText();
-check(
-  "angina.html meta line reports the batch size",
-  anginaMeta.includes(`of ${ANGINA_N}`),
-  anginaMeta
-);
+  await batchPage.goto(batchUrl);
+  await batchPage.waitForSelector(".clause");
 
-check("no console/page errors on angina.html", anginaConsoleErrors.length === 0, anginaConsoleErrors.join(" | "));
-check("no failed requests on angina.html", anginaBadResponses.length === 0, anginaBadResponses.join(" | "));
+  const navCount = await batchPage.locator(".nav-item").count();
+  check(
+    `${file} renders exactly the ${tag} batch`,
+    navCount === batchN,
+    `${navCount} nav buttons, expected ${batchN}`
+  );
 
-// Solve the first case on angina.html, then confirm its progress lands
-// under a batch-namespaced key rather than the shared one index.html uses.
-if (ANGINA_FIRST_PIVOT_IS_NONE) {
-  await anginaPage.locator("#noneOption").click();
-} else {
-  await anginaPage.locator(".clause").nth(ANGINA_FIRST_PIVOT).click();
+  const batchMeta = await batchPage.locator("#meta").innerText();
+  check(
+    `${file} meta line reports the batch size`,
+    batchMeta.includes(`of ${batchN}`),
+    batchMeta
+  );
+
+  check(`no console/page errors on ${file}`, batchConsoleErrors.length === 0, batchConsoleErrors.join(" | "));
+  check(`no failed requests on ${file}`, batchBadResponses.length === 0, batchBadResponses.join(" | "));
+
+  // Solve the first case, then confirm its progress lands under a
+  // batch-namespaced key rather than the shared one play.html uses.
+  if (firstPivotIsNone) {
+    await batchPage.locator("#noneOption").click();
+  } else {
+    await batchPage.locator(".clause").nth(firstPivot).click();
+  }
+  const storageKeys = await batchPage.evaluate(() => Object.keys(localStorage));
+  check(
+    `${file} progress is namespaced under its own storage key`,
+    storageKeys.includes(`findthepivot.v1:${tag}`) &&
+      !storageKeys.includes("findthepivot.v1"),
+    storageKeys.join(", ")
+  );
+
+  // Same origin, same browser context -- play.html and the batch pages share
+  // localStorage. The point of namespacing the key is that solving a case on
+  // one batch must not perturb the mixed deck's own (unrelated, larger) case
+  // count or index restoration.
+  await batchPage.goto(URL);
+  await batchPage.waitForSelector(".clause");
+  const indexMetaAfterBatch = await batchPage.locator("#meta").innerText();
+  check(
+    `play.html still reports its own case count after ${file} writes to shared localStorage`,
+    indexMetaAfterBatch.includes(`of ${N}`),
+    indexMetaAfterBatch
+  );
+
+  await batchCtx.close();
 }
-const anginaStorageKeys = await anginaPage.evaluate(() => Object.keys(localStorage));
-check(
-  "angina.html progress is namespaced under its own storage key",
-  anginaStorageKeys.includes("findthepivot.v1:stable-angina") &&
-    !anginaStorageKeys.includes("findthepivot.v1"),
-  anginaStorageKeys.join(", ")
-);
 
-// Same origin, same browser context -- play.html and angina.html share
-// localStorage. The point of namespacing the key is that solving a case on
-// the stable-angina batch must not perturb the mixed deck's own (unrelated,
-// larger) case count or index restoration.
-await anginaPage.goto(URL);
-await anginaPage.waitForSelector(".clause");
-const indexMetaAfterAngina = await anginaPage.locator("#meta").innerText();
+// The two batch pages must not share a storage key with each other either:
+// progress on one deck reappearing on the other is the failure namespacing
+// exists to prevent, and it only shows up when a second batch exists.
 check(
-  "play.html still reports its own case count after angina.html writes to shared localStorage",
-  indexMetaAfterAngina.includes(`of ${N}`),
-  indexMetaAfterAngina
+  "the batch pages use distinct storage keys",
+  new Set(BATCH_PAGES.map((b) => b.tag)).size === BATCH_PAGES.length,
+  BATCH_PAGES.map((b) => `findthepivot.v1:${b.tag}`).join(", ")
 );
 
 // --- index.html: the landing page ---
@@ -488,7 +516,8 @@ check(
 // counts that drift from the data, a page that needs JS to say anything), so
 // it gets its own checks rather than riding on the deck suite above.
 const LANDING_URL = URL.replace(/play\.html$/, "index.html");
-const LANDING_BATCH = ANGINA_N;              // cases tagged stable-angina
+const LANDING_BATCH = CASES.filter((c) => c.batch === "stable-angina").length;
+const LANDING_BATCH_02 = CASES.filter((c) => c.batch === "type-2-diabetes").length;
 const LANDING_TOTAL = N;                     // every case in the bank
 const LANDING_SPECIALTIES = new Set(CASES.map((c) => c.topic)).size;
 
@@ -515,8 +544,7 @@ check("index.html is a landing page, not a deck", landingClauses === 0, `${landi
 // --- the primary CTAs actually go somewhere ---
 // A landing page whose buttons 404 is worse than no landing page, and a
 // renamed deck file would break silently otherwise.
-{
-  const target = "angina.html";
+for (const target of ["angina.html", "diabetes.html"]) {
   const hrefs = await landingPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
     els.map((e) => e.href));
   check(`index.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
@@ -599,6 +627,7 @@ check(
 // the marketing copy cannot drift away from the bank behind it.
 const facts = await landingPage.evaluate(() => ({
   batch: document.getElementById("factBatch")?.textContent.trim(),
+  batch02: document.getElementById("factBatch02")?.textContent.trim(),
   total: document.getElementById("factTotal")?.textContent.trim(),
   specialties: document.getElementById("factSpecialties")?.textContent.trim(),
 }));
@@ -606,6 +635,11 @@ check(
   "index.html counts Batch 01 from cases.json",
   facts.batch === String(LANDING_BATCH),
   `${facts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "index.html counts Batch 02 from cases.json",
+  facts.batch02 === String(LANDING_BATCH_02),
+  `${facts.batch02}, expected ${LANDING_BATCH_02}`
 );
 check(
   "index.html counts the total deck from cases.json",
@@ -629,13 +663,25 @@ const noJsPage = await ctxNoJs.newPage();
 await noJsPage.goto(LANDING_URL);
 const noJsText = {
   batch: (await noJsPage.locator("#factBatch").innerText()).trim(),
+  batch02: (await noJsPage.locator("#factBatch02").innerText()).trim(),
   total: (await noJsPage.locator("#factTotal").innerText()).trim(),
   specialties: (await noJsPage.locator("#factSpecialties").innerText()).trim(),
 };
 check(
   "index.html renders its counts with JavaScript disabled",
-  noJsText.batch !== "" && noJsText.total !== "" && noJsText.specialties !== "",
+  Object.values(noJsText).every((v) => v !== ""),
   JSON.stringify(noJsText)
+);
+// The static markup is the fallback, so it has to be the *right* number, not
+// merely a number -- a stale hardcoded count is invisible with JS enabled
+// because landing.js overwrites it on load.
+check(
+  "index.html hardcoded counts match the data (JavaScript disabled)",
+  noJsText.batch === String(LANDING_BATCH) &&
+    noJsText.batch02 === String(LANDING_BATCH_02) &&
+    noJsText.total === String(LANDING_TOTAL) &&
+    noJsText.specialties === String(LANDING_SPECIALTIES),
+  `${JSON.stringify(noJsText)}, expected ${LANDING_BATCH}/${LANDING_BATCH_02}/${LANDING_TOTAL}/${LANDING_SPECIALTIES}`
 );
 await ctxNoJs.close();
 
@@ -700,8 +746,7 @@ check(
 // The Arabic page sends people to the same English deck page, so a renamed
 // deck file breaks it in exactly the same silent way. Resolve the real href
 // with a real request rather than trusting the attribute.
-{
-  const target = "angina.html";
+for (const target of ["angina.html", "diabetes.html"]) {
   const hrefs = await arabicPage.locator(`a[href="${target}"]`).evaluateAll((els) =>
     els.map((e) => e.href));
   check(`ar.html links to ${target}`, hrefs.length > 0, `${hrefs.length} links`);
@@ -756,6 +801,7 @@ check("no horizontal scroll on ar.html at 360px", arabicOverflow <= 1, `overflow
 // bank the moment a case is added.
 const arabicFacts = await arabicPage.evaluate(() => ({
   batch: document.getElementById("factBatch")?.textContent.trim(),
+  batch02: document.getElementById("factBatch02")?.textContent.trim(),
   total: document.getElementById("factTotal")?.textContent.trim(),
   specialties: document.getElementById("factSpecialties")?.textContent.trim(),
 }));
@@ -763,6 +809,11 @@ check(
   "ar.html counts Batch 01 from cases.json",
   arabicFacts.batch === String(LANDING_BATCH),
   `${arabicFacts.batch}, expected ${LANDING_BATCH}`
+);
+check(
+  "ar.html counts Batch 02 from cases.json",
+  arabicFacts.batch02 === String(LANDING_BATCH_02),
+  `${arabicFacts.batch02}, expected ${LANDING_BATCH_02}`
 );
 check(
   "ar.html counts the total deck from cases.json",
@@ -857,7 +908,7 @@ const copyLine = (PAGES_WORKFLOW.split("\n").find((l) =>
   /^\s*cp\b[^\n]*\.html[^\n]*_site\//.test(l)) ?? "").trim();
 check(
   "the deploy workflow copies the open pages into _site but not play.html",
-  ["index.html", "ar.html", "angina.html"].every((f) => copyLine.includes(f)) &&
+  ["index.html", "ar.html", "angina.html", "diabetes.html"].every((f) => copyLine.includes(f)) &&
     !copyLine.includes("play.html"),
   copyLine || "no cp ... _site/ line for .html files"
 );
