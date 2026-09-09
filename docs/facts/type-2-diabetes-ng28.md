@@ -131,10 +131,11 @@ prescribing to NICE's overweight and obesity guideline.
 
 ## Step 3–4: cases
 
-Seven of the thirteen have been written and are in
+All thirteen are written and are in
 [`type-2-diabetes-ng28-cases-draft.json`](type-2-diabetes-ng28-cases-draft.json),
-validated against `tools/validate-cases.mjs`. They are **not** yet in
-`src/cases.json` — a half-written batch should not ship.
+validated against `tools/validate-cases.mjs` — no errors and no warnings, alone
+or merged into the existing deck. They are **not** yet in `src/cases.json`: what
+ships is the composition question below, not a drafting one.
 
 | # | id | from | pivot |
 |---|---|---|---|
@@ -145,9 +146,16 @@ validated against `tools/validate-cases.mjs`. They are **not** yet in
 | 5 | `endo_t2dm_modified_release_switch` | 1.23.1 | standard-release metformin |
 | 6 | `endo_t2dm_glp1_underweight_stop` | 1.24.3 | body mass index 18.1 kg/m² |
 | 7 | `endo_t2dm_glp1_glycaemic_failure` | 1.24.4 | **None** — the plan is already right |
+| 8 | `endo_t2dm_incretin_combination` | 1.24.6 | sitagliptin added two years ago |
+| 9 | `endo_t2dm_ascvd_developed_later` | 1.27.1 | the infarct six weeks ago |
+| 10 | `endo_t2dm_early_onset_pregnancy` | 1.28.2 | plans to become pregnant this year |
+| 11 | `endo_t2dm_three_months_initial_therapy` | 1.29.2 (a) | diagnosed six weeks ago |
+| 12 | `endo_t2dm_glycaemic_target_met` | 1.29.2 (b) | HbA1c 46 mmol/mol |
+| 13 | `endo_t2dm_insulin_initiation_ascvd` | 1.32.2 | the infarct two years ago |
 
-Remaining to write: `1.24.6`, `1.27.1`, `1.28.2`, `1.29.2` (two cases),
-`1.32.2`.
+Pivot position across the thirteen is 2:1, 3:4, 4:3, 5:2, 6:1 and None:2 — no
+position carries more than four, which keeps the deck under the validator's
+pattern-matching warning.
 
 Prose is original per the repo's rule against lifting stems from PassMedicine,
 Pastest or any other commercial bank; the rubric decides which facts and what
@@ -157,9 +165,18 @@ role, never the wording. Stems follow [stem-style.md](../stem-style.md).
 
 1. **ASCVD carries three of the thirteen** — 1.15.1, 1.27.1 and 1.32.2 — and
    1.24.4 turns on the same cardiovascular-benefit distinction. Batch 1 used
-   exactly this repetition test to hold 1.18.3 back.
-2. **Restraint cases.** Two of the seven written are None-answers, with
-   1.29.2 (b) still to come as a third. Batch 1 shipped one in nine.
+   exactly this repetition test to hold 1.18.3 back. Now that all three are
+   written the closeness is easier to judge: 1.15.1 and 1.27.1 are near mirror
+   images — same finding, same drug added, same stated reason, differing only in
+   whether the disease was there at initiation or arrived afterwards — while
+   1.32.2 is a different move, sorting an existing regimen by why each drug is
+   there. If one is held back on the batch-1 precedent it should be 1.27.1.
+2. **Restraint cases — settled at drafting.** 1.29.2 (b) was written as an
+   ordinary pivot case, the HbA1c already at target, rather than as a third
+   None-answer. Its plan is an active one to overturn (tirzepatide is to be
+   added), so there is a pivot to find; making it None as well would have put
+   three None-answers in thirteen against batch 1's one in nine. None stays at
+   two of thirteen.
 3. **Thirteen against batch 1's nine.** No decision yet on whether batch 02
    ships whole or splits.
 4. **Topic spread.** Batch 1 was Cardiology 7 / Clinical Pharmacology 2. These

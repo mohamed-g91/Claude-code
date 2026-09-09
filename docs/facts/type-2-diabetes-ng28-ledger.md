@@ -21,7 +21,9 @@ Provenance below).
 
 ## Status — all 24 walked
 
-**13 cases** from 12 recommendations. (1.24.2 was approved at screening then discarded at drafting.) 1 held for a future pass, 9 passed over, 1 undecided.
+**13 cases** from 12 recommendations, **all thirteen now written** and validating
+alone and merged. (1.24.2 was approved at screening then discarded at drafting.)
+1 held for a future pass, 9 passed over, 1 undecided.
 
 | # | id | pg | yr | bucket | pivot clause |
 |---|---|---|---|---|---|
@@ -56,13 +58,17 @@ Provenance below).
 1. **ASCVD carries three of the 13** — 1.15.1 (present at initiation), 1.27.1 (develops
    later), 1.32.2 (survives insulin initiation) — and 1.24.4 turns on the same
    cardiovascular-benefit distinction. Batch 1 used exactly this repetition test to hold
-   1.18.3 back.
-2. **Restraint cases.** 1.22.2 and 1.29.2b, plus two None-answers already written
-   (cases 2 and 7). Batch 1
-   shipped one restraint case in nine, and it took the None-answer form
-   (`none: {role: "pivot"}`).
-3. **13 cases against batch 1's nine.** No decision recorded on whether batch 02 ships
-   whole or splits.
+   1.18.3 back. With all three drafted the comparison is sharper than it was at screening:
+   1.15.1 and 1.27.1 are near mirror images — same finding, same drug added, same reason
+   given, differing only in whether the disease was present at initiation or arrived after
+   it — whereas 1.32.2 asks a different question, sorting an existing regimen by why each
+   drug is in it. On the batch-1 precedent the one to hold would be **1.27.1**. Undecided.
+2. **Restraint cases — settled.** Four in the end: 1.22.2, 1.29.2a and 1.29.2b as pivot
+   cases, plus the two None-answers (cases 2 and 7). Batch 1 shipped one restraint case in
+   nine and it took the None-answer form (`none: {role: "pivot"}`); this batch keeps None at
+   two of thirteen and lets the other two restraint cases carry a pivot clause.
+3. **13 cases against batch 1's nine.** Still no decision on whether batch 02 ships whole
+   or splits, and it is now the only thing standing between the batch and `src/cases.json`.
 4. **Topic spread.** Batch 1 spanned Cardiology (7) and Clinical Pharmacology (2). These 13
    are all Endocrinology, though 1.24.6, 1.23.1 and 1.38.3 are pharmacology in substance.
 5. **1.43.3 undecided**, and **1.18.3 held**.
@@ -198,6 +204,14 @@ Pivot clause: **the new MI after starting treatment.** 1.15.1 displaced in time.
 `1.27.2` fires on a glycaemic shortfall instead of an event and routes to a sulfonylurea — the
 two triggers must not blur in a stem.
 
+**Writing constraints, found at drafting.** Two, both about keeping the pivot the only route
+to the answer. The stem must put the HbA1c *at* target: any shortfall drags 1.27.2 into range
+and the case acquires a second defensible answer. And the stem must not list the secondary
+prevention started after the event — aspirin, a statin, a beta-blocker and an ACE inhibitor
+begun "after the admission" announce an infarct on their own, so the drug list does the pivot's
+work and the case fails the stem-style deletion test. The written case carries inert background
+observations in that slot instead.
+
 ### 1.28.2 — Pivot-worthy
 
 **Further medication › 1.28 People with early onset type 2 diabetes**, p92, `[2026]`
@@ -228,7 +242,13 @@ same two classes in **substitution**.
 - **(a)** pivot = **the 3 months on initial therapy.** The only duration threshold in the
   selection. Someone escalated at 6 weeks fails it however high the HbA1c.
 - **(b)** pivot = **HbA1c already within the individualised target.** The second condition
-  fails, so the answer is not to add. Restraint shape.
+  fails, so the answer is not to add. Restraint shape, but **written as an ordinary pivot case
+  rather than a None-answer**: the plan on the table is an active one (tirzepatide is to be
+  added), so there is something to overturn and a clause that overturns it. A third None in
+  thirteen, against batch 1's one in nine, was the reason not to take the None form here.
+  The written case also leans on `1.5.7` for what "within target" means — metformin and an
+  SGLT-2 inhibitor are not associated with hypoglycaemia, so the figure to beat is 48 mmol/mol
+  — and on `1.29.1` for why the weight gain does not supply the missing indication.
 
 Cautions: `1.20.2` (passed over) says add the next agent *as soon as* the previous reaches
 maximum tolerated dose, with no waiting period — different step, but a careless stem could read
