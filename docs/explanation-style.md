@@ -40,6 +40,11 @@ they read as three beats rather than a paragraph:
 to the candidate** — no heading, no label, nothing that makes the panel look
 like a form. The reader sees a sentence, a list, and a paragraph.
 
+The schema permits chipped and plain bullets in one list, but **do not mix them
+within a case**. A list where some bullets carry a met/not-met chip and others
+do not reads as though the unchipped ones failed to be assessed. A case is a
+condition checklist or it is not.
+
 A resolution may still be a plain string. The mixed deck is written that way and
 renders as it always did.
 
@@ -70,6 +75,11 @@ For scale: the case that drew the complaint ran to 243 words.
    *the tempting one*, *repays reading as a pair*, *worth naming*, *does real
    work by exclusion*. Every one of these was in shipped copy, and each one asks
    the reader to decode a figure of speech to reach a fact.
+
+   What is banned is the construction, not the vocabulary. *Stream* is the
+   working term in `docs/facts/` for NG28's comorbidity groups, so *"puts him
+   in the obesity stream"* is the plainest available phrasing and stays; *"the
+   stream she is in"*, standing in for a verdict, does not.
 
 3. **The tag already gave the verdict.** The coloured chip above the feedback
    says `Pivot`, `Contributory` or `Not decisive` before the candidate reads a
@@ -102,14 +112,20 @@ For scale: the case that drew the complaint ran to 243 words.
    plan, its feedback says so: *"This is the plan you are being asked to judge,
    not a finding about the patient."*
 
-9. **Name the guideline once per resolution.** `NG28`, `NICE`, `ESC 2024` — in
-   the rule sentence, where it carries weight. Repeating it in every bullet
-   turns the panel into a citation list.
+9. **Name the guideline where it carries weight, not everywhere.** `NG28`,
+   `NICE`, `ESC 2024` belong in the rule sentence. Repeating the name in every
+   bullet turns the panel into a citation list; second references become "the
+   guideline".
 
-   This is scoped to the resolution. Clause feedback is read on its own, hours
-   or days from the rest, so it may name a guideline where the fact does not
-   stand up without one — and should leave it out where the fact stands alone:
-   *"A normal resting ECG does not exclude angina"* needs no citation.
+   Not a hard count. Where the guideline is the actor in a second sentence —
+   *"NG28 sends prescribing aimed primarily at weight out to its obesity
+   guideline"* — naming it again is what makes the sentence true, and the
+   worked example below does exactly that.
+
+   Clause feedback is read on its own, hours or days from the rest, so it may
+   name a guideline where the fact does not stand up without one — and should
+   leave it out where the fact stands alone: *"A normal resting ECG does not
+   exclude angina"* needs no citation.
 
 10. **The closing paragraph must not recap the clauses.** Every finding in the
     stem already has feedback, delivered at the moment the candidate tapped it.

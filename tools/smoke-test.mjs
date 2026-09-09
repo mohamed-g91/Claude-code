@@ -404,27 +404,17 @@ check("no failed requests", badResponses.length === 0, badResponses.join(" | "))
 // to its wording would fail on an edit rather than on a bug.
 //
 // The case is found in the data rather than named, for the same reason the
-// deck size is: retagging or reordering must not break the suite. When no case
-// carries the structured shape yet, a synthetic one is injected into the served
-// cases.json -- an assertion that quietly passes because it found nothing to
-// assert on is not coverage.
-const SYNTHETIC_RESOLUTION = {
-  lead: "This case turns on all of the following holding at once:",
-  points: [
-    { text: "A criterion this patient satisfies.", state: "met" },
-    { text: "A criterion this patient does not.", state: "failed" },
-    "A criterion with no met/not-met axis, written as a bare string.",
-  ],
-  trap: "What pulls a candidate the other way, and why it does not decide it.",
-};
+// deck size is: retagging or reordering must not break the suite. An assertion
+// that quietly passes because it found nothing to assert on is not coverage,
+// so a deck carrying no structured resolution at all is a failure here rather
+// than a skip.
 const STATE_LABEL = { met: "met", failed: "not met" };
 
-const structuredIndex = CASES.findIndex(
+const structuredAt = CASES.findIndex(
   (c) => c.resolution !== null && typeof c.resolution === "object");
-const structuredCase = structuredIndex >= 0
-  ? CASES[structuredIndex]
-  : { ...CASES[0], resolution: SYNTHETIC_RESOLUTION };
-const structuredAt = structuredIndex >= 0 ? structuredIndex : 0;
+check("the deck carries a structured resolution to test", structuredAt >= 0,
+  structuredAt >= 0 ? CASES[structuredAt].id : "none found");
+const structuredCase = CASES[structuredAt];
 const expectedPoints = structuredCase.resolution.points;
 const expectedChips = expectedPoints
   .filter((p) => p && typeof p === "object" && STATE_LABEL[p.state])
@@ -435,17 +425,6 @@ const resPage = await resCtx.newPage();
 const resErrors = [];
 resPage.on("pageerror", (e) => resErrors.push(String(e)));
 resPage.on("console", (m) => { if (m.type() === "error") resErrors.push(m.text()); });
-if (structuredIndex < 0) {
-  await resPage.route("**/cases.json", async (route) => {
-    const deck = JSON.parse(readFileSync(
-      join(import.meta.dirname, "..", "src", "cases.json"), "utf8"));
-    deck.cases[0] = { ...deck.cases[0], resolution: SYNTHETIC_RESOLUTION };
-    await route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify(deck),
-    });
-  });
-}
 await resPage.goto(URL);
 await resPage.waitForSelector(".clause");
 await resPage.locator(".nav-item").nth(structuredAt).click();

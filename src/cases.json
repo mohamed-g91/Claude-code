@@ -904,35 +904,43 @@
         {
           "text": "A 58-year-old man",
           "role": "noise",
-          "feedback": "Age picks the drug or the test in plenty of pathways. Not this one — the 2016 update removed age-weighted pre-test probability from the chest pain pathway altogether."
+          "feedback": "The 2016 update removed age-weighted pre-test probability from the chest pain pathway, so his age does not affect this decision."
         },
         {
           "text": "presented with four months of central chest tightness on walking uphill that takes fifteen to twenty minutes to settle after he stops.",
           "role": "contributory",
-          "feedback": "Right thread. Losing that third feature — prompt relief with rest — makes this atypical rather than typical angina, which is worth classifying correctly. But the class does not pick the test."
+          "feedback": "Relief takes 15 to 20 minutes, so this is atypical rather than typical angina. Correct to classify, but the classification does not select the test."
         },
         {
           "text": "He has a past medical history of myocardial infarction three years ago.",
           "role": "pivot",
-          "feedback": "Established disease changes the question being asked."
+          "feedback": "A previous myocardial infarction means coronary disease is already established, which changes the question the test has to answer."
         },
         {
           "text": "He smokes 15 cigarettes a day and his father had a myocardial infarction at 58.",
           "role": "noise",
-          "feedback": "Real risk factors, and easy to weight. They neither add to nor subtract from disease he is already known to have."
+          "feedback": "Smoking and family history raise the chance of coronary disease, but they add nothing in a man whose disease is already known."
         },
         {
           "text": "His resting 12-lead ECG is normal.",
           "role": "contributory",
-          "feedback": "Worth checking, and NICE is explicit that a normal resting ECG does not exclude angina. Here it rules nothing in and nothing out."
+          "feedback": "A normal resting ECG does not exclude angina. It rules nothing in and nothing out here, so it does not change where he goes next."
         },
         {
           "text": "A CT coronary angiography is planned.",
           "role": "noise",
-          "feedback": "A decision someone has already made. That a test is booked is not evidence that it is the right one."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "CT coronary angiography answers whether there is coronary disease. In a man who infarcted three years ago that question is already answered, and the useful one becomes whether his current symptoms are caused by ischaemia. NICE therefore routes people with confirmed coronary artery disease to non-invasive functional testing — stress echocardiography, myocardial perfusion scintigraphy or stress MR — rather than to first-line anatomical imaging. Neither his risk factors nor the atypical character of the pain moves him off that route, and the normal resting ECG excludes nothing. ESC 2024 arrives at the same place by a different argument, preferring functional imaging where the clinical likelihood of disease is already high.",
+      "resolution": {
+        "lead": "NICE routes a patient with confirmed coronary artery disease to non-invasive functional testing rather than to first-line CT coronary angiography.",
+        "points": [
+          "CT coronary angiography answers whether there is coronary disease. He infarcted 3 years ago, so that question is already answered.",
+          "What remains is whether his current symptoms are caused by ischaemia.",
+          "Functional testing answers that: stress echocardiography, myocardial perfusion scintigraphy or stress MR."
+        ],
+        "trap": "Invasive coronary angiography is not the alternative either. It is third line, for when functional imaging is inconclusive. ESC 2024 reaches the same destination by a different argument, preferring functional imaging where the clinical likelihood of disease is already high."
+      },
       "batch": "stable-angina"
     },
     {
@@ -942,35 +950,43 @@
         {
           "text": "A 64-year-old woman",
           "role": "noise",
-          "feedback": "Age and sex drive the estimate in some pathways. Since 2016 the NICE chest pain pathway has used neither."
+          "feedback": "The chest pain pathway has used neither age nor sex since 2016, so they do not affect this decision."
         },
         {
           "text": "presented with six weeks of central chest tightness on walking to the bus stop, relieved within two minutes of stopping.",
           "role": "contributory",
-          "feedback": "Right thread. All three features are present, so this is typical angina — worth classifying, but the class does not pick the test."
+          "feedback": "All three features are present, so this is typical angina. Correct to classify, but the classification does not select the test."
         },
         {
           "text": "She has no past medical history.",
           "role": "pivot",
-          "feedback": "Whether disease is already established is what decides where in the pathway she starts."
+          "feedback": "With no established coronary disease, she starts at the beginning of the pathway rather than in the known-disease route."
         },
         {
           "text": "She has smoked since her twenties and her total cholesterol is 6.4 mmol/L.",
           "role": "noise",
-          "feedback": "Substantial risk factors, and they raise her chance of having disease. They do not change how it is looked for."
+          "feedback": "Smoking and a total cholesterol of 6.4 raise her chance of having disease, but they do not change how it is looked for."
         },
         {
           "text": "Physical examination and her resting 12-lead ECG are normal.",
           "role": "contributory",
-          "feedback": "Right to check, and NICE is explicit that a normal resting ECG does not exclude angina. A normal examination does not either — neither result moves her along the pathway or off it."
+          "feedback": "A normal resting ECG does not exclude angina, and neither does a normal examination. Neither result moves her along the pathway or off it."
         },
         {
           "text": "A stress echocardiogram is planned.",
           "role": "noise",
-          "feedback": "Already booked. A test on the list is not a test that is justified."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "Non-invasive functional imaging — stress echocardiography, myocardial perfusion scintigraphy, stress MR — is second-line in the NICE pathway. It is what you reach for once CT coronary angiography has shown disease of uncertain functional significance or come back non-diagnostic. With no past medical history she has no established coronary disease and has not yet had the first-line test, which is 64-slice or better CT coronary angiography. Neither her risk factors nor the typical character of her pain changes that, the 2016 update having removed pre-test probability from the pathway. An exercise ECG would be wrong here too, for a different reason: NICE prohibits it outright for diagnosing or excluding angina in anyone without known coronary disease. ESC 2024 is the exception worth knowing — there functional imaging may be chosen first-line where clinical likelihood is high, so this ordering is NICE's rather than universal.",
+      "resolution": {
+        "lead": "The first-line test for suspected angina in someone without known coronary disease is 64-slice or better CT coronary angiography; NICE places non-invasive functional imaging second.",
+        "points": [
+          "Functional imaging, whether stress echocardiography, myocardial perfusion scintigraphy or stress MR, is what you reach for after CT coronary angiography, not before it.",
+          "It is second-line for a CT that showed disease of uncertain functional significance, or that came back non-diagnostic.",
+          "She has neither: no established disease, and the first-line test not yet done."
+        ],
+        "trap": "The exercise ECG is the other wrong turn, and it is prohibited outright for diagnosing or excluding angina in anyone without known coronary disease. ESC 2024 may choose functional imaging first where clinical likelihood is high, so the ordering here is NICE's rather than universal."
+      },
       "batch": "stable-angina"
     },
     {
@@ -980,30 +996,39 @@
         {
           "text": "A 71-year-old man with a history of coronary stenting five years ago",
           "role": "contributory",
-          "feedback": "Right thread. Established disease is why he is having a functional study rather than a CT, and that decision has been made correctly. The age adds nothing to it."
+          "feedback": "Established coronary disease is why a functional study rather than a CT is correct. That decides the test, not which stress agent is used."
         },
         {
           "text": "presented with six months of chest tightness on climbing stairs, easing after a few minutes' rest.",
           "role": "noise",
-          "feedback": "Why he is being investigated. With disease already established, the character of the pain does not steer the test."
+          "feedback": "With disease already established, the character of the pain does not steer the choice of test."
         },
         {
           "text": "He also has a long history of asthma controlled on regular inhalers.",
           "role": "pivot",
-          "feedback": "One of the three stress agents is not available to him."
+          "feedback": "Asthma is reversible airways disease, and that removes one of the three stress agents from consideration."
         },
         {
           "text": "Hip osteoarthritis limits him to about twenty metres.",
           "role": "contributory",
-          "feedback": "Very close. Someone who cannot reach an adequate workload gives a submaximal, uninterpretable study, so pharmacological stress is right. That chooses the method, not the drug — and there are three of them."
+          "feedback": "He cannot reach an adequate workload, so an exercise study would be uninterpretable and stress must be pharmacological. That chooses the method, not the drug."
         },
         {
           "text": "A myocardial perfusion scan with adenosine stress is planned.",
           "role": "noise",
-          "feedback": "A decision already made, down to the drug."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "Adenosine and dipyridamole are coronary vasodilators and both provoke bronchospasm, so they are contraindicated in significant reversible airways disease — as they are in second- or third-degree atrioventricular block without a pacemaker. NICE lists adenosine, dipyridamole or dobutamine as acceptable stressors for myocardial perfusion scintigraphy, so the guideline supplies its own way out: dobutamine, which raises myocardial oxygen demand by increasing contractility and heart rate rather than redistributing coronary flow. Two decisions sit inside this case and candidates collapse them into one. Inability to exercise is what makes the stress pharmacological; the airway is what chooses which drug. Caffeine within twenty-four hours matters too, but it postpones a scan rather than redesigning it. ESC says the same — this is pharmacology, not pathway policy.",
+      "resolution": {
+        "lead": "Adenosine and dipyridamole are contraindicated in significant reversible airways disease, so the stress agent switches to dobutamine, which NICE lists alongside them for myocardial perfusion scintigraphy.",
+        "points": [
+          "Adenosine and dipyridamole are coronary vasodilators and both provoke bronchospasm.",
+          "They are also contraindicated in second- or third-degree atrioventricular block without a pacemaker.",
+          "Dobutamine works differently: it raises myocardial oxygen demand by increasing contractility and heart rate rather than redistributing coronary flow.",
+          "Inability to exercise is what makes the stress pharmacological; the airway is what chooses which drug."
+        ],
+        "trap": "Caffeine or theophylline within 24 hours matters too, but it postpones the scan rather than redesigning it. ESC says the same as NICE here: this is pharmacology, not pathway policy."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1013,40 +1038,48 @@
         {
           "text": "A 52-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable in this pathway since 2016."
+          "feedback": "Age has not been part of this pathway since 2016 and does not affect the decision."
         },
         {
           "text": "presented with three weeks of sharp left-sided chest pain lasting a few seconds at a time, unrelated to exertion.",
           "role": "contributory",
-          "feedback": "Right thread, and correctly classified: none of the three features, so this is non-anginal chest pain, which usually ends the diagnostic pathway."
+          "feedback": "None of the three features is present, so this is non-anginal chest pain. That usually ends the diagnostic pathway, but not in every case."
         },
         {
           "text": "She has no past medical history.",
           "role": "noise",
-          "feedback": "No established disease, which keeps her out of the known-CAD route. It does not decide whether she needs a pathway at all."
+          "feedback": "No established disease keeps her out of the known-disease route, but it does not decide whether she needs a pathway at all."
         },
         {
           "text": "She has a family history of ischaemic heart disease and a BMI of 31.",
           "role": "noise",
-          "feedback": "Genuine risk factors. Since 2016 the NICE pathway has not used them to select anyone for testing."
+          "feedback": "Family history and a BMI of 31 are genuine risk factors, but the pathway has not used them to select anyone for testing since 2016."
         },
         {
           "text": "The pain is reproduced by pressing over the costochondral junctions.",
           "role": "contributory",
-          "feedback": "Strong support for a musculoskeletal cause, and the reason the plan looks reasonable. But chest wall tenderness and coronary disease can coexist."
+          "feedback": "Reproducible chest wall tenderness supports a musculoskeletal cause and is why the plan looks reasonable. Chest wall tenderness and coronary disease can still coexist."
         },
         {
           "text": "Her resting 12-lead ECG shows ST-segment flattening and T-wave inversion in the lateral leads.",
           "role": "pivot",
-          "feedback": "The one objective finding that overrides the history."
+          "feedback": "Lateral ST-T changes suggest myocardial damage or ischaemia that the history has not declared. This is the one objective finding that overrides the history."
         },
         {
           "text": "Ibuprofen and a muscle relaxant are prescribed, with follow-up with her GP in two days.",
           "role": "noise",
-          "feedback": "A decision already made, and a careful-looking one for the diagnosis it assumes."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "Non-anginal chest pain — none of the three features — normally ends the diagnostic pathway, and musculoskeletal or gastro-oesophageal causes become the sensible place to look. NICE builds in one exception. Where the resting 12-lead ECG shows ST-T changes or pathological Q waves, non-anginal pain is routed back into first-line 64-slice or better CT coronary angiography, because those changes suggest myocardial damage or ischaemia that the history has failed to declare. Reproducible chest wall tenderness supports a musculoskeletal cause without excluding coexisting coronary disease, and her risk factors play no part either way. This rescue is NICE-specific: ESC 2024 routes by clinical likelihood rather than by the resting ECG, so there an abnormal ECG raises suspicion without being the switch that reopens the pathway.",
+      "resolution": {
+        "lead": "NICE ends the diagnostic pathway for non-anginal chest pain, with one exception: a resting ECG showing ST-T changes or pathological Q waves routes the patient into first-line 64-slice or better CT coronary angiography.",
+        "points": [
+          "Non-anginal pain means none of the three features, and musculoskeletal or gastro-oesophageal causes become the sensible place to look.",
+          "The exception exists because those ECG changes suggest myocardial damage or ischaemia that the history has failed to declare.",
+          "Chest wall tenderness supports a musculoskeletal cause without excluding coronary disease alongside it."
+        ],
+        "trap": "This rescue is NICE-specific. ESC 2024 routes by clinical likelihood rather than by the resting ECG, so there an abnormal ECG raises suspicion without being the switch that reopens the pathway."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1056,35 +1089,43 @@
         {
           "text": "A 56-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "presented with central chest tightness on exertion, relieved by rest within two minutes.",
           "role": "pivot",
-          "feedback": "The symptoms are what refuse the label she is being given."
+          "feedback": "All three features are present: constricting discomfort, brought on by exertion, relieved promptly by rest. That is typical angina, whatever the scan shows."
         },
         {
           "text": "She has hypertension and a family history of ischaemic heart disease.",
           "role": "noise",
-          "feedback": "Real risk factors. They neither support nor undermine the diagnosis being made here."
+          "feedback": "Hypertension and family history raise the chance of coronary disease, but they neither support nor undermine the diagnosis being made here."
         },
         {
           "text": "Echocardiography shows normal left ventricular function and no valve disease.",
           "role": "contributory",
-          "feedback": "Right thread, and worth doing — it rules out aortic stenosis and hypertrophic cardiomyopathy, both of which cause exertional angina with clean coronaries. Ruling those out narrows the field without settling it."
+          "feedback": "A normal echocardiogram rules out aortic stenosis and hypertrophic cardiomyopathy, which cause exertional angina with clean coronaries. That narrows the field without settling it."
         },
         {
           "text": "CT coronary angiography shows smooth, unobstructed coronary arteries.",
           "role": "contributory",
-          "feedback": "Right thread, and a genuinely reassuring scan — there is no obstructive epicardial disease and nothing to stent. But it explains what she does not have, not what she does."
+          "feedback": "Unobstructed arteries mean there is no obstructive epicardial disease and nothing to stent. The scan explains what she does not have, not what she does."
         },
         {
           "text": "She is reassured that her arteries are normal and discharged with a diagnosis of non-cardiac chest pain.",
           "role": "noise",
-          "feedback": "A decision already made, and the one the scan appears to license."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "A normal CT coronary angiogram excludes obstructive epicardial disease. It does not explain her symptoms and it does not make them non-cardiac. All three features are present — constricting discomfort, brought on by exertion, relieved promptly by rest — and typical angina with unobstructed coronary arteries is microvascular angina until shown otherwise. The next step is functional imaging, myocardial perfusion scintigraphy or stress MR perfusion, to establish whether the myocardium is actually ischaemic; the diagnosis rests on demonstrating ischaemia, not on the absence of stenosis. ESC 2024 goes further and gives invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries. The outlook is not benign and the treatment is medical. Distinguish it from vasospastic angina, which presents at rest with transient ST elevation rather than on exertion.",
+      "resolution": {
+        "lead": "Typical angina with unobstructed coronary arteries is microvascular angina until shown otherwise, and the next step is functional imaging, either myocardial perfusion scintigraphy or stress MR perfusion.",
+        "points": [
+          "A normal CT coronary angiogram excludes obstructive epicardial disease. It does not explain her symptoms and does not make them non-cardiac.",
+          "The diagnosis rests on demonstrating that the myocardium is ischaemic, not on the absence of stenosis.",
+          "ESC 2024 gives invasive coronary function testing a class I recommendation where angina persists with unobstructed arteries."
+        ],
+        "trap": "Vasospastic angina is the other diagnosis in this territory, and it presents at rest with transient ST elevation rather than on exertion. The outlook in microvascular angina is not benign, and the treatment is medical."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1094,22 +1135,22 @@
         {
           "text": "A 61-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this pathway."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "presented with five months of central chest tightness on exertion, relieved by rest within a few minutes.",
           "role": "contributory",
-          "feedback": "Right thread, and correctly classified — typical angina, which is what put him into the pathway at the right entry point."
+          "feedback": "All three features are present, so this is typical angina. That is the right entry point to the pathway, not what comes next."
         },
         {
           "text": "He has type 2 diabetes and hypertension.",
           "role": "noise",
-          "feedback": "Genuine risk factors, and they raise his chance of disease. They do not decide which test comes next."
+          "feedback": "Type 2 diabetes and hypertension raise his chance of having disease, but they do not decide which test comes next."
         },
         {
           "text": "His coronary artery calcium score is 890.",
           "role": "contributory",
-          "feedback": "Right thread — a score that high is a real marker of risk and predicts exactly the problem that follows. But a number describing burden does not tell you what to do next."
+          "feedback": "890 is a high score and predicts exactly the problem that follows. It measures disease burden without deciding the next step."
         },
         {
           "text": "The CT coronary angiogram is reported as non-diagnostic, the vessels being too heavily calcified to assess.",
@@ -1119,10 +1160,18 @@
         {
           "text": "Invasive coronary angiography is planned.",
           "role": "noise",
-          "feedback": "A decision already made, and the one that feels decisive."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NICE sequences three lines. CT coronary angiography is first. Where it shows disease of uncertain functional significance or comes back non-diagnostic, non-invasive functional imaging is second. Invasive coronary angiography is third, for when functional imaging is inconclusive. A non-diagnostic scan moves him to the second line, not past it. Heavy calcification is the commonest reason a CTCA cannot be read, and a calcium score in the high hundreds warns of it in advance without itself justifying a skipped step. ESC sequences the same way. Going straight to the catheter lab commits him to an arterial procedure to answer a question stress imaging will usually answer without one.",
+      "resolution": {
+        "lead": "NICE sequences three lines: CT coronary angiography, then non-invasive functional imaging where the CT is non-diagnostic or of uncertain functional significance, then invasive angiography where functional imaging is inconclusive.",
+        "points": [
+          "A non-diagnostic scan moves him to the second line, not past it.",
+          "Heavy calcification is the commonest reason a CT coronary angiogram cannot be read.",
+          "A calcium score in the high hundreds warns of that in advance without justifying a skipped step."
+        ],
+        "trap": "Going straight to the catheter lab commits him to an arterial procedure to answer a question stress imaging will usually answer without one. ESC sequences the same way, so this ordering is not NICE's alone."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1132,39 +1181,47 @@
         {
           "text": "A 67-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "presented for review having had one episode of chest tightness in the past three months, on carrying shopping uphill and relieved by rest.",
           "role": "contributory",
-          "feedback": "Right thread — symptom frequency is the measure this turns on. On its own it does not tell you whether anything needs to change."
+          "feedback": "One episode in 3 months is the measure this turns on. Frequency alone does not tell you whether anything needs to change."
         },
         {
           "text": "He takes bisoprolol 10 mg and amlodipine 10 mg daily and uses his GTN spray about once a month.",
           "role": "contributory",
-          "feedback": "Right thread, and worth reading closely: two antianginal agents, both at full dose, and a spray that is barely touched."
+          "feedback": "Two antianginal agents at full dose, a beta-blocker and a dihydropyridine, and a spray barely used. Whether that is enough depends on symptom frequency."
         },
         {
           "text": "He takes atorvastatin 80 mg and attends a smoking cessation clinic.",
           "role": "noise",
-          "feedback": "Secondary prevention, already in hand. Nothing here is being neglected."
+          "feedback": "Secondary prevention is already in hand, and nothing here is being neglected."
         },
         {
           "text": "A CT coronary angiogram six months ago showed a 60% stenosis in the left circumflex artery.",
           "role": "contributory",
-          "feedback": "The tempting one. A stenosis in that range is anatomically real but functionally uncertain, and it was not what put him on treatment."
+          "feedback": "A 60% stenosis is anatomically real but functionally uncertain, and it was not what put him on treatment. Symptoms decide whether treatment changes."
         },
         {
           "text": "The patient is reassured and scheduled for follow-up in three months.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
       "none": {
         "role": "pivot",
-        "feedback": "Restraint is the decision."
+        "feedback": "Nothing in the stem calls for a change. He is controlled on two antianginal drugs, and a third is not indicated."
       },
-      "resolution": "NICE is explicit: do not offer a third antianginal drug to someone whose stable angina is controlled on two. A third is considered only where two have failed to control symptoms and the person is awaiting revascularisation or is unsuitable for it. One episode in three months, with monthly GTN use, on a beta-blocker and a dihydropyridine calcium channel blocker both at full dose, is control. The 60% circumflex stenosis is the trap — anatomically real, functionally uncertain, and not on its own an indication to revascularise a man already controlled on medical therapy; routine invasive management in stable disease has not been shown to reduce ischaemic events, and its symptom benefit falls to those still symptomatic. The statin and the cessation clinic are secondary prevention running correctly alongside. Sometimes the finding that changes management is that there isn't one.",
+      "resolution": {
+        "lead": "NICE is explicit: do not offer a third antianginal drug to someone whose stable angina is controlled on two.",
+        "points": [
+          "A third is considered only where two have failed to control symptoms and the person is awaiting revascularisation or is unsuitable for it.",
+          "One episode in 3 months, with GTN used about once a month, is control.",
+          "He is already on a beta-blocker and a dihydropyridine calcium channel blocker, both at full dose."
+        ],
+        "trap": "The 60% circumflex stenosis is not on its own an indication to revascularise a man controlled on medical therapy. Routine invasive management in stable disease has not been shown to reduce ischaemic events, and its symptom benefit falls to those still symptomatic."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1174,40 +1231,48 @@
         {
           "text": "A 70-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "presented with chest tightness walking to the shops, coming on more often over the past two months.",
           "role": "contributory",
-          "feedback": "Right thread — symptoms worsening on current treatment is what makes a second agent necessary. It settles that something must change, not what."
+          "feedback": "Symptoms worsening on current treatment are why a second agent is needed. That settles that something must change, not what is added."
         },
         {
           "text": "He has taken verapamil 240 mg modified release for two years.",
           "role": "pivot",
-          "feedback": "Which calcium channel blocker he is on decides what can safely join it."
+          "feedback": "Verapamil is a rate-limiting, non-dihydropyridine calcium channel blocker, and which calcium channel blocker he takes decides what can safely be added."
         },
         {
           "text": "He also takes rosuvastatin 20 mg and ramipril 5 mg.",
           "role": "noise",
-          "feedback": "Secondary prevention and blood pressure, both appropriate. Neither is part of this decision."
+          "feedback": "Secondary prevention and blood pressure control are both appropriate, and neither is part of this decision."
         },
         {
           "text": "His heart rate is 64 and blood pressure 128/76.",
           "role": "contributory",
-          "feedback": "Reasonable to check, and on the numbers there is room for a rate-limiting agent. Headroom is necessary before adding one but not sufficient — these describe where he is now, not what happens when two drugs act on the same node."
+          "feedback": "A rate of 64 and a pressure of 128/76 leave room for a rate-limiting agent. Headroom is necessary before adding one, but not sufficient."
         },
         {
           "text": "Echocardiography shows normal left ventricular systolic function.",
           "role": "contributory",
-          "feedback": "Right thread, and it removes one of the three ways this could go wrong. Preserved systolic function makes negative inotropy survivable; it does nothing about the conduction system."
+          "feedback": "Preserved systolic function means a drop in contractile force is survivable, removing one of the three risks. It does nothing for the conduction system."
         },
         {
           "text": "The decision is to add a second-line agent, bisoprolol 2.5 mg daily.",
           "role": "noise",
-          "feedback": "A decision already made, and correctly reasoned as far as it goes — he does need a second agent."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient. He does need a second agent."
         }
       ],
-      "resolution": "NICE states that a calcium channel blocker combined with a beta-blocker must be a dihydropyridine, and this is why. Verapamil and diltiazem are rate-limiting calcium channel blockers, so adding a beta-blocker stacks negative chronotropy, negative dromotropy and negative inotropy onto the same targets — profound bradycardia, complete heart block and decompensated heart failure. A cautious starting dose does not make the combination safe; the interaction is pharmacodynamic, not a matter of titration. The way forward is a long-acting nitrate or nicorandil as the added agent, or switching verapamil to amlodipine so a beta-blocker becomes available. Ivabradine is not the escape it appears — it is contraindicated with verapamil and diltiazem, which inhibit CYP3A4 and slow the heart by a separate mechanism. ESC 2024 dropped the first-line and second-line labelling of antianginals in favour of choosing by haemodynamic profile, but left the combination rule untouched. The normal pulse, normal pressure and normal ejection fraction all suggest headroom. The existing prescription is what removes it.",
+      "resolution": {
+        "lead": "A calcium channel blocker can only be combined with a beta-blocker if it is a dihydropyridine such as amlodipine — so either switch verapamil to amlodipine, or add a long-acting nitrate or nicorandil instead. Adding bisoprolol to verapamil increases the risk of:",
+        "points": [
+          "Profound bradycardia — both drugs slow the heart rate",
+          "Complete heart block — both slow conduction through the AV node",
+          "Decompensated heart failure — both reduce the force of contraction"
+        ],
+        "trap": "He is already on verapamil, a non-dihydropyridine, and adding a beta-blocker to it is contraindicated because of the risk of complete heart block. Ivabradine is not an alternative either — it is also contraindicated with verapamil."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1217,40 +1282,48 @@
         {
           "text": "A 63-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "presented with exertional chest tightness, well controlled for the first month of treatment and returning over the past six weeks.",
           "role": "contributory",
-          "feedback": "Right thread, and the shape of the story matters — treatment that worked and then stopped working points somewhere different from treatment that never worked."
+          "feedback": "Treatment that worked and then stopped working points somewhere different from treatment that never worked. That narrows the cause without identifying it."
         },
         {
           "text": "A beta-blocker was stopped last year for symptomatic bradycardia.",
           "role": "noise",
-          "feedback": "Explains why her options are narrower than usual. It does not explain why the drug she is on has stopped working."
+          "feedback": "This explains why her drug options are narrower than usual, but not why the drug she is taking has stopped working."
         },
         {
           "text": "She takes isosorbide mononitrate 20 mg at 8 am and 8 pm.",
           "role": "pivot",
-          "feedback": "Two doses, twelve hours apart. The timing is the flaw."
+          "feedback": "Two doses 12 hours apart leave no nitrate-free period. The timing of the prescription is the flaw, not the drug."
         },
         {
           "text": "She uses her GTN spray most days and it still relieves the pain within two minutes.",
           "role": "contributory",
-          "feedback": "Right thread, and genuinely useful — a short-acting nitrate still working argues against the coronary disease having progressed. It narrows the cause without fixing it."
+          "feedback": "A short-acting nitrate still relieving the pain within 2 minutes argues against progressive coronary disease. That rules a cause out without fixing one."
         },
         {
           "text": "A recent CT coronary angiogram shows no change from the previous year.",
           "role": "contributory",
-          "feedback": "Right thread. Unchanged anatomy makes progressive stenosis an unlikely explanation, worth establishing before changing drugs. It rules something out rather than pointing at anything."
+          "feedback": "Unchanged anatomy makes progressive stenosis an unlikely explanation, and is worth establishing before changing drugs. It rules something out rather than pointing at anything."
         },
         {
           "text": "Amlodipine is to be added.",
           "role": "noise",
-          "feedback": "A decision already made, and a sensible drug in the abstract."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "Continuous nitrate exposure produces tolerance within about twenty-four hours and the antianginal effect is lost. Dosing standard-release isosorbide mononitrate at 8 am and 8 pm gives even twelve-hour intervals and so no nitrate-free period at all — the regimen manufactures the tolerance it then appears to expose as treatment failure. ESC advises a nitrate-free interval whenever a long-acting nitrate is prescribed; ten to fourteen hours is the figure usually cited, and moving the second dose to early afternoon delivers it overnight. Modified-release once-daily preparations reach the same trough through their own kinetics. That her spray still works and her anatomy is unchanged both point away from progressive disease and towards the prescription. Adding a second agent to a drug that is not being given properly treats the symptom of a dosing error — fix the interval before escalating.",
+      "resolution": {
+        "lead": "Continuous nitrate exposure produces tolerance within about 24 hours, so ESC advises a nitrate-free interval of 10 to 14 hours whenever a long-acting nitrate is prescribed: here, by moving the second dose to early afternoon.",
+        "points": [
+          "Dosing standard-release isosorbide mononitrate at 8 am and 8 pm gives even 12-hour intervals and no nitrate-free period at all.",
+          "The regimen manufactures the tolerance it then appears to expose as treatment failure.",
+          "Modified-release once-daily preparations reach the same trough through their own kinetics."
+        ],
+        "trap": "Amlodipine is a reasonable antianginal drug in the abstract. Adding it here treats the symptom of a dosing error and leaves the error in place; correct the interval before escalating."
+      },
       "batch": "stable-angina"
     },
     {
@@ -1260,35 +1333,43 @@
         {
           "text": "A 61-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this decision. NG28 uses age to define early onset type 2 diabetes, at diagnosis before 40; sixty-one is nowhere near that line."
+          "feedback": "NG28 uses age only to define early onset type 2 diabetes, diagnosed before 40. His age does not affect this decision."
         },
         {
           "text": "was found to have type 2 diabetes at a routine review and has no osmotic symptoms.",
           "role": "contributory",
-          "feedback": "Right thread: this is initial therapy rather than a review of existing treatment, so the question is which regimen to start. How he came to be diagnosed does not pick it."
+          "feedback": "This is initial therapy, so the question is which regimen to start. How he was diagnosed does not select which one."
         },
         {
           "text": "He had an ischaemic stroke three years ago.",
           "role": "pivot",
-          "feedback": "This is the comorbidity the regimen is built around."
+          "feedback": "NG28 counts cerebrovascular disease as atherosclerotic cardiovascular disease. That stream adds subcutaneous semaglutide to modified-release metformin and an SGLT-2 inhibitor."
         },
         {
           "text": "He has never smoked and his mother has type 2 diabetes.",
           "role": "noise",
-          "feedback": "Real risk factors, and neither is a comorbidity NG28 streams on. A family history does not change what he is offered."
+          "feedback": "Both are real risk factors, but neither is a comorbidity NG28 streams on, so neither changes what he is offered."
         },
         {
           "text": "His HbA1c is 61 mmol/mol, his eGFR is 88 ml/min/1.73 m² and his body mass index is 27 kg/m².",
           "role": "contributory",
-          "feedback": "Right line, and worth reading closely: an eGFR of 88 and a body mass index of 27 put him outside the chronic kidney disease and obesity pathways. They exclude two streams without selecting one."
+          "feedback": "An eGFR of 88 and a body mass index of 27 rule out the chronic kidney disease and obesity streams. Neither names the right one."
         },
         {
           "text": "Modified-release metformin and an SGLT-2 inhibitor are planned.",
           "role": "noise",
-          "feedback": "A decision someone has already made. That a regimen is planned is not evidence that it is the right one."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "Modified-release metformin with an SGLT-2 inhibitor is the regimen NG28 offers to adults with no relevant comorbidity, and the guideline defines that term precisely: none of heart failure, atherosclerotic cardiovascular disease, obesity, chronic kidney disease, or frailty. An ischaemic stroke three years ago disqualifies him from it. NG28 lists cerebrovascular disease, including transient ischaemic attack and ischaemic stroke, as atherosclerotic cardiovascular disease alongside coronary artery disease and peripheral arterial disease — so the stroke, not the coronary history he does not have, is what places him in the atherosclerotic cardiovascular disease stream. That stream adds a third agent: subcutaneous semaglutide, up to 1 mg once a week, for its cardiovascular, renal and glycaemic benefits. The HbA1c establishes that he needs treatment but not what it should contain, and the eGFR and body mass index only rule other streams out.",
+      "resolution": {
+        "lead": "NG28 counts an ischaemic stroke as atherosclerotic cardiovascular disease, and that stream adds subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to modified-release metformin and an SGLT-2 inhibitor.",
+        "points": [
+          "Coronary artery disease — myocardial infarction, unstable angina",
+          "Cerebrovascular disease — transient ischaemic attack, ischaemic stroke",
+          "Peripheral arterial disease"
+        ],
+        "trap": "Without the stroke he would have no relevant comorbidity and the planned pairing would be right. The third agent is added for its cardiovascular, renal and glycaemic benefits, so it goes in at initiation rather than waiting for the HbA1c to fall short."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1298,17 +1379,17 @@
         {
           "text": "A 68-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "was diagnosed with type 2 diabetes at a routine review two weeks ago.",
           "role": "noise",
-          "feedback": "This is initial therapy, which is the right frame to be in. It does not tell you what the regimen should contain."
+          "feedback": "This is initial therapy rather than a review of existing treatment, but it does not say what the regimen should contain."
         },
         {
           "text": "She has chronic kidney disease and hypertension, and takes ramipril.",
           "role": "contributory",
-          "feedback": "Right thread. Chronic kidney disease is one of the five comorbidities NG28 streams on, so she is in that pathway. Being in it does not tell you where in it."
+          "feedback": "Chronic kidney disease is one of the comorbidities NG28 streams on, so she is in that pathway. It does not say where in it."
         },
         {
           "text": "She has never smoked and her body mass index is 26 kg/m².",
@@ -1318,24 +1399,32 @@
         {
           "text": "Her eGFR is 32 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "The tempting one, and the reflex it sets off is the wrong one. NG28's renal limit on metformin begins below 30, not at it. Thirty-two sits in the band where metformin is still offered."
+          "feedback": "NG28's renal limit on metformin begins below 30, not at it. 32 sits in the band where modified-release metformin is still offered."
         },
         {
           "text": "Her HbA1c is 64 mmol/mol and her urine albumin-to-creatinine ratio is 12 mg/mmol.",
           "role": "contributory",
-          "feedback": "Worth checking. The albuminuria confirms diabetic kidney disease and the HbA1c establishes that she needs treatment. Neither moves the boundary that picks the regimen."
+          "feedback": "The albuminuria confirms diabetic kidney disease and the HbA1c shows treatment is needed. Neither moves the eGFR boundary that picks the regimen."
         },
         {
           "text": "Modified-release metformin and an SGLT-2 inhibitor are planned.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
       "none": {
         "role": "pivot",
         "feedback": "Reading the number correctly is the decision."
       },
-      "resolution": "NG28 splits its chronic kidney disease recommendations at an eGFR of 30 ml/min/1.73 m². At 30 or more, the offer is modified-release metformin and an SGLT-2 inhibitor — the same pairing given to someone with no relevant comorbidity at all. Only between 20 and under 30 does metformin drop out, the SGLT-2 inhibitor narrow from the whole class to dapagliflozin or empagliflozin specifically, and a DPP-4 inhibitor get added. An eGFR of 32 is in the higher band, by two units. Metformin is the one drug NG28 names an outright renal contraindication for, which is exactly what makes the reflex to withdraw it so strong — but that contraindication begins below 30. The albuminuria confirms diabetic kidney disease without changing which band she is in, and the HbA1c establishes that she needs treatment without selecting it. The planned regimen is already the correct one. NICE amended the wording of both these recommendations in September 2026 to clarify when each of them applies.",
+      "resolution": {
+        "lead": "NG28 splits its chronic kidney disease recommendations at an eGFR of 30 ml/min/1.73 m². At 30 or more it offers modified-release metformin and an SGLT-2 inhibitor, which is what is planned.",
+        "points": [
+          "30 or more: modified-release metformin and an SGLT-2 inhibitor. Hers is 32.",
+          "20 to under 30: dapagliflozin or empagliflozin and a DPP-4 inhibitor. Metformin drops out.",
+          "Under 20: consider a DPP-4 inhibitor."
+        ],
+        "trap": "Changing to dapagliflozin or empagliflozin with a DPP-4 inhibitor would apply the lower band and withdraw a drug she is still entitled to. The wording of both recommendations was amended in September 2026 to clarify exactly when each of them applies."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1345,40 +1434,48 @@
         {
           "text": "An 84-year-old woman",
           "role": "noise",
-          "feedback": "Age is not the criterion. NG28 streams on frailty, and defines it by neither a number nor a named scale — an 84-year-old may or may not be frail."
+          "feedback": "Age is not the criterion — NG28 streams on frailty, which an 84-year-old may or may not have."
         },
         {
           "text": "was diagnosed with type 2 diabetes at a routine review.",
           "role": "noise",
-          "feedback": "Initial therapy, so the question is which regimen to start. How she was found does not pick it."
+          "feedback": "This is initial therapy, so the question is which regimen to start; how she was found does not pick it."
         },
         {
           "text": "She lives alone, uses a stick indoors and had two falls in the past year.",
           "role": "contributory",
-          "feedback": "Right thread. These are what put her in the frailty stream at all. Being frail decides that a question gets asked; it does not answer it."
+          "feedback": "These put her in the frailty stream. Frailty decides that a question about the SGLT-2 inhibitor gets asked, not how it is answered."
         },
         {
           "text": "She takes amlodipine and furosemide.",
           "role": "contributory",
-          "feedback": "Worth reading closely. A loop diuretic and a calcium channel blocker are the drugs that make volume depletion and hypotension more likely. They raise the risk without measuring it."
+          "feedback": "A loop diuretic and a calcium channel blocker make volume depletion and hypotension more likely. They raise the risk without measuring it."
         },
         {
           "text": "She has postural hypotension on examination.",
           "role": "pivot",
-          "feedback": "This is the risk NG28 names, found rather than predicted."
+          "feedback": "This is the adverse event NG28 names, present on examination. The SGLT-2 inhibitor is withheld and the metformin proceeds."
         },
         {
           "text": "Her HbA1c is 58 mmol/mol and her eGFR is 68 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "Right line. The eGFR keeps her clear of the renal thresholds and the HbA1c establishes the need for treatment. Whether her target should be relaxed is a separate question from which drugs she starts."
+          "feedback": "The eGFR is clear of the renal thresholds and the HbA1c shows treatment is needed. Neither decides whether the SGLT-2 inhibitor is safe."
         },
         {
           "text": "Modified-release metformin and an SGLT-2 inhibitor are planned.",
           "role": "noise",
-          "feedback": "A decision someone has already made. That a regimen is planned is not evidence that it is the right one."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "For adults with type 2 diabetes and frailty, NG28 offers modified-release metformin outright but makes the SGLT-2 inhibitor conditional: offer it only if the person's level of frailty does not place them at risk of adverse events from such a medicine. The guideline names the adverse events it means — volume depletion and hypotension. Postural hypotension, in a woman already taking a loop diuretic and a calcium channel blocker, is that risk found rather than predicted. So the metformin proceeds and the SGLT-2 inhibitor does not. Nothing in NG28 defines frailty by a score, which is why this decision rests on a finding: the stick, the falls and the age establish that the question has to be asked, but the postural hypotension is what answers it. Had metformin been contraindicated or not tolerated, the same assessment would have decided between SGLT-2 inhibitor monotherapy and a DPP-4 inhibitor instead.",
+      "resolution": {
+        "lead": "For adults with type 2 diabetes and frailty, NG28 offers modified-release metformin outright but offers an SGLT-2 inhibitor only if the person's level of frailty does not put them at risk of adverse events.",
+        "points": [
+          "The adverse events named are volume depletion and hypotension.",
+          "Postural hypotension on examination is that risk already present, not estimated.",
+          "So the metformin proceeds and the SGLT-2 inhibitor does not."
+        ],
+        "trap": "No score, scale or blood pressure threshold defines frailty here, so the judgment rests on findings like this one. Had metformin been contraindicated or not tolerated, the same assessment would have decided between SGLT-2 inhibitor monotherapy and a DPP-4 inhibitor."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1388,40 +1485,57 @@
         {
           "text": "A 57-year-old man",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed three years ago.",
           "role": "noise",
-          "feedback": "Three years in, on treatment, with the question being what to change. It does not tell you what."
+          "feedback": "He is established on treatment, so the question is what to change; this does not say what."
         },
         {
           "text": "He has taken dapagliflozin since diagnosis.",
           "role": "contributory",
-          "feedback": "Right thread. The SGLT-2 inhibitor is where NG28 expects it, alongside metformin, so the gap in this regimen is not a missing agent."
+          "feedback": "The SGLT-2 inhibitor is where NG28 expects it, alongside metformin, so the gap in this regimen is not a missing agent."
         },
         {
           "text": "He also takes metformin 500 mg twice daily.",
           "role": "pivot",
-          "feedback": "This is not the maximum tolerated dose."
+          "feedback": "1 g a day is not the maximum tolerated dose, and titration above it has not been attempted."
         },
         {
           "text": "He reports no side effects and collects his prescriptions on time.",
           "role": "contributory",
-          "feedback": "Worth reading closely, and it narrows things. NG28 lists adverse effects and adherence among what to optimise before changing treatment. Both are excluded here. One item on that list is not."
+          "feedback": "Adverse effects and adherence are two items on NG28's optimisation list, and both are clear. A third item on that list is not."
         },
         {
           "text": "His HbA1c has risen from 54 to 62 mmol/mol, his eGFR is 84 ml/min/1.73 m² and his body mass index is 29 kg/m².",
           "role": "contributory",
-          "feedback": "Right line. The rise establishes that something must change, and the eGFR and body mass index keep him out of the renal and obesity streams. None of it says what to change."
+          "feedback": "The rise shows something must change. The eGFR and body mass index rule out the renal and obesity streams. Neither says what to change."
         },
         {
           "text": "A DPP-4 inhibitor is to be added.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NG28 is explicit that the current regimen is optimised before treatments are changed, and it lists what optimisation means: adverse effects, prescribed doses and formulations, adherence to and management of existing medicines, and revisiting advice about diet and healthy living. Three of those are already accounted for — he tolerates the drug, he collects it, and the SGLT-2 inhibitor is in place. What is left is the dose. Metformin 500 mg twice daily is a gram a day, and titration above it has not been attempted. NG28 defines the maximum tolerated dose as the highest a person can take without adverse effects: he tolerates what he has, and has never been trialled higher. The guideline makes the same point from the other direction when introducing medicines, adding the next agent as soon as metformin is at the maximum tolerated dose — a step that has not happened here. Adding a DPP-4 inhibitor now treats a rising HbA1c that titration has not yet been allowed to fix. The rise is real and does need answering, but with the drug he is already prescribed.",
+      "resolution": {
+        "lead": "NG28 asks for the current regimen to be optimised before treatments are changed: adverse effects, prescribed doses and formulations, adherence, and advice about diet and healthy living. Titrate the metformin before adding another drug.",
+        "points": [
+          {
+            "text": "Adverse effects — he reports none.",
+            "state": "met"
+          },
+          {
+            "text": "Adherence — he collects his prescriptions on time.",
+            "state": "met"
+          },
+          {
+            "text": "Prescribed dose — metformin 500 mg twice daily, never titrated higher.",
+            "state": "failed"
+          }
+        ],
+        "trap": "A DPP-4 inhibitor is the right next drug for someone with no relevant comorbidity; the error is reaching for it now. Maximum tolerated dose means the highest dose he can take without adverse effects, and 500 mg twice daily has never been tested against that."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1431,40 +1545,48 @@
         {
           "text": "A 49-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed two years ago.",
           "role": "noise",
-          "feedback": "Two years in and on treatment. The question is what to change about it, not whether to treat."
+          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
         },
         {
           "text": "She takes standard-release metformin and empagliflozin.",
           "role": "pivot",
-          "feedback": "There is another preparation of this drug."
+          "feedback": "Standard-release is the preparation NG28 offers to switch, not to abandon: modified-release metformin has not been tried."
         },
         {
           "text": "She has had loose stools since her metformin dose was increased.",
           "role": "contributory",
-          "feedback": "Right thread, and the timing points at the drug rather than a coincidence. It tells you something must change. It does not tell you that metformin must go."
+          "feedback": "The timing points at the drug rather than a coincidence. It shows something must change, not that metformin must go."
         },
         {
           "text": "She has no abdominal pain, blood in the stool or weight loss.",
           "role": "contributory",
-          "feedback": "Worth checking, and it does real work: nothing here points to an organic cause needing investigation. The timing already pointed at the drug; this closes the alternatives off."
+          "feedback": "Nothing here points to an organic cause needing investigation, so the drug remains the explanation. It does not say what to do about it."
         },
         {
           "text": "Her HbA1c is 51 mmol/mol and her eGFR is 91 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "Right line. An HbA1c near target and a normal eGFR mean this is neither a question about adding glycaemic control nor about withdrawing metformin for renal reasons. Tolerability is the only problem in the stem."
+          "feedback": "An HbA1c near target and a normal eGFR rule out adding glycaemic control and withdrawing metformin for renal reasons. Tolerability is the problem left."
         },
         {
           "text": "Metformin is to be stopped and a DPP-4 inhibitor started.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NG28 gives two options for someone already taking standard-release metformin: continue it, or switch to modified-release metformin if the standard-release preparation is not tolerated or if the person prefers it. The preparation she is on is what makes the second option available — it is the reason this is a switch rather than a withdrawal. The loose stools beginning with a dose increase establish the intolerance, and the committee's stated reason for offering the switch names that symptom class directly: people can experience fewer gastrointestinal adverse events with modified-release metformin. Nine recommendations across NG28 do open by routing around metformin when it is contraindicated or not tolerated, each sending you to a different class, and that is what makes stopping the drug feel defensible here. But \"not tolerated\" is a conclusion to reach after the other preparation has been tried, not before it. Her HbA1c is near target, so nothing about her control argues for a new agent, and her renal function gives no reason to withdraw metformin. What she needs is the same drug in a different form.",
+      "resolution": {
+        "lead": "For someone already taking standard-release metformin, NG28 gives two options: continue it, or switch to modified-release metformin if the standard-release preparation is not tolerated or the person prefers it.",
+        "points": [
+          "Standard-release metformin is the preparation she is on, so a switch is available.",
+          "People can experience fewer gastrointestinal adverse events with modified-release metformin.",
+          "Not tolerated is a conclusion to reach after the other preparation has been tried, not before."
+        ],
+        "trap": "Nine recommendations open by routing around metformin when it is contraindicated or not tolerated, each to a different class, which is what makes stopping it look defensible. Losing metformin here costs a drug she tolerates in another form."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1474,40 +1596,48 @@
         {
           "text": "A 54-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed six years ago.",
           "role": "noise",
-          "feedback": "Six years in and on treatment. The question is what to change about it."
+          "feedback": "She is established on treatment, so the question is what to change about it."
         },
         {
           "text": "She takes metformin, empagliflozin and semaglutide.",
           "role": "contributory",
-          "feedback": "Worth reading closely. Three drugs, and NG28 attaches a stopping rule at low weight to only one of them."
+          "feedback": "NG28 attaches a stopping rule at low weight to one of these three drugs and not to the other two."
         },
         {
           "text": "She has lost 14 kg over the year since semaglutide was started and is pleased with the result.",
           "role": "contributory",
-          "feedback": "The tempting reading, and it is why the number gets walked past. Weight loss is what this drug is for, and a patient pleased with it is not a warning sign. Whether it has gone too far is not something the history can answer."
+          "feedback": "Weight loss is what this drug is for, so a good result is no warning. The history cannot say whether it has gone too far."
         },
         {
           "text": "Her body mass index is 18.1 kg/m².",
           "role": "pivot",
-          "feedback": "This number has a rule attached to it."
+          "feedback": "Below 18.5 kg/m² is underweight, and NG28 attaches an unconditional stop to that number for a GLP-1 receptor agonist."
         },
         {
           "text": "Her HbA1c is 46 mmol/mol and her eGFR is 79 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "Right line. The HbA1c is at target and renal function is preserved, so neither is forcing a change. A good HbA1c is not a reason to keep a drug that has a stopping rule."
+          "feedback": "The HbA1c is at target and renal function is preserved, so neither forces a change. Good control does not override a stopping rule."
         },
         {
           "text": "She is well controlled and is to be followed up in six months.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. That she is controlled and content is a reason to change nothing about her glucose, which is a different question."
+          "feedback": "This is the plan you are being asked to judge. That she is controlled is a reason to change nothing about her glucose."
         }
       ],
-      "resolution": "NG28 attaches an unconditional instruction to a single number: stop GLP-1 receptor agonists or tirzepatide if the person becomes underweight, which it defines as a body mass index below 18.5 kg/m². Hers is 18.1. Everything else in the stem reads as success — fourteen kilograms lost on a drug prescribed in part to achieve exactly that, a patient satisfied with the result, an HbA1c at target, preserved renal function — and that is what makes the threshold easy to walk past. The section this sits in is otherwise built on judgment: continuing an SGLT-2 inhibitor for benefits that cannot be measured by tests, weighing whether a GLP-1 receptor agonist is doing cardiovascular work before stopping it. This recommendation is the exception and carries the only hard threshold among them, written without conditions of any kind. Being at target is a reason to change nothing about her glucose, not a reason to keep a drug that has a stopping rule of its own. The metformin and the empagliflozin carry no such rule and are not what the instruction touches. The weight loss is the reason to look at the number; the number is the reason to act.",
+      "resolution": {
+        "lead": "NG28 says to stop a GLP-1 receptor agonist or tirzepatide if the person becomes underweight, which it defines as a body mass index below 18.5 kg/m². Hers is 18.1, so the semaglutide stops.",
+        "points": [
+          "Semaglutide is the only one of her three drugs the rule reaches; metformin and empagliflozin continue.",
+          "The instruction carries no conditions: benefit, satisfaction and glycaemic control do not enter it.",
+          "The weight loss is the reason to look at the number; the number is the reason to act."
+        ],
+        "trap": "Elsewhere in this section the decision turns on why a drug is there — an SGLT-2 inhibitor continues for cardiovascular or renal benefit, a GLP-1 receptor agonist stops only if it is not working and has no cardiovascular indication. This rule is the exception."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1517,44 +1647,57 @@
         {
           "text": "A 58-year-old man",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed five years ago.",
           "role": "noise",
-          "feedback": "Five years in and on treatment. The question is what to change about it."
+          "feedback": "He is established on treatment, so the question is what to change about it."
         },
         {
           "text": "He has no past medical history.",
           "role": "contributory",
-          "feedback": "Right thread, and it does the decisive work quietly: with no cardiovascular disease there is no indication protecting the dulaglutide from a stopping rule. It supports the plan rather than overturning it."
+          "feedback": "With no cardiovascular disease, nothing indicates the dulaglutide beyond glucose. That is one of two conditions met — one left to check."
         },
         {
           "text": "He takes metformin, dapagliflozin and dulaglutide for one year.",
           "role": "contributory",
-          "feedback": "Worth reading closely. A year is long enough to judge the drug, and NG28's stopping rules do not treat these three alike."
+          "feedback": "A year is long enough to judge the drug, and NG28's stopping rules do not treat these three alike."
         },
         {
           "text": "His body mass index is 33 kg/m².",
           "role": "contributory",
-          "feedback": "Right line. Obesity is why a GLP-1 receptor agonist was reasonable to start, and it decides which stream he is in now. It does not protect a drug that is not working."
+          "feedback": "Obesity is why a GLP-1 receptor agonist was started and sets what comes next. It does not protect a drug that is not working."
         },
         {
           "text": "His HbA1c is 67 mmol/mol and his eGFR is 86 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "The tempting one. An HbA1c well above target says something must change — and something is changing."
+          "feedback": "An HbA1c well above target means the dulaglutide has not worked. That is one of two conditions met — one left to check."
         },
         {
           "text": "Dulaglutide is to be stopped and a DPP-4 inhibitor added.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
       "none": {
         "role": "pivot",
         "feedback": "The plan is already right."
       },
-      "resolution": "NG28 says to stop GLP-1 receptor agonists or tirzepatide if they do not help the person reach their individualised glycaemic targets and they are not being taken for their cardiovascular benefits. Both conditions hold. A year on dulaglutide with an HbA1c of 67 mmol/mol is glycaemic failure, and with no past medical history there is no cardiovascular indication to protect it — had he infarcted, the same HbA1c would have argued for keeping the drug. What follows is set by the stream he is in. For someone living with obesity in whom a GLP-1 receptor agonist has not been effective, NG28 offers a DPP-4 inhibitor next, reaching for a sulfonylurea, pioglitazone or an insulin-based treatment only if that in turn is contraindicated, not tolerated or not effective. Stopping the dulaglutide before the DPP-4 inhibitor goes in also keeps the regimen clear of the one combination NG28 prohibits outright. Nothing in the stem overturns any of that.",
+      "resolution": {
+        "lead": "NG28 says to stop a GLP-1 receptor agonist or tirzepatide if it is not helping the person reach their glycaemic target and is not being taken for its cardiovascular benefits; for someone living with obesity, a DPP-4 inhibitor is offered next.",
+        "points": [
+          {
+            "text": "Not reaching target — a year on dulaglutide, HbA1c 67 mmol/mol.",
+            "state": "met"
+          },
+          {
+            "text": "No cardiovascular benefit to protect it — no past medical history.",
+            "state": "met"
+          }
+        ],
+        "trap": "Had he infarcted, the same HbA1c would have argued for keeping the drug. A sulfonylurea, pioglitazone or an insulin-based treatment come only if the DPP-4 inhibitor is contraindicated, not tolerated or not effective, and stopping the dulaglutide first keeps him clear of the one combination the guideline prohibits outright."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1564,35 +1707,52 @@
         {
           "text": "A 52-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed five years ago.",
           "role": "noise",
-          "feedback": "Five years in and on treatment, so the question is what to add. It does not tell you what."
+          "feedback": "He is established on treatment, so the question is what to add; this does not say what."
         },
         {
           "text": "He takes modified-release metformin, sitagliptin and dapagliflozin, all at the maximum tolerated dose.",
           "role": "pivot",
-          "feedback": "One of these three cannot stand beside what is planned."
+          "feedback": "Sitagliptin is a DPP-4 inhibitor, and NG28 does not allow it alongside a GLP-1 receptor agonist or tirzepatide."
         },
         {
           "text": "His body mass index is 34 kg/m² and he has no cardiovascular or renal disease.",
           "role": "contributory",
-          "feedback": "Worth reading closely. A body mass index of 34 puts him in the obesity stream, and the absence of cardiovascular and renal disease keeps him out of the streams that name a specific drug. That settles which options exist, not whether the one chosen is allowed."
+          "feedback": "A body mass index of 34 puts him in the obesity stream, with no cardiovascular or renal disease to override it. That settles the options."
         },
         {
           "text": "His HbA1c is 69 mmol/mol and his eGFR is 82 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "Right line. The HbA1c establishes that further medicines are needed, which is a precondition for adding anything at all, and the eGFR keeps the renal thresholds out of it. Neither picks the medicine."
+          "feedback": "An HbA1c of 69 mmol/mol shows further medicines are needed, which is a precondition for adding anything. The eGFR raises no obstacle."
         },
         {
           "text": "The plan is to start tirzepatide.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NG28 carries one outright prohibition among its medicine recommendations: do not offer both a GLP-1 receptor agonist or tirzepatide and a DPP-4 inhibitor together to treat type 2 diabetes. Everything else about this plan follows the guideline. For an adult living with obesity, NG28 considers adding a GLP-1 receptor agonist or tirzepatide if they have been on initial therapy for at least 3 months, further medicines are needed to reach their glycaemic targets, and they are not already taking one of these drugs — and all three hold. Five years since diagnosis and long established on initial therapy, an HbA1c of 69 mmol/mol, and no GLP-1 receptor agonist or tirzepatide anywhere in the regimen. The obstacle is not in that recommendation at all. It is the sitagliptin sitting third in that list, which is a DPP-4 inhibitor, and it is why tirzepatide cannot simply be started alongside: the DPP-4 inhibitor comes out as the tirzepatide goes in. NG28 gives no reason anywhere for the prohibition — it is stated and never explained, so it is a fact to hold rather than one to derive. The guideline does route around it consistently: for someone already taking a GLP-1 receptor agonist or tirzepatide who needs more, it offers a sulfonylurea, pioglitazone or an insulin-based treatment, and pointedly not a DPP-4 inhibitor. That is the same prohibition seen from the other side.",
+      "resolution": {
+        "lead": "NG28 carries one outright prohibition: never a GLP-1 receptor agonist or tirzepatide together with a DPP-4 inhibitor. Sitagliptin is a DPP-4 inhibitor, so it comes out as the tirzepatide goes in.",
+        "points": [
+          {
+            "text": "At least 3 months on initial therapy. He is 5 years in.",
+            "state": "met"
+          },
+          {
+            "text": "Further medicine needed to reach his glycaemic target. His HbA1c is 69.",
+            "state": "met"
+          },
+          {
+            "text": "Not already taking one of these drugs.",
+            "state": "met"
+          }
+        ],
+        "trap": "No reason for the prohibition is given anywhere — it is stated and never explained, so it is a fact to hold rather than derive. The guideline routes around it consistently: someone already taking one of these drugs is offered a sulfonylurea, pioglitazone or an insulin-based treatment, and never a DPP-4 inhibitor."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1602,22 +1762,22 @@
         {
           "text": "A 64-year-old woman",
           "role": "noise",
-          "feedback": "Sixty-four does not select anything in this pathway."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed four years ago.",
           "role": "noise",
-          "feedback": "The frame is right — she is established on treatment and the question is what to change about it — but it does not say what."
+          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
         },
         {
           "text": "She had a non-ST-elevation myocardial infarction six weeks ago.",
           "role": "pivot",
-          "feedback": "This changed which pathway she is on, after the fact."
+          "feedback": "A myocardial infarction is atherosclerotic cardiovascular disease, and developing it after starting treatment adds subcutaneous semaglutide to the regimen."
         },
         {
           "text": "She takes modified-release metformin and empagliflozin.",
           "role": "contributory",
-          "feedback": "Right thread. This is the pairing NG28 offers an adult with no relevant comorbidity, and it was the correct regimen when it was started. What matters is that it is a base something can be added to, not that it is wrong."
+          "feedback": "This is the pairing NG28 offers an adult with no relevant comorbidity, and it was correct when started. It is a base to add to."
         },
         {
           "text": "Her blood pressure is 128/76 mmHg and she has never smoked.",
@@ -1627,15 +1787,23 @@
         {
           "text": "Her HbA1c is 42 mmol/mol and her eGFR is 76 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "The tempting one, and it points away from the answer. An HbA1c of 42 is below target and the eGFR raises no obstacle, so nothing here argues for more glucose lowering. Read on its own, it suggests the regimen needs nothing."
+          "feedback": "An HbA1c of 42 is below target and the eGFR raises no obstacle, so nothing here argues for more glucose lowering."
         },
         {
           "text": "Regular follow-up in three months is planned.",
           "role": "noise",
-          "feedback": "A plan, not a finding. Booking a review is not the same as establishing that nothing is due before it."
+          "feedback": "This is the plan you are being asked to judge. Booking a review does not establish that nothing is due before it."
         }
       ],
-      "resolution": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, to their current treatment, for its cardiovascular and renal benefits. An infarct six weeks ago is that development, and the recommendation exists precisely because the comorbidity streams are decided at initiation and events do not wait for them. The addition is not glycaemic. Her HbA1c is 42 mmol/mol, below target, and NG28 asks for the drug anyway, naming cardiovascular and renal benefit as the reason. That is what separates this from the sibling recommendation, which fires when someone with established atherosclerotic cardiovascular disease needs further medicines to reach their glycaemic targets and routes instead to a sulfonylurea, pioglitazone or an insulin-based treatment. Two triggers, and they must not be blurred: an event, or a shortfall. Here it is the event, so it is semaglutide and not a sulfonylurea. Had she arrived with this history at diagnosis, all three drugs would have been offered from the outset — this is the same regimen reached late.",
+      "resolution": {
+        "lead": "If an adult with type 2 diabetes develops atherosclerotic cardiovascular disease after starting initial treatment, NG28 offers to add subcutaneous semaglutide (Ozempic), up to 1 mg once a week, for its cardiovascular and renal benefits.",
+        "points": [
+          "The addition is not glycaemic: her HbA1c is 42 mmol/mol, below target, and the drug is offered anyway.",
+          "The sibling recommendation fires on a glycaemic shortfall instead, and routes to a sulfonylurea, pioglitazone or an insulin-based treatment.",
+          "Two triggers, an event or a shortfall. Here it is the event."
+        ],
+        "trap": "Had she arrived with this history at diagnosis, all three drugs would have been offered from the outset — this is the same regimen reached late. The comorbidity streams are decided at initiation, and events do not wait for them."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1645,40 +1813,57 @@
         {
           "text": "A 47-year-old man",
           "role": "noise",
-          "feedback": "Not a variable in this decision."
+          "feedback": "His age does not affect this decision."
         },
         {
           "text": "was diagnosed with type 2 diabetes six weeks ago.",
           "role": "pivot",
-          "feedback": "There is a waiting period, and this is inside it."
+          "feedback": "6 weeks is short of the 3 months NG28 asks for before this class of drug is considered."
         },
         {
           "text": "He started modified-release metformin and then empagliflozin, and both are at the maximum tolerated dose.",
           "role": "contributory",
-          "feedback": "Right thread, and the sequence is the one NG28 asks for: metformin first, the SGLT-2 inhibitor added once metformin is at its maximum tolerated dose. That step is done and is not what is outstanding."
+          "feedback": "Metformin first, then the SGLT-2 inhibitor at metformin's maximum tolerated dose, is the sequence NG28 asks for. That step is done; another is not."
         },
         {
           "text": "He has had no side effects and has not missed a dose.",
           "role": "contributory",
-          "feedback": "Worth checking, and it removes the obvious alternative. Adverse effects and adherence are two of the things NG28 asks you to optimise before changing treatment, and neither is in play. That is what makes escalation feel like the only move left."
+          "feedback": "Adverse effects and adherence are two things NG28 asks you to optimise before changing treatment; neither is in play. That removes the obvious alternative."
         },
         {
           "text": "His body mass index is 36 kg/m².",
           "role": "contributory",
-          "feedback": "Right line. Obesity is the stream he is in, and it is why this class of drug is on the table at all. It does not settle whether he has reached the point of using it."
+          "feedback": "Obesity is why this class of drug is on the table. It does not settle whether he has reached the point of using it."
         },
         {
           "text": "His HbA1c was 88 mmol/mol at diagnosis and is 71 mmol/mol today.",
           "role": "contributory",
-          "feedback": "The tempting one, and it repays reading as a pair rather than a number. Seventy-one is well above target and demands that something be done — but it has fallen seventeen points, which is what a regimen still working looks like."
+          "feedback": "71 is well above target and demands action, but it has fallen 17 points, which is what a regimen still working looks like."
         },
         {
           "text": "Tirzepatide has been started.",
           "role": "noise",
-          "feedback": "An action already taken, not a finding about the patient. That it has been started is not evidence that it should have been."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NG28 considers adding a GLP-1 receptor agonist or tirzepatide for adults living with obesity on three conditions, and all three have to hold at once: they have been taking initial therapy for at least 3 months, further medicines are needed to reach their individualised glycaemic targets, and they are not already taking one of these drugs. Two are satisfied. The first is not — he is six weeks in. It is the only duration threshold in the whole selection, and it is there because initial therapy has not yet finished doing its work: 88 to 71 mmol/mol in six weeks is a regimen still moving. Adding a drug now escalates a decision that has not been made, and makes it impossible to say afterwards which drug produced the result. The pull in the other direction is real and worth naming. NG28 does say to intensify medicines when HbA1c is not adequately controlled by the initial regimen and rises to 58 mmol/mol or higher — but not adequately controlled is a verdict on a regimen that has had its time, and his is falling steeply on treatment only weeks old. Nor is this the sequencing rule about starting the next agent as soon as the previous one reaches its maximum tolerated dose: that rule governs building the initial regimen, which is already built. What is owed here is the rest of the three months and a repeat HbA1c at the end of it.",
+      "resolution": {
+        "lead": "NG28 considers a GLP-1 receptor agonist or tirzepatide for obesity only if all three of these hold at once; here the answer is to complete the 3 months on initial therapy and repeat the HbA1c.",
+        "points": [
+          {
+            "text": "At least 3 months on initial therapy. He is 6 weeks in.",
+            "state": "failed"
+          },
+          {
+            "text": "Further medicine needed to reach his glycaemic target. His HbA1c is 71.",
+            "state": "met"
+          },
+          {
+            "text": "Not already taking one of these drugs.",
+            "state": "met"
+          }
+        ],
+        "trap": "The guideline does say to intensify medicines when HbA1c is not adequately controlled by the initial regimen and reaches 58 mmol/mol or higher, but that verdict belongs to a regimen that has had its time. The sequencing rule about maximum tolerated dose governs building the initial regimen, which is already built."
+      },
       "batch": "type-2-diabetes"
     },
     {
@@ -1688,40 +1873,57 @@
         {
           "text": "A 56-year-old woman",
           "role": "noise",
-          "feedback": "Not a variable here."
+          "feedback": "Her age does not affect this decision."
         },
         {
           "text": "attends for review of type 2 diabetes diagnosed three years ago.",
           "role": "noise",
-          "feedback": "Three years in and on treatment. The question is what to change about it, not whether to treat."
+          "feedback": "She is established on treatment, so the question is what to change about it, not whether to treat."
         },
         {
           "text": "She has taken modified-release metformin and dapagliflozin for two years.",
           "role": "contributory",
-          "feedback": "Right thread. Two years is well past the three months NG28 asks for before this class of drug is considered, so nothing about the timing stands in the way. That is one condition met, and there are three."
+          "feedback": "Two years on treatment is well over the 3 months NG28 asks for. That is one of three conditions met — two left to check."
         },
         {
           "text": "Her body mass index is 37 kg/m² and she has gained 4 kg over the past year.",
           "role": "contributory",
-          "feedback": "The tempting one. Obesity is the stream she is in, and four kilograms gained is what a drug like this looks built to answer. Whether it can be prescribed for that reason is a different question from whether her diabetes needs it."
+          "feedback": "Her weight is the strongest reason to want this drug. But NG28 only allows it here if her HbA1c is not controlled."
         },
         {
           "text": "She has no cardiovascular or renal disease and her eGFR is 88 ml/min/1.73 m².",
           "role": "contributory",
-          "feedback": "Right line, and it does real work by exclusion. No cardiovascular disease and no renal impairment means none of the streams that would name a particular drug applies. It leaves her in the obesity pathway without saying what that pathway calls for."
+          "feedback": "No cardiovascular disease and no renal impairment rule out the streams that name a particular drug, leaving her in the obesity pathway."
         },
         {
           "text": "Her HbA1c is 46 mmol/mol.",
           "role": "contributory",
-          "feedback": "Right line, and it is the strongest single reason to leave things alone. Forty-six is inside the target NG28 supports for a regimen not associated with hypoglycaemia. It tells you her glucose does not need another drug; it does not, on its own, settle what to do about the weight."
+          "feedback": "46 is below the 48 target for a regimen that does not cause hypoglycaemia. She does not need another drug."
         },
         {
           "text": "The decision is to continue her current regimen.",
           "role": "noise",
-          "feedback": "This is the plan, not a finding about the patient. Judging it is what you are being asked to do."
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
       ],
-      "resolution": "NG28 considers adding a GLP-1 receptor agonist or tirzepatide for adults living with obesity only if three things are true together: at least 3 months on initial therapy, further medicines needed to reach their individualised glycaemic targets, and not already taking one of these drugs. The first and third hold. The second does not. For someone whose regimen is not associated with hypoglycaemia — modified-release metformin and an SGLT-2 inhibitor are exactly that — NG28 supports aiming for an HbA1c of 48 mmol/mol, and hers is 46. No further medicine is needed to reach her glycaemic target because she is already inside it, so nothing about her diabetes control calls for a change. The weight is the genuine pull, and it is the part this recommendation does not answer: NG28 sends prescribing aimed primarily at weight management out to NICE's guideline on overweight and obesity management rather than settling it here. Four kilograms gained is worth addressing, and reaching for tirzepatide as a diabetes medicine is not how NG28 addresses it. The guideline points the same way from the other side, considering that medicines which got someone to their individualised target be continued. So the regimen stands. The discomfort in this one is that a drug which would very likely help on both counts is being left on the shelf — but whether it would work is not the test the guideline sets, and the condition that would license it is not met.",
+      "resolution": {
+        "lead": "NG28 only considers a GLP-1 receptor agonist or tirzepatide for obesity if all three of these hold at once:",
+        "points": [
+          {
+            "text": "At least 3 months on initial therapy. She is two years in.",
+            "state": "met"
+          },
+          {
+            "text": "Further medicine needed to reach her glycaemic target. Her HbA1c is 46, and target is 48.",
+            "state": "failed"
+          },
+          {
+            "text": "Not already taking one of these drugs.",
+            "state": "met"
+          }
+        ],
+        "trap": "NG28 sends prescribing aimed primarily at weight out to its obesity guideline — it is not a diabetes indication. The 4 kg gain is worth addressing, but not with this drug."
+      },
       "batch": "type-2-diabetes",
       "none": {
         "role": "pivot",
