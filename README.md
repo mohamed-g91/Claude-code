@@ -157,6 +157,16 @@ It rejects anything unshippable — a case with no pivot (unwinnable), two pivot
 unknown role, a duplicate id — and warns if the pivot sits in the same position
 too often, which teaches position rather than reasoning.
 
+Two style guides govern the writing, and the validator enforces what it can of
+them: [`docs/stem-style.md`](docs/stem-style.md) for the half of a case read
+before answering, [`docs/explanation-style.md`](docs/explanation-style.md) for
+the feedback and resolution read after. The second exists because batch 02
+shipped without it and reached 243-word resolutions, which candidates from both
+batches told us were too long and too clever. A `resolution` is now either a
+plain string or a rule sentence, two to four bullets and a closing paragraph;
+its word budgets are warnings, not gates, so a genuinely tangled case can still
+ship.
+
 > **Write cases originally.** Do not lift stems from PassMedicine, Pastest or
 > any other commercial bank. Using their content in anything distributed or
 > sold is copyright infringement. Published exam blueprints and topic
