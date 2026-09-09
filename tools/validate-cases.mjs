@@ -18,8 +18,80 @@ const target = process.argv[2]
 const errors = [];
 const warnings = [];
 const fail = (where, msg) => errors.push(`${where}: ${msg}`);
+const budget = (where, what, count, max) => {
+  if (count > max) {
+    warnings.push(`${where}: ${what} is ${count} words (budget ${max})`);
+  }
+};
 
 const isFilled = (v) => typeof v === "string" && v.trim().length > 0;
+const wordCount = (v) => v.trim().split(/\s+/).length;
+
+// Budgets, not limits: candidates said the old paragraph-long resolutions were
+// too much to read, but a genuinely tangled case is allowed to need the words,
+// so going over is a warning the author can weigh rather than a gate.
+const BUDGET = { lead: 45, point: 25, trap: 55, total: 130, feedback: 25 };
+const STATES = ["met", "failed"];
+
+// `resolution` is either one paragraph (the cases written before the split) or
+// the structured lead/points/trap form, and both ship from this one file --
+// so a shape that is neither has to be caught here rather than rendering as a
+// blank panel after the learner has already solved the case.
+function checkResolution(where, r) {
+  if (isFilled(r)) {
+    budget(where, "resolution", wordCount(r), BUDGET.total);
+    return;
+  }
+  if (r === null || typeof r !== "object" || Array.isArray(r)) {
+    fail(where, "missing `resolution`");
+    return;
+  }
+
+  let total = 0;
+
+  if (!isFilled(r.lead)) fail(`${where} resolution`, "missing `lead`");
+  else {
+    total += wordCount(r.lead);
+    budget(where, "resolution lead", wordCount(r.lead), BUDGET.lead);
+  }
+
+  if (!Array.isArray(r.points)) {
+    fail(`${where} resolution`, "`points` must be an array");
+  } else {
+    // Fewer than two and there is nothing to compare; more than four and the
+    // list is back to being a wall of text with bullets in front of it.
+    if (r.points.length < 2 || r.points.length > 4) {
+      fail(
+        `${where} resolution`,
+        `\`points\` must have 2-4 entries, got ${r.points.length}`
+      );
+    }
+    r.points.forEach((point, k) => {
+      const pw = `${where} resolution point[${k}]`;
+      const text = typeof point === "string" ? point : point?.text;
+      if (!isFilled(text)) {
+        fail(pw, "must be a non-empty string or an object with a filled `text`");
+        return;
+      }
+      total += wordCount(text);
+      budget(where, `resolution point[${k}]`, wordCount(text), BUDGET.point);
+      // `state` is optional: plenty of cases turn on no met/not-met axis at
+      // all. A misspelt one is not, since it renders as no chip at all.
+      const state = typeof point === "object" ? point.state : undefined;
+      if (state !== undefined && !STATES.includes(state)) {
+        fail(pw, `state must be one of ${STATES.join(" | ")}, got ${JSON.stringify(state)}`);
+      }
+    });
+  }
+
+  if (!isFilled(r.trap)) fail(`${where} resolution`, "missing `trap`");
+  else {
+    total += wordCount(r.trap);
+    budget(where, "resolution trap", wordCount(r.trap), BUDGET.trap);
+  }
+
+  budget(where, "resolution", total, BUDGET.total);
+}
 
 let data;
 try {
@@ -49,7 +121,7 @@ data.cases.forEach((c, i) => {
   else seenIds.add(c.id);
 
   if (!isFilled(c.topic)) fail(where, "missing `topic`");
-  if (!isFilled(c.resolution)) fail(where, "missing `resolution`");
+  checkResolution(where, c.resolution);
 
   if (!Array.isArray(c.clauses) || c.clauses.length < 2) {
     fail(where, "`clauses` must be an array of at least 2 entries");
@@ -61,6 +133,7 @@ data.cases.forEach((c, i) => {
     const cw = `${where} clause[${j}]`;
     if (!isFilled(clause?.text)) fail(cw, "missing `text`");
     if (!isFilled(clause?.feedback)) fail(cw, "missing `feedback`");
+    else budget(where, `clause[${j}] feedback`, wordCount(clause.feedback), BUDGET.feedback);
     if (!ROLES.includes(clause?.role)) {
       fail(cw, `role must be one of ${ROLES.join(" | ")}, got ${JSON.stringify(clause?.role)}`);
     }

@@ -396,6 +396,132 @@ check("works with localStorage blocked", survives === 5, `${survives} clauses`);
 check("no console/page errors", consoleErrors.length === 0, consoleErrors.join(" | "));
 check("no failed requests", badResponses.length === 0, badResponses.join(" | "));
 
+// --- the structured resolution renders as three separate beats ---
+// A resolution is either one paragraph (the older cases) or
+// { lead, points, trap }, and both shapes ship from the same file. Only the
+// structure is asserted here -- which elements exist and how many -- because
+// the copy of any individual case is still being rewritten, and a test pinned
+// to its wording would fail on an edit rather than on a bug.
+//
+// The case is found in the data rather than named, for the same reason the
+// deck size is: retagging or reordering must not break the suite. When no case
+// carries the structured shape yet, a synthetic one is injected into the served
+// cases.json -- an assertion that quietly passes because it found nothing to
+// assert on is not coverage.
+const SYNTHETIC_RESOLUTION = {
+  lead: "This case turns on all of the following holding at once:",
+  points: [
+    { text: "A criterion this patient satisfies.", state: "met" },
+    { text: "A criterion this patient does not.", state: "failed" },
+    "A criterion with no met/not-met axis, written as a bare string.",
+  ],
+  trap: "What pulls a candidate the other way, and why it does not decide it.",
+};
+const STATE_LABEL = { met: "met", failed: "not met" };
+
+const structuredIndex = CASES.findIndex(
+  (c) => c.resolution !== null && typeof c.resolution === "object");
+const structuredCase = structuredIndex >= 0
+  ? CASES[structuredIndex]
+  : { ...CASES[0], resolution: SYNTHETIC_RESOLUTION };
+const structuredAt = structuredIndex >= 0 ? structuredIndex : 0;
+const expectedPoints = structuredCase.resolution.points;
+const expectedChips = expectedPoints
+  .filter((p) => p && typeof p === "object" && STATE_LABEL[p.state])
+  .map((p) => STATE_LABEL[p.state]);
+
+const resCtx = await browser.newContext({ viewport: { width: 360, height: 740 } });
+const resPage = await resCtx.newPage();
+const resErrors = [];
+resPage.on("pageerror", (e) => resErrors.push(String(e)));
+resPage.on("console", (m) => { if (m.type() === "error") resErrors.push(m.text()); });
+if (structuredIndex < 0) {
+  await resPage.route("**/cases.json", async (route) => {
+    const deck = JSON.parse(readFileSync(
+      join(import.meta.dirname, "..", "src", "cases.json"), "utf8"));
+    deck.cases[0] = { ...deck.cases[0], resolution: SYNTHETIC_RESOLUTION };
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify(deck),
+    });
+  });
+}
+await resPage.goto(URL);
+await resPage.waitForSelector(".clause");
+await resPage.locator(".nav-item").nth(structuredAt).click();
+await resPage.waitForFunction(
+  (n) => document.getElementById("meta").textContent.includes(`${n} of `),
+  structuredAt + 1);
+
+const structuredPivot = structuredCase.clauses.findIndex((c) => c.role === "pivot");
+if (structuredPivot === -1) {
+  await resPage.locator("#noneOption").click();
+} else {
+  await resPage.locator(".clause").nth(structuredPivot).click();
+}
+
+const parts = await resPage.evaluate(() => {
+  const box = document.getElementById("resolution");
+  const text = (e) => (e?.textContent ?? "").trim();
+  return {
+    heading: text(box.querySelector("h2")),
+    leads: box.querySelectorAll("p.res-lead").length,
+    lead: text(box.querySelector("p.res-lead")),
+    lists: box.querySelectorAll("ul.res-points").length,
+    items: box.querySelectorAll("ul.res-points > li").length,
+    chips: [...box.querySelectorAll("li .res-state")].map(text),
+    traps: box.querySelectorAll("p.res-trap").length,
+    trap: text(box.querySelector("p.res-trap")),
+    // The whole point of the split: no single run of prose swallows the lot.
+    strayParagraphs: box.querySelectorAll("p:not(.res-lead):not(.res-trap)").length,
+  };
+});
+
+check(
+  "structured resolution keeps the heading",
+  parts.heading === "Why it turns on that finding",
+  parts.heading
+);
+check(
+  "structured resolution renders one lead paragraph",
+  parts.leads === 1 && parts.lead.length > 0,
+  `${parts.leads} lead(s), "${parts.lead.slice(0, 40)}"`
+);
+check(
+  "structured resolution renders one bullet per point",
+  parts.lists === 1 && parts.items === expectedPoints.length,
+  `${parts.items} items in ${parts.lists} list(s), expected ${expectedPoints.length}`
+);
+check(
+  "structured resolution renders one trap paragraph",
+  parts.traps === 1 && parts.trap.length > 0,
+  `${parts.traps} trap(s), "${parts.trap.slice(0, 40)}"`
+);
+check(
+  "structured resolution adds no undifferentiated paragraph",
+  parts.strayParagraphs === 0,
+  `${parts.strayParagraphs} unclassed paragraph(s)`
+);
+// The chip carries the verdict as a word, so colour is never the only thing
+// separating a met criterion from an unmet one.
+check(
+  "met/not-met chips match the points that declare a state",
+  parts.chips.join(",") === expectedChips.join(","),
+  `[${parts.chips.join(", ")}] expected [${expectedChips.join(", ")}]`
+);
+
+const resOverflow = await resPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check(
+  "structured resolution does not scroll sideways at 360px",
+  resOverflow <= 0,
+  `overflow ${resOverflow}px`
+);
+check("no console/page errors rendering a structured resolution",
+  resErrors.length === 0, resErrors.join(" | "));
+
+await resCtx.close();
+
 // --- contrast of the primary button in both schemes (WCAG AA >= 4.5) ---
 const srgb = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
 const lum = ([r, g, b]) => 0.2126 * srgb(r) + 0.7152 * srgb(g) + 0.0722 * srgb(b);

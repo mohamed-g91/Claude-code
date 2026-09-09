@@ -236,6 +236,66 @@
   color: var(--ink-faint);
 }
 
+/* The structured resolution reads as three beats -- the rule, the criteria it
+   turns on, then the trap -- because the complaint about the old single
+   paragraph was that none of it could be scanned. The spacing between them is
+   what does that work, so it is deliberately larger than ordinary paragraph
+   spacing. */
+.res-lead {
+  margin: 0;
+  font-weight: 600;
+}
+
+.res-points {
+  margin: 0.75rem 0 0;
+  /* Room for the marker only -- an indent big enough to notice eats the line
+     length a 360px screen has left. */
+  padding-inline-start: 1.15rem;
+}
+.res-points li {
+  margin-top: 0.5rem;
+  /* An unbroken lab value or drug name would otherwise push the panel wider
+     than the viewport. */
+  overflow-wrap: break-word;
+}
+.res-points li:first-child { margin-top: 0; }
+
+/* Same chip family as .tag, but this one is filled: it has to be readable as a
+   verdict at a glance, next to sibling points that carry no chip at all. The
+   word inside carries the meaning, so the colour is reinforcement rather than
+   the signal. */
+.res-state {
+  display: inline-block;
+  font-size: 0.66rem;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  margin-inline-end: 0.45rem;
+  white-space: nowrap;
+}
+.res-state.met {
+  background: var(--pivot-bg);
+  color: var(--pivot-ink);
+  border: 1px solid var(--pivot-line);
+}
+.res-state.failed {
+  background: var(--noise-bg);
+  color: var(--noise-ink);
+  border: 1px solid var(--noise-line);
+}
+
+/* The trap is a different kind of statement from the points above it -- what
+   pulled you the wrong way -- so it is ruled off rather than left to read as
+   one more bullet's continuation. */
+.res-trap {
+  margin: 0.9rem 0 0;
+  padding-block-start: 0.8rem;
+  border-block-start: 1px solid var(--line);
+}
+
 .next {
   margin-top: 1.2rem;
   width: 100%;

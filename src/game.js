@@ -222,10 +222,58 @@ function showResolution(c) {
   el.resolution.replaceChildren();
   const h = document.createElement("h2");
   h.textContent = "Why it turns on that finding";
+  el.resolution.appendChild(h);
+
+  const r = c?.resolution;
+
+  // Two shapes ship at once: the mixed deck still carries a single paragraph,
+  // while newer cases carry the structured lead/points/trap form candidates
+  // asked for. Anything that is not an object is treated as the old shape, so
+  // a missing or malformed resolution degrades to an empty paragraph instead
+  // of throwing and leaving the learner with a blank panel.
+  if (r === null || typeof r !== "object") {
+    const p = document.createElement("p");
+    p.style.margin = "0";
+    p.textContent = typeof r === "string" ? r : "";
+    el.resolution.appendChild(p);
+    return;
+  }
+
+  if (isFilledText(r.lead)) el.resolution.appendChild(resPara("res-lead", r.lead));
+
+  const list = document.createElement("ul");
+  list.className = "res-points";
+  for (const point of Array.isArray(r.points) ? r.points : []) {
+    // A point is either a bare string or { text, state } -- and an entry that
+    // is neither is dropped rather than rendered as "undefined".
+    const text = typeof point === "string" ? point : point?.text;
+    if (!isFilledText(text)) continue;
+
+    const li = document.createElement("li");
+    const state = typeof point === "object" ? point?.state : undefined;
+    if (state === "met" || state === "failed") {
+      const chip = document.createElement("span");
+      chip.className = `res-state ${state}`;
+      chip.textContent = state === "met" ? "met" : "not met";
+      li.appendChild(chip);
+    }
+    li.appendChild(document.createTextNode(text));
+    list.appendChild(li);
+  }
+  if (list.children.length > 0) el.resolution.appendChild(list);
+
+  if (isFilledText(r.trap)) el.resolution.appendChild(resPara("res-trap", r.trap));
+}
+
+function isFilledText(v) {
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+function resPara(className, text) {
   const p = document.createElement("p");
-  p.style.margin = "0";
-  p.textContent = c.resolution;
-  el.resolution.append(h, p);
+  p.className = className;
+  p.textContent = text;
+  return p;
 }
 
 function showNext() {
