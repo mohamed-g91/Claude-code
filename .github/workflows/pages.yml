@@ -80,6 +80,20 @@ jobs:
           mkdir -p _site
           cp index.html ar.html angina.html diabetes.html _site/
           cp -r src _site/
+          # Every asset has a stable filename, so a returning reader keeps
+          # whatever src/game.js their browser cached -- a fix can be green in
+          # Actions and still not be what they are looking at. That is not a
+          # hypothetical: a scroll fix was deployed, verified, and reported
+          # still broken, because the old script was being served from cache.
+          # Stamping the commit onto every reference makes each deploy a URL
+          # the browser has never seen, so it cannot serve a stale one.
+          SHA="${GITHUB_SHA::8}"
+          sed -i -E "s|(\"src/[a-z-]+\.js)\"|\1?v=$SHA\"|g" _site/*.html
+          sed -i -E "s|(\"src/[a-z-]+\.css)\"|\1?v=$SHA\"|g" _site/*.html
+          # game.js fetches the deck itself, so that URL needs the same stamp.
+          sed -i "s|fetch(\"src/cases.json\")|fetch(\"src/cases.json?v=$SHA\")|" _site/src/game.js
+          grep -q "cases.json?v=$SHA" _site/src/game.js || { echo "cases.json was not stamped"; exit 1; }
+          grep -q "game.js?v=$SHA" _site/diabetes.html || { echo "game.js was not stamped"; exit 1; }
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
