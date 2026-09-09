@@ -39,7 +39,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Deliberately not --with-deps. That flag makes Playwright shell out to
+      # apt-get, which refreshes every repo configured on the runner image --
+      # including Google's Chrome deb repo, which is third-party and outside
+      # this project's control. On 9 September 2026 that repo served a
+      # Packages.gz whose hash did not match its own Release file, apt failed
+      # the whole transaction, and a static-site deploy was blocked by a broken
+      # mirror it has no reason to touch. The hosted ubuntu runner already ships
+      # Chrome and Chromium, so the shared libraries Playwright's browser needs
+      # are present; only the browser binary is missing, and that comes from
+      # Playwright's own CDN. If a library ever is genuinely absent the suite
+      # fails loudly at browser launch, which is a real signal rather than a
+      # silent pass.
+      - run: npx playwright install chromium
       - name: Serve and test
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 &
