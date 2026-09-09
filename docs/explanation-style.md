@@ -22,8 +22,7 @@ they read as three beats rather than a paragraph:
    renders as a chip, for the case type this was built for: a guideline
    condition list where the reader has to hold three conditions at once to see
    which one fails.
-3. **One closing paragraph** naming the finding that tempted them, and why it
-   loses.
+3. **One closing paragraph** carrying what the clause feedback could not.
 
 ```json
 "resolution": {
@@ -100,7 +99,21 @@ For scale: the case that drew the complaint ran to 243 words.
    sentence, where it carries weight. Repeating it in every bullet turns the
    panel into a citation list.
 
-10. **No new clinical claims when rewriting.** Every fact in a revised
+10. **The closing paragraph must not recap the clauses.** Every finding in the
+    stem already has feedback, delivered at the moment the candidate tapped it.
+    Saying it again after they have solved the case adds nothing and costs them
+    the attention the paragraph actually needs.
+
+    So it is not a summary. It carries what no clause feedback could: the wrong
+    turn that is *not in the stem*. Ivabradine, in the verapamil case — nobody
+    tapped it, nothing warned them, and it is the next thing a candidate reaches
+    for once they know a beta-blocker is out. That is the paragraph's job.
+
+    The test: delete the closing paragraph. If nothing is lost that the clause
+    feedback did not already say, it was a recap and should not have been
+    written.
+
+11. **No new clinical claims when rewriting.** Every fact in a revised
     resolution must already be in the resolution it replaces or in
     `docs/facts/`. Those facts were checked against the guidelines before they
     shipped; a rewrite is a compression job, not a fresh authoring pass.
@@ -117,10 +130,9 @@ For scale: the case that drew the complaint ran to 243 words.
 >   HbA1c is 46, and target is 48.
 > - **met** — Not already taking one of these drugs.
 >
-> The 4 kg gain and a BMI of 37 are the real reason to want this drug. But
-> NG28 sends prescribing aimed primarily at weight out to the obesity
-> guideline — it is not a diabetes indication. Her HbA1c is already inside
-> target, so the second condition fails and the regimen stands.
+> NG28 sends prescribing aimed primarily at weight out to its obesity
+> guideline — it is not a diabetes indication. The 4 kg gain is worth
+> addressing, but not with this drug.
 
 And its clause feedback, before and after:
 
@@ -129,6 +141,35 @@ And its clause feedback, before and after:
 | "Right thread. Two years is well past the three months NG28 asks for before this class of drug is considered, so nothing about the timing stands in the way. That is one condition met, and there are three." | "Two years on treatment is well over the 3 months NG28 asks for. That is one of three conditions met — two left to check." |
 | "The tempting one. Obesity is the stream she is in, and four kilograms gained is what a drug like this looks built to answer…" | "Her weight is the strongest reason to want this drug. But NG28 only allows it here if her HbA1c is not controlled." |
 | "Right line, and it is the strongest single reason to leave things alone. Forty-six is inside the target NG28 supports for a regimen not associated with hypoglycaemia…" | "46 is below the 48 target for a regimen that does not cause hypoglycaemia. She does not need another drug." |
+
+## A case with no checklist
+
+`pharm_verapamil_betablocker`, 163 words before, 121 after. Not every case is a
+guideline condition list, so the bullets here are plain strings and carry no
+chips. The plain risk leads each one and the mechanism follows the dash — the
+candidate should not have to translate *negative dromotropy* to find out what
+happens to the patient.
+
+> A calcium channel blocker can only be combined with a beta-blocker if it is a
+> dihydropyridine such as amlodipine — so either switch verapamil to
+> amlodipine, or add a long-acting nitrate or nicorandil instead. Adding
+> bisoprolol to verapamil increases the risk of:
+>
+> - Profound bradycardia — both drugs slow the heart rate
+> - Complete heart block — both slow conduction through the AV node
+> - Decompensated heart failure — both reduce the force of contraction
+>
+> He is already on verapamil, a non-dihydropyridine, and adding a beta-blocker
+> to it is contraindicated because of the risk of complete heart block.
+> Ivabradine is not an alternative either — it is also contraindicated with
+> verapamil.
+
+An earlier draft of that last paragraph opened by observing that his normal
+pulse, normal blood pressure and normal ejection fraction all look like room to
+add a beta-blocker. Every one of those findings is a clause with its own
+feedback saying exactly that, so the sentence was cut under rule 10 — it spent
+the paragraph on what the candidate had already been told, and left no room for
+the ivabradine trap, which nothing else in the case could warn them about.
 
 ## The test
 
