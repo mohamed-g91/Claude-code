@@ -163,10 +163,19 @@ letting a reader discover it by clicking through.
 file directly:
 
 ```
-npm run serve       # python3 -m http.server 8000
+npm run serve       # node tools/serve.mjs, port 8000
 ```
 
-then open http://127.0.0.1:8000.
+then open http://127.0.0.1:8000. It listens on loopback only — the repo
+carries the unpublished cases, and there is no reason for those to be
+reachable from whatever network the laptop is on. Another port if 8000 is
+taken: `npm run serve -- 8001`.
+
+Node, not `python3 -m http.server`, which is what this was until the case
+videos hit Windows: the interpreter is installed there as `python` or `py`,
+so the script failed on the machine the filming happens on. Node already has
+to be present to run the tests, so this drops a dependency rather than adding
+one. CI still uses Python — it is an Ubuntu runner and it is already there.
 
 ### Filming a case
 
@@ -176,11 +185,18 @@ alone and nothing else is reachable on screen. Today the batch holds one case,
 `resp_asthma_bdr_200ml` — the NG245 bronchodilator-reversibility case the share
 clip and the landing panel are built on.
 
+Starting from nothing, on Windows or anywhere else:
+
 ```
+git clone https://github.com/mohamed-g91/find-the-pivot.git
+cd find-the-pivot
+git checkout claude/obstructive-lung-disease-batch
 npm run serve
 ```
 
-then open http://127.0.0.1:8000/record.html.
+then open http://127.0.0.1:8000/record.html. The clone is the only step people
+skip: `git checkout` in a folder that is not a checkout says `fatal: not a git
+repository`, which reads like a broken command rather than a missing clone.
 
 Film it in a **private window**. The page keeps its progress under
 `findthepivot.v1:obstructive-lung-disease`, so a second take would otherwise
