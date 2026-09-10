@@ -13,7 +13,7 @@
           "feedback": "Her age does not affect this decision."
         },
         {
-          "text": "has had eight months of cough and chest tightness that wake her at night and are worse after exercise.",
+          "text": "reports eight months of cough and chest tightness, waking her at night and worse after exercise.",
           "role": "contributory",
           "feedback": "This history is what puts her in the pathway. NG245 does not confirm asthma without a supporting objective test."
         },
@@ -23,12 +23,12 @@
           "feedback": "Hay fever and a family history raise the probability, but neither is an objective test and neither confirms the diagnosis."
         },
         {
-          "text": "She has never smoked and takes no regular medication.",
+          "text": "She has never smoked and takes no medication.",
           "role": "noise",
           "feedback": "Not smoking removes a competing explanation, and taking no inhaled steroid means her results are not suppressed. Neither confirms asthma."
         },
         {
-          "text": "Her blood eosinophil count is within the laboratory reference range and her FeNO is 32 ppb.",
+          "text": "Her eosinophil count is within the laboratory reference range and her FeNO is 32 ppb.",
           "role": "contributory",
           "feedback": "Both are rule-in tests with deliberately high cut-offs. A FeNO of 32 does not exclude asthma; it means the pathway continues."
         },
@@ -38,7 +38,7 @@
           "feedback": "The rise is 12.7% of baseline but 190 ml. NG245 asks adults for 12% and 200 ml, or 10% of predicted."
         },
         {
-          "text": "A diagnosis of asthma is recorded.",
+          "text": "She is diagnosed with asthma and started on maintenance inhalers.",
           "role": "noise",
           "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
         }
@@ -48,7 +48,7 @@
         "feedback": "The recorded diagnosis is not supported by the tests in front of you, so the plan cannot stand."
       },
       "resolution": {
-        "lead": "NG245 confirms asthma on bronchodilator reversibility only if the FEV1 rise is 12% and 200 ml, or 10% of predicted. Hers meets none of the three, so she is coded as suspected asthma and the pathway continues.",
+        "lead": "NG245 confirms asthma on bronchodilator reversibility only if the FEV1 rise is 12% and 200 ml, or 10% of predicted. Hers is neither, so the diagnosis is not confirmed and she is coded as suspected asthma.",
         "points": [
           {
             "text": "Eosinophils and FeNO — within range, and 32 ppb against a 50 ppb cut-off",
@@ -63,7 +63,7 @@
             "state": "failed"
           }
         ],
-        "trap": "The same spirometry in a 12-year-old would confirm asthma: children are asked for 12% from baseline with no volume attached. The 200 ml exists because a percentage flatters a small starting FEV1 — at 1.50 litres, 12% is only 180 ml."
+        "trap": "Starting an inhaled steroid before the diagnosis is confirmed also closes the door on confirming it: FeNO and spirometry are more likely to be normal once treatment has begun, so the tests she still needs are the ones she has just had made harder to read."
       }
     }
   ]
