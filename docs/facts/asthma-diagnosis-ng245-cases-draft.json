@@ -15,7 +15,7 @@
         {
           "text": "reports eight months of cough and chest tightness, waking her at night and worse after exercise.",
           "role": "contributory",
-          "feedback": "This history is what puts her in the pathway. NG245 does not confirm asthma without a supporting objective test."
+          "feedback": "This is a history suggestive of asthma. NG245 does not confirm the diagnosis without a supporting objective test."
         },
         {
           "text": "She has hay fever and her mother has asthma.",
@@ -30,12 +30,12 @@
         {
           "text": "Her eosinophil count is within the laboratory reference range and her FeNO is 32 ppb.",
           "role": "contributory",
-          "feedback": "Both are rule-in tests with deliberately high cut-offs. A FeNO of 32 does not exclude asthma; it means the pathway continues."
+          "feedback": "Both are rule-in tests. A FeNO of 32 does not exclude asthma."
         },
         {
           "text": "After salbutamol her FEV1 rises from 1.50 to 1.69 litres, against a predicted 2.90.",
           "role": "pivot",
-          "feedback": "The rise is 12.7% of baseline but 190 ml. NG245 asks adults for 12% and 200 ml, or 10% of predicted."
+          "feedback": "The rise is 12.7% of baseline, 6.6% of predicted, and 190 ml. NG245 asks adults for 12% and 200 ml, or 10% of predicted."
         },
         {
           "text": "She is diagnosed with asthma and started on maintenance inhalers.",
@@ -48,22 +48,14 @@
         "feedback": "The recorded diagnosis is not supported by the tests in front of you, so the plan cannot stand."
       },
       "resolution": {
-        "lead": "NG245 confirms asthma on bronchodilator reversibility only if the FEV1 rise is 12% and 200 ml, or 10% of predicted. Hers is neither, so the diagnosis is not confirmed and she is coded as suspected asthma.",
+        "lead": "NG245 confirms asthma only on a supporting objective test. Hers do not, so the diagnosis stays suspected and the pathway is not yet finished.",
         "points": [
-          {
-            "text": "Eosinophils and FeNO — within range, and 32 ppb against a 50 ppb cut-off",
-            "state": "failed"
-          },
-          {
-            "text": "12% and 200 ml — the rise is 12.7%, but it is 190 ml",
-            "state": "failed"
-          },
-          {
-            "text": "10% of predicted — 190 ml against a predicted 2.90 litres is 6.6%",
-            "state": "failed"
-          }
+          "Eosinophil count above the laboratory reference range, or FeNO of 50 ppb or more",
+          "After a bronchodilator, FEV1 up by 12% and 200 ml, or by 10% of predicted",
+          "PEF variability of 20% or more over 2 weeks, where spirometry is unavailable or delayed",
+          "Bronchial challenge, by referral, if asthma is still suspected on clinical grounds"
         ],
-        "trap": "Starting an inhaled steroid before the diagnosis is confirmed also closes the door on confirming it: FeNO and spirometry are more likely to be normal once treatment has begun, so the tests she still needs are the ones she has just had made harder to read."
+        "trap": "Starting an inhaled steroid before the diagnosis is confirmed will affect further tests, so complete the diagnostic algorithm before starting treatment."
       }
     }
   ]
