@@ -1209,6 +1209,50 @@ check(
   `ar.html->index.html ${arabicSwitch}, index.html->ar.html ${landingSwitch}`
 );
 
+// --- the demo panel really shows a case from the deck ---
+// Both landing pages hand-carry the demo case as markup, so the two can drift
+// apart from each other and from the data. They did: a scripted edit to the
+// panel matched index.html's tags and silently missed ar.html's, which carry
+// lang and dir attributes, and the Arabic page went on showing a case the deck
+// no longer led with. Nothing caught it, because until now nothing compared
+// the panel to anything. Every marked finding must be a real clause of one
+// real case, carrying the role the panel paints it in.
+{
+  const marksIn = (html) =>
+    [...html.matchAll(/<mark class="(\w+)">([\s\S]*?)<\/mark>/g)]
+      .map((m) => [m[1], m[2].trim().replace(/\s+/g, " ")]);
+
+  const claimed = (role, text) =>
+    CASES.some((c) => c.clauses.some((cl) => cl.role === role && cl.text === text));
+
+  // join(), not new URL() -- the page address above shadows the global URL,
+  // which the deck read at the top of this file already warns about.
+  const pageSource = (name) =>
+    readFileSync(join(import.meta.dirname, "..", name), "utf8");
+
+  for (const [label, html] of [["index.html", pageSource("index.html")],
+                               ["ar.html", pageSource("ar.html")]]) {
+    const marks = marksIn(html);
+    const wrong = marks.filter(([role, text]) => !claimed(role, text));
+    check(
+      `${label} demo panel marks real clauses, in their real roles`,
+      marks.length === 3 && wrong.length === 0,
+      wrong.length
+        ? `not in the deck: ${wrong.map(([r, t]) => `${r} "${t.slice(0, 40)}"`).join("; ")}`
+        : `${marks.length} marks: ${marks.map(([r]) => r).join(", ")}`
+    );
+  }
+
+  // And the two pages must be showing the SAME case as each other.
+  const en = JSON.stringify(marksIn(pageSource("index.html")));
+  const ar = JSON.stringify(marksIn(pageSource("ar.html")));
+  check(
+    "both landing pages show the same demo case",
+    en === ar,
+    en === ar ? "identical marks" : "the panels have drifted apart"
+  );
+}
+
 // --- the demo panel stays left-to-right ---
 // The panel is a picture of the real deck, and the real deck is English. If
 // `dir="rtl"` were allowed to cascade into it the punctuation and the clause

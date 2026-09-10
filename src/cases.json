@@ -71,6 +71,62 @@
       "resolution": "A patient in acute severe asthma is hyperventilating, so the PaCO2 should be low. A normal — let alone raised — PaCO2 means she is tiring and no longer moving enough air to blow off CO2. That reclassifies her from acute severe to life-threatening asthma and makes this an immediate ITU referral for possible ventilation. The lesson generalises: in a patient working hard to breathe, a normal CO2 is not a reassuring result, it is a sign of exhaustion."
     },
     {
+      "id": "resp_asthma_bdr_200ml",
+      "topic": "Respiratory",
+      "clauses": [
+        {
+          "text": "A 34-year-old woman",
+          "role": "noise",
+          "feedback": "Her age does not affect this decision."
+        },
+        {
+          "text": "reports eight months of cough and chest tightness, waking her at night and worse after exercise.",
+          "role": "contributory",
+          "feedback": "This is a history suggestive of asthma. NG245 does not confirm the diagnosis without a supporting objective test."
+        },
+        {
+          "text": "She has hay fever and her mother has asthma.",
+          "role": "contributory",
+          "feedback": "Hay fever and a family history raise the probability, but neither is an objective test and neither confirms the diagnosis."
+        },
+        {
+          "text": "She has never smoked and takes no medication.",
+          "role": "noise",
+          "feedback": "Not smoking removes a competing explanation, and taking no inhaled steroid means her results are not suppressed. Neither confirms asthma."
+        },
+        {
+          "text": "Her eosinophil count is within the laboratory reference range and her FeNO is 32 ppb.",
+          "role": "contributory",
+          "feedback": "Both are rule-in tests. An eosinophil count within the reference range and a FeNO of 32 do not exclude asthma."
+        },
+        {
+          "text": "After salbutamol her FEV1 rises from 1.50 to 1.69 litres, against a predicted 2.90.",
+          "role": "pivot",
+          "feedback": "The rise is 12.7% of baseline, 6.6% of predicted, and 190 ml. NG245 asks adults for 12% and 200 ml, or 10% of predicted."
+        },
+        {
+          "text": "She is diagnosed with asthma and started on maintenance inhalers.",
+          "role": "noise",
+          "feedback": "This is the plan you are being asked to judge, not a finding about the patient."
+        }
+      ],
+      "none": {
+        "role": "noise",
+        "feedback": "The recorded diagnosis is not supported by the tests in front of you, so the plan cannot stand."
+      },
+      "resolution": {
+        "lead": "NG245 confirms asthma only on a supporting objective test. Hers do not, so the diagnosis stays suspected and the pathway is not yet finished.",
+        "points": [
+          "Eosinophil count above the laboratory reference range, or FeNO of 50 ppb or more",
+          "After a bronchodilator, FEV1 up by 12% and 200 ml, or by 10% of predicted",
+          "PEF variability of 20% or more over 2 weeks, where spirometry is unavailable or delayed",
+          "Bronchial challenge, by referral, if asthma is still suspected on clinical grounds"
+        ],
+        "trap": "Starting an inhaled steroid before the diagnosis is confirmed will affect further tests, so complete the diagnostic algorithm before starting treatment."
+      },
+      "batch": "obstructive-lung-disease"
+    },
+    {
       "id": "haem_ttp_schistocytes",
       "topic": "Haematology",
       "clauses": [
