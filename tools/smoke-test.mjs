@@ -1016,6 +1016,22 @@ check(
     noJsText.specialties === String(LANDING_SPECIALTIES),
   `${JSON.stringify(noJsText)}, expected ${LANDING_BATCH}/${LANDING_BATCH_02}/${LANDING_TOTAL}/${LANDING_SPECIALTIES}`
 );
+// The demo panel ships solved so the page is honest with the script blocked.
+// If landing.js ever became load-bearing here, this is what would catch it.
+const noJsDemo = await noJsPage.$eval(".demo", (d) => ({
+  painted: [...d.querySelectorAll(".demo-stem mark")]
+    .filter((m) => getComputedStyle(m).backgroundColor !== "rgba(0, 0, 0, 0)").length,
+  feedback: [...d.querySelectorAll(".demo-fb")]
+    .filter((e) => getComputedStyle(e).display !== "none")
+    .map((e) => e.dataset.role),
+}));
+check(
+  "index.html demo panel still reads as solved with JavaScript disabled",
+  noJsDemo.painted === 3 &&
+    noJsDemo.feedback.length === 1 && noJsDemo.feedback[0] === "pivot",
+  JSON.stringify(noJsDemo)
+);
+
 await ctxNoJs.close();
 
 // --- contrast of the hero CTA in both schemes (WCAG AA >= 4.5) ---
@@ -1351,6 +1367,90 @@ check(
     SITE_FILES.find((f) => f.path === join("src", "counts.json"))?.text ?? ""),
   `${(SITE_FILES.find((f) => f.path === join("src", "counts.json"))?.text ?? "").length} bytes`
 );
+
+
+// --- the demo panel plays, without moving the page ---
+// The panel ships solved and landing.js rewinds it, so the whole cycle is an
+// enhancement over a correct page. Three things have to hold at once: the
+// solved still survives with the script blocked, the cycle actually reaches
+// all four beats, and the panel never changes height while it runs -- the
+// feedback line carries three different sentences, and a box that resized
+// three times a cycle would shove the page under the reader.
+for (const [label, url] of [["index.html", LANDING_URL], ["ar.html", ARABIC_URL]]) {
+  const demoCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const demoPage = await demoCtx.newPage();
+  await demoPage.goto(url);
+  await demoPage.locator(".demo").scrollIntoViewIfNeeded();
+
+  const beats = new Set();
+  const heights = new Set();
+  // Long enough to cover the ~11s loop with margin, sampled fast enough that
+  // no beat can slip between two reads.
+  for (let i = 0; i < 32; i++) {
+    const snap = await demoPage.$eval(".demo", (d) => {
+      const shown = [...d.querySelectorAll(".demo-fb")]
+        .find((e) => e.classList.contains("is-shown"));
+      const marks = ["show-noise", "show-contributory", "show-pivot"]
+        .filter((c) => d.classList.contains(c)).length;
+      return {
+        beat: `${marks}/${shown?.dataset.role ?? "-"}`,
+        height: Math.round(d.getBoundingClientRect().height),
+      };
+    });
+    beats.add(snap.beat);
+    heights.add(snap.height);
+    await demoPage.waitForTimeout(400);
+  }
+
+  check(
+    `${label} demo panel reaches all four beats`,
+    ["0/-", "1/noise", "2/contributory", "3/pivot"].every((b) => beats.has(b)),
+    [...beats].join(" ")
+  );
+  check(
+    `${label} demo panel height never changes while it plays`,
+    heights.size === 1,
+    `${[...heights].join(", ")}px`
+  );
+
+  // The panel is one image to assistive tech, with a fixed description. It
+  // must never become a stream of changing text a screen reader narrates.
+  const aria = await demoPage.$eval(".demo", (d) => ({
+    role: d.getAttribute("role"),
+    labelled: (d.getAttribute("aria-label") ?? "").length > 40,
+    hidden: [...d.querySelectorAll(".demo-stem, .demo-feedback")]
+      .every((e) => e.getAttribute("aria-hidden") === "true"),
+    live: d.querySelector("[aria-live]") !== null,
+  }));
+  check(
+    `${label} demo panel stays one labelled image to assistive tech`,
+    aria.role === "img" && aria.labelled && aria.hidden && !aria.live,
+    JSON.stringify(aria)
+  );
+
+  await demoCtx.close();
+}
+
+// Someone who asked for less motion gets the solved still, not a faster cycle.
+const stillCtx = await browser.newContext({
+  viewport: { width: 390, height: 844 },
+  reducedMotion: "reduce",
+});
+const stillPage = await stillCtx.newPage();
+await stillPage.goto(LANDING_URL);
+await stillPage.locator(".demo").scrollIntoViewIfNeeded();
+await stillPage.waitForTimeout(1200);
+const stillState = await stillPage.$eval(".demo", (d) => ({
+  animated: d.classList.contains("is-animated"),
+  painted: [...d.querySelectorAll(".demo-stem mark")]
+    .filter((m) => getComputedStyle(m).backgroundColor !== "rgba(0, 0, 0, 0)").length,
+}));
+check(
+  "prefers-reduced-motion leaves the demo panel solved and still",
+  stillState.animated === false && stillState.painted === 3,
+  JSON.stringify(stillState)
+);
+await stillCtx.close();
 
 rmSync(SITE, { recursive: true, force: true });
 

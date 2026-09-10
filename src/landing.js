@@ -99,6 +99,96 @@ function countCases(cases) {
   };
 }
 
+/* ---------- the demo panel, playing ----------
+ *
+ * The panel in the markup is the case already solved, which is what a reader
+ * with this file blocked sees and is an honest still of the product. This
+ * rewinds it and plays the solve: noise, then contributory, then pivot, then a
+ * hold on all three at once.
+ *
+ * The hold is the point. Any drill can show a right answer; what this one does
+ * differently is answer a wrong tap rather than punish it, and the only way to
+ * see that is the amber beat followed by all three marks on screen together.
+ * So the beats are slow -- a viewer has to read a clinical stem, not watch a
+ * UI demo -- and the trail never clears between them.
+ */
+
+// Cumulative: each beat adds a mark without taking away the one before it.
+const DEMO_BEATS = [
+  { hold: 2200, marks: [], feedback: null },
+  { hold: 2400, marks: ["show-noise"], feedback: "noise" },
+  { hold: 2600, marks: ["show-noise", "show-contributory"], feedback: "contributory" },
+  { hold: 4000, marks: ["show-noise", "show-contributory", "show-pivot"], feedback: "pivot" },
+];
+const MARK_CLASSES = ["show-noise", "show-contributory", "show-pivot"];
+const FB_CLASSES = ["fb-noise", "fb-contributory", "fb-pivot"];
+
+function playDemo() {
+  const panel = document.querySelector(".demo");
+  if (!panel) return;
+
+  const lines = [...panel.querySelectorAll(".demo-fb")];
+  if (lines.length < 3) return; // markup predates this
+
+  // Someone who asked for less motion gets the still they would have had
+  // anyway -- the solved panel -- not a faster version of the cycle.
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (still.matches) return;
+
+  panel.classList.add("is-animated");
+
+  let beat = 0;
+  let timer = null;
+
+  function render() {
+    const { marks, feedback } = DEMO_BEATS[beat];
+    panel.classList.remove(...MARK_CLASSES, ...FB_CLASSES);
+    panel.classList.add(...marks);
+    if (feedback) panel.classList.add(`fb-${feedback}`);
+    for (const line of lines) {
+      line.classList.toggle("is-shown", line.dataset.role === feedback);
+    }
+  }
+
+  function advance() {
+    beat = (beat + 1) % DEMO_BEATS.length;
+    render();
+    timer = setTimeout(advance, DEMO_BEATS[beat].hold);
+  }
+
+  function start() {
+    if (timer === null) timer = setTimeout(advance, DEMO_BEATS[beat].hold);
+  }
+
+  function stop() {
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  render();
+
+  // A panel scrolled past should not keep the tab busy, and a reader who
+  // scrolls back deserves the beat they left rather than one mid-flight.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.4 }
+    ).observe(panel);
+  } else {
+    start();
+  }
+
+  // A reader who turns motion off mid-visit gets the solved panel back.
+  still.addEventListener?.("change", (e) => {
+    if (!e.matches) return;
+    stop();
+    panel.classList.remove("is-animated", ...MARK_CLASSES, ...FB_CLASSES);
+    for (const line of lines) line.classList.remove("is-shown");
+  });
+}
+
+playDemo();
+
 loadCounts()
   .then((counts) => {
     if (!counts) return;

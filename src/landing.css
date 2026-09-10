@@ -167,6 +167,64 @@ section + section { border-top: 1px solid var(--line); }
   opacity: 0.8;
   margin-inline-end: 0.4rem;
 }
+/* ---------- the demo panel, playing ----------
+   The panel ships solved: all three marks, the pivot feedback. That is what a
+   reader with JavaScript blocked sees, and it is the honest still of the
+   product. src/landing.js then adds .is-animated and rewinds it, so the cycle
+   is an enhancement on top of a correct page rather than something the markup
+   depends on.
+
+   Nothing here is exposed to assistive tech: the panel is role="img" with a
+   fixed aria-label and its contents are aria-hidden, so a screen reader keeps
+   getting one static description no matter which beat is on screen. */
+
+.demo.is-animated .demo-stem mark {
+  background: transparent;
+  color: inherit;
+  font-weight: inherit;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+.demo.is-animated.show-noise .demo-stem mark.noise {
+  background: var(--noise-bg); color: var(--noise-ink);
+}
+.demo.is-animated.show-contributory .demo-stem mark.contributory {
+  background: var(--contrib-bg); color: var(--contrib-ink);
+}
+.demo.is-animated.show-pivot .demo-stem mark.pivot {
+  background: var(--pivot-bg); color: var(--pivot-ink); font-weight: 600;
+}
+
+/* Only one line shows at a time, but all three are laid into the same grid
+   cell, so the box is always as tall as the longest of them. Without that the
+   panel would grow and shrink three times a cycle and shove the page around
+   under the reader. */
+.demo-fb { display: none; }
+.demo-fb[data-role="pivot"] { display: block; }
+
+.demo.is-animated .demo-feedback { display: grid; transition: background-color 0.35s ease, border-color 0.35s ease; }
+.demo.is-animated .demo-fb {
+  display: block;
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.demo.is-animated .demo-fb.is-shown { opacity: 1; }
+
+/* Before the first tap there is no feedback yet -- the box keeps its space so
+   nothing moves, but shows neither colour nor border. */
+.demo.is-animated .demo-feedback {
+  background: transparent; color: var(--ink); border-color: transparent;
+}
+.demo.is-animated.fb-noise .demo-feedback {
+  background: var(--noise-bg); color: var(--noise-ink); border-color: var(--noise-line);
+}
+.demo.is-animated.fb-contributory .demo-feedback {
+  background: var(--contrib-bg); color: var(--contrib-ink); border-color: var(--contrib-line);
+}
+.demo.is-animated.fb-pivot .demo-feedback {
+  background: var(--pivot-bg); color: var(--pivot-ink); border-color: var(--pivot-line);
+}
+
 .demo-caption {
   font-size: 0.78rem;
   color: var(--ink-faint);
