@@ -1,3 +1,8 @@
 node_modules/
 _site/
+# Screenshots and scratch renders stay out of the repo. The share card is the
+# exception: it is a build input the site's og:image points at, and an ignored
+# one is silently skipped by `git add -A` -- which is how the card shipped once
+# as a 404 inside every chat app that scraped it.
 *.png
+!src/og-card.png

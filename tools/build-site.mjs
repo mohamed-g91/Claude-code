@@ -51,6 +51,13 @@ const versionDecl = (sha) => `const BUILD_VERSION = "${sha}";`;
 // old sed matched, and what every current asset is called.
 const ASSET_REF = /"src\/([a-z-]+\.(?:js|css))"/g;
 
+// og:image and twitter:image carry absolute URLs, because a scraper does not
+// resolve relative ones. Stripping the origin gives the path the site must
+// actually serve, which verify() then checks really exists.
+const SITE_ORIGIN = "https://mohamed-g91.github.io/find-the-pivot/";
+const SOCIAL_IMAGE_REF =
+  /(?:property="og:image"|name="twitter:image") content="([^"]+)"/g;
+
 /* ---------- inputs ---------- */
 
 // Actions provides the commit; a hand run falls back to the checkout's HEAD so
@@ -196,6 +203,23 @@ function verify(out, sha, batches) {
   for (const batch of batches) {
     if (!existsSync(join(out, "src", batchFile(batch)))) {
       problems.push(`src/${batchFile(batch)} is missing`);
+    }
+  }
+
+  // A page can promise an image it does not ship, and nothing downstream
+  // complains: the HTML is valid, the deploy is green, and the only symptom is
+  // a 404 inside a chat app's scraper where nobody sees it. That is exactly how
+  // the first card shipped -- .gitignore carried `*.png`, so `git add -A`
+  // skipped the file without a word and the tag pointed at nothing for a whole
+  // deploy. Every og:image and twitter:image must name a file that is really in
+  // the output.
+  for (const page of PAGES) {
+    const html = readFileSync(join(out, page), "utf8");
+    for (const [, url] of html.matchAll(SOCIAL_IMAGE_REF)) {
+      const local = url.replace(SITE_ORIGIN, "").split("?")[0];
+      if (!existsSync(join(out, local))) {
+        problems.push(`${page}: names an image the site does not carry -- ${local}`);
+      }
     }
   }
 
