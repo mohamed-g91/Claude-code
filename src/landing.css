@@ -195,20 +195,26 @@ section + section { border-top: 1px solid var(--line); }
 }
 
 /* Only one line shows at a time, but all three are laid into the same grid
-   cell, so the box is always as tall as the longest of them. Without that the
-   panel would grow and shrink three times a cycle and shove the page around
-   under the reader. */
-.demo-fb { display: none; }
-.demo-fb[data-role="pivot"] { display: block; }
+   cell, so the box is always as tall as the longest of them and the panel has
+   exactly one height for its whole life.
 
-.demo.is-animated .demo-feedback { display: grid; transition: background-color 0.35s ease, border-color 0.35s ease; }
-.demo.is-animated .demo-fb {
-  display: block;
+   The stacking is unconditional, not something the animation switches on. When
+   it was conditional the box grew the moment the cycle started -- on a desktop
+   that is immediately after load, which is the worst possible time to move the
+   page. The cost is a little empty space under the shortest line in the static
+   panel, which is the cheaper of the two. */
+.demo-feedback { display: grid; }
+.demo-fb {
   grid-area: 1 / 1;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  visibility: hidden;
 }
-.demo.is-animated .demo-fb.is-shown { opacity: 1; }
+.demo-fb[data-role="pivot"] { opacity: 1; visibility: visible; }
+
+.demo.is-animated .demo-feedback { transition: background-color 0.35s ease, border-color 0.35s ease; }
+.demo.is-animated .demo-fb { transition: opacity 0.3s ease; }
+.demo.is-animated .demo-fb[data-role="pivot"] { opacity: 0; visibility: hidden; }
+.demo.is-animated .demo-fb.is-shown { opacity: 1; visibility: visible; }
 
 /* Before the first tap there is no feedback yet -- the box keeps its space so
    nothing moves, but shows neither colour nor border. */

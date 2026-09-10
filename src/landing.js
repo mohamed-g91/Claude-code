@@ -135,10 +135,9 @@ function playDemo() {
   const still = window.matchMedia("(prefers-reduced-motion: reduce)");
   if (still.matches) return;
 
-  panel.classList.add("is-animated");
-
   let beat = 0;
   let timer = null;
+  let started = false;
 
   function render() {
     const { marks, feedback } = DEMO_BEATS[beat];
@@ -156,7 +155,19 @@ function playDemo() {
     timer = setTimeout(advance, DEMO_BEATS[beat].hold);
   }
 
+  // Rewinding is deferred to the first time the panel is actually on screen.
+  // Blanking it up front looked fine on a desktop, where the panel is fully in
+  // view on load -- but on a phone it sits 6% in view below the hero, so the
+  // observer never fired, and the first thing a reader saw was an unmarked
+  // stem with no feedback at all. Until it is worth playing, the panel stays
+  // the solved still the markup ships, which is the same thing a blocked
+  // script leaves behind.
   function start() {
+    if (!started) {
+      started = true;
+      panel.classList.add("is-animated");
+      render();
+    }
     if (timer === null) timer = setTimeout(advance, DEMO_BEATS[beat].hold);
   }
 
@@ -164,8 +175,6 @@ function playDemo() {
     clearTimeout(timer);
     timer = null;
   }
-
-  render();
 
   // A panel scrolled past should not keep the tab busy, and a reader who
   // scrolls back deserves the beat they left rather than one mid-flight.

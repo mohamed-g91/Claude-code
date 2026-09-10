@@ -1022,7 +1022,7 @@ const noJsDemo = await noJsPage.$eval(".demo", (d) => ({
   painted: [...d.querySelectorAll(".demo-stem mark")]
     .filter((m) => getComputedStyle(m).backgroundColor !== "rgba(0, 0, 0, 0)").length,
   feedback: [...d.querySelectorAll(".demo-fb")]
-    .filter((e) => getComputedStyle(e).display !== "none")
+    .filter((e) => getComputedStyle(e).visibility !== "hidden")
     .map((e) => e.dataset.role),
 }));
 check(
@@ -1430,6 +1430,35 @@ for (const [label, url] of [["index.html", LANDING_URL], ["ar.html", ARABIC_URL]
 
   await demoCtx.close();
 }
+
+// A phone opens the landing page with the demo panel barely on screen -- it
+// sits below the hero, about 6% in view. An earlier version rewound the panel
+// as soon as the script ran and only started the cycle when the panel came
+// into view, so on a phone the first thing a reader saw was an unmarked stem
+// with no feedback at all: the solved still, destroyed by the enhancement
+// meant to build on it. Nothing is blanked until it is worth playing.
+const unscrolledCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+const unscrolledPage = await unscrolledCtx.newPage();
+await unscrolledPage.goto(LANDING_URL);
+await unscrolledPage.waitForTimeout(2500); // well past the first beat's hold
+const unscrolled = await unscrolledPage.$eval(".demo", (d) => ({
+  inViewPct: (() => {
+    const r = d.getBoundingClientRect();
+    return Math.round(
+      Math.max(0, Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0)) / r.height * 100);
+  })(),
+  painted: [...d.querySelectorAll(".demo-stem mark")]
+    .filter((m) => getComputedStyle(m).backgroundColor !== "rgba(0, 0, 0, 0)").length,
+  feedback: [...d.querySelectorAll(".demo-fb")]
+    .filter((e) => getComputedStyle(e).visibility !== "hidden").map((e) => e.dataset.role),
+}));
+check(
+  "an unscrolled phone still sees the demo panel solved, not blanked",
+  unscrolled.painted === 3 &&
+    unscrolled.feedback.length === 1 && unscrolled.feedback[0] === "pivot",
+  `${unscrolled.inViewPct}% in view, ${JSON.stringify(unscrolled)}`
+);
+await unscrolledCtx.close();
 
 // Someone who asked for less motion gets the solved still, not a faster cycle.
 const stillCtx = await browser.newContext({
