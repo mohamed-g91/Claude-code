@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Asthma diagnosis — mrcp_gafar · Find the Pivot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='none' stroke='%230d5c70' stroke-width='3'/><circle cx='16' cy='16' r='5' fill='%230d5c70'/></svg>">
+<link rel="stylesheet" href="src/brand.css">
+<link rel="stylesheet" href="src/game.css">
+<!-- A local recording stage, not a page of the site.
+     tools/build-site.mjs copies a fixed PAGES list and derives the batches it
+     publishes from the data-batch attributes on those pages only -- this file
+     is in neither, so obstructive-lung-disease stays unpublished and its
+     answers stay out of _site. Do not add it to PAGES.
+     It carries the batch tag so game.js serves that batch alone: today that
+     is exactly one case, resp_asthma_bdr_200ml, with no other case reachable
+     on screen. Its localStorage key is findthepivot.v1:obstructive-lung-disease,
+     separate from every other page's, so takes here cannot mark the real
+     deck as solved. -->
+<style>
+  /* One case means one jump chip, which reads as a stray "1" on camera. The
+     control is meaningless with a single case, so it is hidden here and only
+     here -- game.js still builds it. */
+  #nav { display: none; }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#stem">Skip to the case</a>
+
+<header class="bar">
+  <div class="bar-inner">
+    <a class="wordmark" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="16" cy="16" r="5" fill="currentColor"/>
+      </svg>
+      <span class="wordmark-company">mrcp_gafar</span><span class="wordmark-product">Find the Pivot</span>
+    </a>
+    <nav class="bar-links" aria-label="Site">
+      <a class="bar-link" href="index.html">Batches</a>
+    </nav>
+  </div>
+</header>
+
+<div class="deck-wrap">
+  <main class="game">
+    <header>
+      <h1>Obstructive Lung Disease</h1>
+      <span class="meta" id="meta"></span>
+    </header>
+
+    <div class="nav" id="nav" role="group" aria-label="Jump to case"></div>
+
+    <p class="prompt" id="prompt"></p>
+
+    <p class="stem" id="stem" tabindex="-1"></p>
+
+    <button class="none-option" id="noneOption" type="button"></button>
+
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+    <div class="resolution" id="resolution"
+         role="region" aria-labelledby="resolutionHeading"></div>
+
+    <button class="next" id="next" type="button" hidden></button>
+
+    <p class="score" id="score"></p>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <p class="disclaimer">Independent revision material. Not affiliated with, endorsed by
+    or connected to MRCP(UK), the Federation of Royal Colleges of Physicians or any
+    question-bank publisher. Cases are written originally for this site, are for
+    education only, and are not clinical advice.</p>
+    <p>&copy; 2026 mrcp_gafar &middot; Find the Pivot &middot; <a href="index.html">All batches</a></p>
+  </div>
+</footer>
+
+<script src="src/game.js" data-batch="obstructive-lung-disease"></script>
+</body>
+</html>

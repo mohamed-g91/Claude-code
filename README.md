@@ -64,6 +64,7 @@ as an endorsement. Do not remove it.
 | `ar.html` | the same page in Arabic, and the fuller explanation of how to solve a case |
 | `angina.html` | Batch 01, the nine stable-angina cases — the only deck a reader can open |
 | `play.html` | the mixed deck, every case written so far — **in preparation, not published** |
+| `record.html` | one batch on its own, for filming a case — **local only, never published** |
 
 `play.html` is deliberately absent from the published site. The mixed deck is
 presented on both landing pages as in preparation, with no link to it, and a
@@ -166,6 +167,38 @@ npm run serve       # python3 -m http.server 8000
 ```
 
 then open http://127.0.0.1:8000.
+
+### Filming a case
+
+`record.html` is the stage for a screen recording: it carries
+`data-batch="obstructive-lung-disease"`, so `src/game.js` serves that batch
+alone and nothing else is reachable on screen. Today the batch holds one case,
+`resp_asthma_bdr_200ml` — the NG245 bronchodilator-reversibility case the share
+clip and the landing panel are built on.
+
+```
+npm run serve
+```
+
+then open http://127.0.0.1:8000/record.html.
+
+Film it in a **private window**. The page keeps its progress under
+`findthepivot.v1:obstructive-lung-disease`, so a second take would otherwise
+open already solved; a private window starts clean every time and closing it
+throws the take away. Between takes in a normal window, clear it from the
+console:
+
+```js
+localStorage.removeItem("findthepivot.v1:obstructive-lung-disease");
+```
+
+The key is namespaced per batch, so a take here never marks the real decks as
+solved.
+
+`tools/build-site.mjs` copies a fixed `PAGES` list and derives the batches it
+publishes from the `data-batch` attributes on those pages only. `record.html`
+is in neither, so filming does not open the batch: `_site` still ships
+stable-angina and type-2-diabetes and no full deck. Do not add it to `PAGES`.
 
 ## Deploying
 
