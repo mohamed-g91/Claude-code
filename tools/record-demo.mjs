@@ -54,7 +54,7 @@ const ROOT = join(import.meta.dirname, "..");
 const URL = process.env.DEMO_URL ?? "http://127.0.0.1:8000/play.html";
 
 // Constrained, not preferred -- see the header note and README's demo panel rule.
-const CASE_ID = "resp_asthma_normal_co2";
+const CASE_ID = "resp_asthma_bdr_200ml";
 
 // --- what the clip says ------------------------------------------------
 //
@@ -87,12 +87,12 @@ const COPY = {
   // that. This states it in the largest words in the clip, over the frame that
   // already shows the marks and the explanation.
   plan: {
-    line: "Life-threatening asthma \u2014 immediate ITU referral, possible ventilation",
+    line: "Not confirmed \u2014 finish the algorithm before starting treatment",
     // A plan is the one caption that would still look right while describing
     // the wrong patient. Swapping CASE_ID without rewriting the line above is
     // exactly the silent failure the deck-driven taps exist to prevent, so
     // every one of these has to appear in the case's own resolution.
-    evidence: ["life-threatening", "ITU", "ventilation"],
+    evidence: ["confirmed", "algorithm", "treatment"],
   },
   end: {
     // The closing card carries the wordmark too. It is the frame a viewer is
@@ -206,6 +206,8 @@ function planFromDeck() {
   }
 
   const noise = withRole("noise");
+  const notThePlan = noise.filter((clause) => clause.i !== kase.clauses.length - 1);
+  const lateNoise = (notThePlan.length ? notThePlan : noise).at(-1);
   const contributory = withRole("contributory");
   const pivot = withRole("pivot");
   if (!noise.length || !contributory.length || !pivot.length) {
@@ -225,13 +227,18 @@ function planFromDeck() {
     deckSize: deck.cases.length,
     topicCount: new Set(deck.cases.map((c) => c.topic)).size,
     steps: [
-      // The *last* noise clause, not the first: a stem's opening sentence is
-      // usually the background line ("a 24-year-old woman with known asthma"),
-      // and tapping that reads as a throwaway. A later noise clause is a real
-      // distractor -- here, the falsely reassuring oxygen saturation -- which
-      // is the tap worth showing being answered rather than punished.
-      { ...noise[noise.length - 1], hold: T.readFeedback },
-      { ...contributory[0], hold: T.readFeedback },
+      // A late noise clause, but never the last clause of the stem. The first
+      // noise clause is usually the background line ("a 34-year-old woman"),
+      // and tapping that reads as a throwaway. The last clause of a stem is
+      // the inherited plan by house rule, and its feedback only says that it
+      // is the plan -- true, and the least interesting thing in the case to
+      // watch someone tap. What is wanted in between is a real distractor.
+      { ...lateNoise, hold: T.readFeedback },
+      // The last contributory clause for the same reason as the noise tap: the
+      // first is usually the presenting complaint, which every reader already
+      // knows is not decisive. The last one is the near miss worth watching --
+      // here the normal FeNO, which is the trap the whole case turns on.
+      { ...contributory.at(-1), hold: T.readFeedback },
       { ...pivot[0], hold: 0 },
     ],
   };

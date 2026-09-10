@@ -132,12 +132,22 @@ a long rewound pause sees a still panel and scrolls past an animation they
 never saw start. The caption is swapped at the same time — the shipped one
 says the case is *shown solved*, which stops being true the moment it plays.
 
-Showing a case solved spoils it, so the pick is constrained: it must come
-from the mixed deck and never from Batch 01, which is the set a new reader
-is actually pointed at. It is currently `resp_asthma_normal_co2` — a normal
-PaCO2 in acute asthma, which argues the site's whole premise better than an
-invented stem could: the reassuring number is the decisive one. Keep the
-not-in-Batch-01 rule on any future swap.
+Showing a case solved spoils it, so the pick used to be constrained to the
+mixed deck. It is currently `resp_asthma_bdr_200ml` — a bronchodilator
+response of 12.7% but 190 ml, which fails NG245 because adults need both —
+and that case **is** in a batch, which is a deliberate departure from the old
+rule rather than a lapse.
+
+The reasoning: this case is also the subject of a case video, so it is spoiled
+by that video whether or not the panel shows it. Once a case is spent it may
+as well be spent in the shop window, where it argues the premise better than
+an invented stem could. What follows from that is a rule about the **batch**
+rather than the case: the obstructive lung disease batch does not open until
+it holds cases nobody has been shown. A batch whose only case is the one in
+the advert is a batch with nothing left to drill.
+
+Any future swap keeps that shape — a demo case may come from a batch only if
+it is already spent elsewhere, and the batch must carry unseen cases besides.
 
 Two things deliberately stay left-to-right on that page: the demo panel,
 which depicts the real English interface and would misrepresent it mirrored,
@@ -352,14 +362,17 @@ being cut in two. What was given up is the tail of each pause, after a viewer
 has taken the screen in — the stem is not there to be studied, the deck is for
 that.
 
-The case is `resp_asthma_normal_co2`, and that is a constraint rather than a
-taste: a clip of a case being solved spoils it, so the pick has to come from
-the unpublished mixed deck and never from a published batch — and this one is
-already spent by the landing page's demo panel, so the clip costs nothing new.
-The same rule as the demo panel applies to any swap. It is reached through
+The case is `resp_asthma_bdr_200ml`, the same one the landing panel shows and
+the same one the case video explains, so the clip costs nothing that was not
+already spent. See the demo panel rule above for why a batched case is allowed
+to be the one on display. It is reached through
 `play.html`, which serves the full deck; the script finds the case by `id` in
 `cases.json` and picks its taps by clause `role`, so reordering the deck
-cannot quietly point it at the wrong stem.
+cannot quietly point it at the wrong stem. Of the noise clauses it takes a
+late one but never the last, because the last clause of a stem is the
+inherited plan by house rule and its feedback only says so; of the
+contributory clauses it takes the last, because the first is usually the
+presenting complaint and the last is the near miss worth watching.
 
 Two details are load-bearing and easy to undo by accident. Playwright records
 no pointer, so the script injects a cursor into the page and flies it to each
