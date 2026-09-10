@@ -290,7 +290,22 @@ npm run demo
 
 It writes `demo/find-the-pivot-demo.mp4` — 1080×1920, H.264, a couple of
 megabytes — and prints the duration, dimensions, size and the container it
-actually verified. The `demo/` directory is ignored: the clip is an output,
+actually verified, along with whether the capture came out clean.
+
+That last one is not a formality. Chromium's screencast can hand back a frame
+whose contents predate the paint it is timestamped after, and the pivot tap is
+where it happens: the page grows 445px and becomes scrollable in a single
+commit, which is the largest relayout in the clip. On screen it reads as the
+case going solved, unsolved, then solved again, one frame each. The DOM does no
+such thing — `selectOption` is synchronous and only ever adds — so there is
+nothing to fix in the page, and it lands on a different beat each run.
+
+So the script checks the file it produced and records again if it flickered, up
+to three takes, and fails rather than shipping a bad one. A flicker is one frame
+that differs from both its neighbours while those neighbours agree with each
+other; motion changes every frame too, but there the frame before and the frame
+after do not match. Measured: a real flicker moves 7.6 grey levels per pixel,
+x264 re-quantising a static screen moves under 1.3, and the threshold is 3.0. The `demo/` directory is ignored: the clip is an output,
 rebuildable in under a minute, and does not belong in the history.
 
 What it shows is the argument the site is making, so the shape is fixed: a

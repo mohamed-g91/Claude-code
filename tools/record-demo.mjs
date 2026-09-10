@@ -22,6 +22,14 @@
 //                     is kept small: at 540 CSS px wide, a dot big enough to
 //                     see on a desktop reads as a beach ball on a phone and
 //                     covers the words it is pointing at.
+//   the flicker       Chromium's screencast can deliver a frame whose contents
+//                     predate the paint it is timestamped after. On the pivot
+//                     tap -- the biggest relayout in the clip, where the page
+//                     grows 445px and becomes scrollable in one commit -- that
+//                     shows up as the case appearing solved, unsolved, then
+//                     solved again. The DOM never does this; it is the capture,
+//                     it is intermittent, and the only defence is to check the
+//                     file and record it again. See the verify section.
 //   the instruction   The clip goes out into a status feed, where it is the
 //                     whole pitch and the first thing anyone sees of this
 //                     site. Unlabelled, it is a stranger watching sentences
@@ -34,7 +42,7 @@
 // Set PW_CHROMIUM to a Chromium binary if Playwright's bundled one is absent.
 
 import { chromium } from "playwright";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import {
   existsSync, globSync, mkdirSync, openSync, readSync, closeSync,
   readdirSync, readFileSync, rmSync, statSync,
@@ -647,21 +655,96 @@ function toMp4(webm, mp4) {
   ]);
 }
 
+/* ---------- verify ---------- */
+
+// How many times to record before giving up on a clean take. Three, because a
+// flicker showed up in roughly one take in three when this was measured, and a
+// run of three bad takes means something has changed that a fourth will not fix.
+const MAX_TAKES = 3;
+
+// A flicker is one frame that differs from both its neighbours while those
+// neighbours agree with each other: the page appearing to go back and then
+// forward again. Motion -- a scroll, the caption sliding, the cards fading --
+// also changes every frame, but there the frame before and the frame after do
+// not match, and that is what separates the two.
+//
+// The frames are compared as small grayscale thumbnails. Full resolution buys
+// nothing: a flicker is a whole panel changing colour, which survives being
+// scaled to 160px wide, and the decode stays under a second.
+//
+// The threshold is set from measurement, not taste. A real flicker moved 7.6
+// grey levels per pixel on average. x264 re-quantising a static screen moves
+// under 1.3 -- spread thinly over a third of the frame at 8 levels at most,
+// which is nothing a viewer can see. 3.0 sits in the gap.
+const FLICKER_W = 160;
+const FLICKER_H = 284;
+const FLICKER_MOVE = 3.0;
+
+function findFlicker(file) {
+  const size = FLICKER_W * FLICKER_H;
+  const raw = spawnSync(ffmpegPath, [
+    "-hide_banner", "-nostdin", "-i", file,
+    "-vf", `scale=${FLICKER_W}:${FLICKER_H},format=gray`,
+    "-f", "rawvideo", "-",
+  ], { maxBuffer: 1 << 30 }).stdout;
+
+  const frames = Math.floor(raw.length / size);
+  // Every third pixel: a panel-sized change is in all of them, and this is the
+  // inner loop of a few hundred million comparisons.
+  const distance = (a, b) => {
+    let sum = 0;
+    for (let i = 0; i < size; i += 3) sum += Math.abs(raw[a * size + i] - raw[b * size + i]);
+    return sum / (size / 3);
+  };
+
+  const found = [];
+  for (let n = 1; n < frames - 1; n++) {
+    const back = distance(n - 1, n);
+    const forward = distance(n, n + 1);
+    if (back < FLICKER_MOVE || forward < FLICKER_MOVE) continue;
+    const across = distance(n - 1, n + 1);
+    if (across < Math.min(back, forward) * 0.25) {
+      found.push({ at: n / 25, moved: Math.max(back, forward) });
+    }
+  }
+  return found;
+}
+
 /* ---------- run ---------- */
 
 const plan = planFromDeck();
-
-rmSync(WORK_DIR, { recursive: true, force: true });
-mkdirSync(WORK_DIR, { recursive: true });
-
 const windowSize = await windowFitting(CSS_W, CSS_H);
-const webm = await record(plan, windowSize);
-const source = readMedia(webm);
 
-toMp4(webm, OUT_FILE);
-rmSync(WORK_DIR, { recursive: true, force: true });
+// Record, convert, then look at what came out -- and if the capture flickered,
+// take it again. The flicker is not something this script can prevent: it is
+// Chromium handing back a frame from before the paint, it lands on a different
+// beat each time, and a clean take is one re-run away.
+let source;
+let flicker;
+for (let take = 1; take <= MAX_TAKES; take++) {
+  rmSync(WORK_DIR, { recursive: true, force: true });
+  mkdirSync(WORK_DIR, { recursive: true });
 
-if (!existsSync(OUT_FILE)) throw new Error("ffmpeg produced no file");
+  const webm = await record(plan, windowSize);
+  source = readMedia(webm);
+
+  toMp4(webm, OUT_FILE);
+  rmSync(WORK_DIR, { recursive: true, force: true });
+  if (!existsSync(OUT_FILE)) throw new Error("ffmpeg produced no file");
+
+  flicker = findFlicker(OUT_FILE);
+  if (!flicker.length) break;
+
+  const where = flicker
+    .map((f) => `${f.at.toFixed(2)}s (moved ${f.moved.toFixed(1)})`)
+    .join(", ");
+  console.error(
+    take < MAX_TAKES
+      ? `  take ${take} flickered at ${where} -- recording again`
+      : `  take ${take} flickered at ${where}`
+  );
+}
+
 const out = readMedia(OUT_FILE);
 const brand = ftypBrand(OUT_FILE);
 const bytes = statSync(OUT_FILE).size;
@@ -675,6 +758,12 @@ if (!out.container.split(",").includes("mp4")) {
 if (!brand) problems.push("no ftyp box -- this is not an MP4");
 if (out.width !== 1080 || out.height !== 1920) {
   problems.push(`frame is ${out.width}x${out.height}, not 1080x1920`);
+}
+if (flicker.length) {
+  problems.push(
+    `${flicker.length} flickered frame(s) survived ${MAX_TAKES} takes: ` +
+    flicker.map((f) => `${f.at.toFixed(2)}s`).join(", ")
+  );
 }
 if (Math.abs(out.seconds - source.seconds) > 0.5) {
   problems.push(`duration drifted: ${source.seconds}s in, ${out.seconds}s out`);
@@ -690,6 +779,7 @@ console.log(`
   dimensions  ${out.width}x${out.height} (portrait 9:16)
   size        ${(bytes / 1024 / 1024).toFixed(2)} MB
   format      ${out.container} / ${out.codec}, ftyp brand "${brand}"
+  capture     ${flicker.length ? `${flicker.length} flickered frame(s)` : "no flickered frames"}
 `);
 
 if (problems.length) {
