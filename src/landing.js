@@ -32,6 +32,11 @@ const BATCHES = [
 // read progress without owning a second copy of the scheme.
 const storageKey = (tag) => `findthepivot.v1:${tag}`;
 
+// Stamped with the deploy's commit by tools/build-site.mjs; empty in the repo,
+// where files are read straight off disk and there is no cache to get past.
+const BUILD_VERSION = "";
+const versioned = (path) => (BUILD_VERSION ? `${path}?v=${BUILD_VERSION}` : path);
+
 function setText(id, value) {
   const node = document.getElementById(id);
   if (node) node.textContent = String(value);
@@ -65,23 +70,55 @@ function offerResume(batch, batchSize) {
   }
 }
 
-fetch("src/cases.json")
-  .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-  .then((data) => {
-    const cases = Array.isArray(data.cases) ? data.cases : [];
-    if (cases.length === 0) return;
+// The numbers, from whichever file the site being served actually has.
+//
+//   deployed: src/counts.json -- totals and a per-batch count, no case text.
+//             The published site claims "48 cases written" and "11 specialties
+//             covered" and both stay true without shipping 48 cases to say so.
+//   repo:     no build step runs locally, so counts.json does not exist and the
+//             same numbers are counted from src/cases.json as before.
+async function loadCounts() {
+  const r = await fetch(versioned("src/counts.json"));
+  if (r.ok) return await r.json();
 
-    setText("factTotal", cases.length);
-    setText("factSpecialties", new Set(cases.map((c) => c.topic)).size);
+  const full = await fetch(versioned("src/cases.json"));
+  if (!full.ok) return null;
+  return countCases((await full.json()).cases);
+}
+
+function countCases(cases) {
+  if (!Array.isArray(cases)) return null;
+  const batches = {};
+  for (const c of cases) {
+    if (c.batch) batches[c.batch] = (batches[c.batch] ?? 0) + 1;
+  }
+  return {
+    total: cases.length,
+    topics: new Set(cases.map((c) => c.topic)).size,
+    batches,
+  };
+}
+
+loadCounts()
+  .then((counts) => {
+    if (!counts) return;
+
+    // Each number is written only if it really is one. A malformed counts file
+    // must leave the correct static markup alone rather than replace it with
+    // "undefined" -- this file is an enhancement, and a broken enhancement
+    // should be invisible, not visible and wrong.
+    if (Number.isFinite(counts.total)) setText("factTotal", counts.total);
+    if (Number.isFinite(counts.topics)) setText("factSpecialties", counts.topics);
 
     for (const batch of BATCHES) {
-      const inBatch = cases.filter((c) => c.batch === batch.tag);
-      if (inBatch.length === 0) continue;
-      setText(batch.fact, inBatch.length);
-      offerResume(batch, inBatch.length);
+      const size = counts.batches?.[batch.tag];
+      if (!size) continue;
+      setText(batch.fact, size);
+      offerResume(batch, size);
     }
   })
   .catch(() => {
     // The static numbers in the markup are already correct; a failed fetch
     // must not blank them or throw a console error onto a marketing page.
+    // This file is enhancement only -- the page is right with it blocked.
   });

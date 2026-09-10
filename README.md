@@ -65,23 +65,47 @@ as an endorsement. Do not remove it.
 | `angina.html` | Batch 01, the nine stable-angina cases — the only deck a reader can open |
 | `play.html` | the mixed deck, every case written so far — **in preparation, not published** |
 
-`play.html` is deliberately absent from the deploy workflow's `cp` line. The
-mixed deck is presented on both landing pages as in preparation, with no link
-to it, and a page left in `_site` is reachable by anyone who guesses the URL
-whether or not anything links to it — so the two have to agree. The file stays
-in the repo because the browser suite drives the full 33-case deck through it,
-and because it becomes the live mixed deck again the day that opens: put
-`play.html` back in the `cp` line and swap the card back to a linked one.
+`play.html` is deliberately absent from the published site. The mixed deck is
+presented on both landing pages as in preparation, with no link to it, and a
+page left in `_site` is reachable by anyone who guesses the URL whether or not
+anything links to it — so the two have to agree. The file stays in the repo
+because the browser suite drives the full deck through it, and because it
+becomes the live mixed deck again the day that opens: add `play.html` to
+`PAGES` in `tools/build-site.mjs` and swap the card back to a linked one.
+
+The same argument applies to the cases themselves, and for a while it was not
+applied: the build copied `src/` wholesale, so `src/cases.json` served all 48
+cases — pivots, feedback and resolutions for the 28 unpublished ones included —
+at a URL as guessable as `play.html`'s. It is now split at build time. `_site`
+carries one `src/cases.<batch>.json` per **published** batch and no
+`src/cases.json` at all, so an unpublished case has no URL to guess. Which
+batches are published is read off the `data-batch` attributes of the deck pages
+the build copies, never from a second list: adding a batch page publishes its
+cases, and forgetting to add the page keeps them private.
 
 A deck page is a shell: the markup `src/game.js` expects, plus
 `data-batch` to narrow the deck. Everything visual lives in `src/brand.css`
 (tokens, brand bar, buttons, footer) and `src/game.css` (the deck UI), so a
 new batch page is a copy of `angina.html` with a different title and tag —
-and a line in the deploy workflow's `cp`.
+and its filename in `PAGES` in `tools/build-site.mjs`, which is what both
+publishes the page and publishes that batch's cases.
 
 `src/landing.js` is enhancement only: it recounts the numbers on the landing
-page from `cases.json` and offers a returning reader their place back. The
-page is correct with it blocked.
+page and offers a returning reader their place back. The page is correct with
+it blocked.
+
+Both scripts run against two layouts and must work in both, because there is no
+build step locally: served from the repo there is only `src/cases.json`, and
+served from `_site` there are only the split files. So each asks for the narrow
+file it wants — `src/cases.<batch>.json` for a deck page, `src/counts.json` for
+a landing page — and falls back to `src/cases.json` when that is not there. The
+404 on the first attempt is expected in the repo layout and is the only 404 the
+browser suite tolerates.
+
+`src/counts.json` is aggregate numbers only — total cases, distinct topics, and
+a count per published batch. The landing pages claim "48 Cases written" and
+"11 Specialties covered"; those claims have to stay true without the 48 cases
+being downloadable to check them.
 
 ### Arabic
 
@@ -126,8 +150,9 @@ then open http://127.0.0.1:8000.
 
 `.github/workflows/pages.yml` builds and publishes to GitHub Pages. It runs the
 validator and the browser suite first, so a broken case cannot reach the live
-site. Only the open pages and `src/` are published — not the test harness, and
-not `play.html`, the mixed deck that is still in preparation.
+site. Only the open pages and the assets under `src/` are published — not the
+test harness, not `play.html`, the mixed deck that is still in preparation, and
+not `src/cases.json`, which carries that deck's cases.
 
 One setting has to be changed by hand, once:
 
@@ -138,8 +163,17 @@ from any branch (Actions → Deploy to GitHub Pages → Run workflow) to preview
 before merging. The site lands at
 `https://mohamed-g91.github.io/find-the-pivot/`.
 
-Only the files named in the workflow's `cp` line are published. **A new page
-that is not added there does not exist in production.**
+The assembly itself is `tools/build-site.mjs`, not shell in the workflow — the
+step is one `node` line. It was moved out after a `sed` escaping bug in that
+shell, which would have shipped a site whose scripts 404ed, was caught only by
+dry-running it by hand. The script copies the open pages and `src/`, writes the
+per-batch deck files and `counts.json`, stamps the commit onto every asset URL
+so a returning reader cannot be served a cached script from an earlier deploy,
+and fails the job if any of that did not apply. Run it by hand — `node
+tools/build-site.mjs` — to inspect what a deploy would publish.
+
+Only the files named in `PAGES` are published. **A new page that is not added
+there does not exist in production**, and neither do its cases.
 
 All asset paths are relative, so the site works unchanged under that subpath.
 
@@ -195,6 +229,12 @@ locking after the pivot, keyboard-only play, focus visibility, persistence
 across reload, behaviour with `localStorage` blocked, no horizontal scroll and
 44px tap targets at 360px, and button contrast in both colour schemes.
 
+It also runs `tools/build-site.mjs` into a temp directory and reads the result,
+because no served page can reveal what the deploy publishes: that
+`src/cases.json` is absent, that no unpublished case id appears anywhere in the
+bytes of `_site`, that each batch file carries exactly its own cases, and that
+`counts.json` agrees with `cases.json`.
+
 It also covers both landing pages: that they load clean, that their links to
 the decks resolve, that the counts they show match `cases.json`, that those
 counts are still there with JavaScript off, and that the primary call to
@@ -216,8 +256,9 @@ src/game.css               the deck UI
 src/landing.css            the landing page
 src/game.js                rendering, three-state scoring, progress
 src/landing.js             landing counts and resume (enhancement only)
-src/cases.json             the cases
+src/cases.json             the cases (repo only -- never published whole)
 .claude/skills/impeccable  vendored Impeccable design skill
+tools/build-site.mjs       assembles _site (what the deploy publishes)
 tools/validate-cases.mjs   schema gate
 tools/smoke-test.mjs       browser suite
 ```

@@ -7,16 +7,19 @@
 // Set PW_CHROMIUM to a Chromium binary if Playwright's bundled one is absent.
 
 import { chromium } from "playwright";
-import { globSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { globSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative } from "node:path";
+import { buildSite } from "./build-site.mjs";
 
 const URL = process.env.SMOKE_URL ?? "http://127.0.0.1:8000/play.html";
 
 // Deck size and the last case's pivot come from the data, never hardcoded --
 // otherwise adding a case fails the suite on a count rather than on a bug.
 // join(), not new URL() -- the page address below shadows the global URL.
-const CASES = JSON.parse(readFileSync(
-  join(import.meta.dirname, "..", "src", "cases.json"), "utf8")).cases;
+const DECK = JSON.parse(readFileSync(
+  join(import.meta.dirname, "..", "src", "cases.json"), "utf8"));
+const CASES = DECK.cases;
 const N = CASES.length;
 // The last case's pivot may live on a stem clause, or (for a case whose plan
 // is already right) on `none` instead -- there is never both, so exactly one
@@ -26,6 +29,30 @@ const LAST_PIVOT_IS_NONE = LAST_PIVOT === -1 && CASES[N - 1].none?.role === "piv
 const results = [];
 const check = (name, ok, detail = "") =>
   results.push({ name, ok, detail });
+
+// A page served straight from the repo asks for its build-time deck file
+// first -- src/cases.<batch>.json, or src/counts.json on a landing page --
+// and falls back to src/cases.json when it is not there. Only a built _site
+// carries those files, so that first request is a 404 by design here, and it
+// is the one 404 the suite tolerates: anything else is a broken reference.
+// Note the dot in the name -- a 404 on src/cases.json itself is real breakage
+// and still fails, because the fallback is what the whole site rests on.
+const BUILT_DECK_FILE = /\/src\/(?:cases\.[a-z0-9-]+\.json|counts\.json)(?:\?|$)/;
+const expectedProbe = (url) => BUILT_DECK_FILE.test(url ?? "");
+
+// Console errors and >=400 responses, minus that probe. Every page in the
+// suite watches the same way, so a new page cannot quietly watch for less.
+function watch(target, errors, responses) {
+  target.on("pageerror", (e) => errors.push(String(e)));
+  target.on("console", (m) => {
+    if (m.type() === "error" && !expectedProbe(m.location()?.url)) errors.push(m.text());
+  });
+  target.on("response", (r) => {
+    if (r.status() >= 400 && !expectedProbe(r.url())) {
+      responses.push(`${r.status()} ${r.url()}`);
+    }
+  });
+}
 
 // Prefer an explicitly provided binary, then a preinstalled one, then whatever
 // Playwright downloaded for itself.
@@ -42,9 +69,7 @@ const page = await ctx.newPage();
 
 const consoleErrors = [];
 const badResponses = [];
-page.on("pageerror", (e) => consoleErrors.push(String(e)));
-page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(m.text()); });
-page.on("response", (r) => { if (r.status() >= 400) badResponses.push(`${r.status()} ${r.url()}`); });
+watch(page, consoleErrors, badResponses);
 
 await page.goto(URL);
 await page.waitForSelector(".clause");
@@ -551,9 +576,7 @@ for (const { file, tag } of BATCH_PAGES) {
   const batchBadResponses = [];
   const batchCtx = await browser.newContext({ viewport: { width: 360, height: 740 } });
   const batchPage = await batchCtx.newPage();
-  batchPage.on("pageerror", (e) => batchConsoleErrors.push(String(e)));
-  batchPage.on("console", (m) => { if (m.type() === "error") batchConsoleErrors.push(m.text()); });
-  batchPage.on("response", (r) => { if (r.status() >= 400) batchBadResponses.push(`${r.status()} ${r.url()}`); });
+  watch(batchPage, batchConsoleErrors, batchBadResponses);
 
   await batchPage.goto(batchUrl);
   await batchPage.waitForSelector(".clause");
@@ -630,9 +653,7 @@ const landingConsoleErrors = [];
 const landingBadResponses = [];
 const ctx4 = await browser.newContext({ viewport: { width: 360, height: 740 } });
 const landingPage = await ctx4.newPage();
-landingPage.on("pageerror", (e) => landingConsoleErrors.push(String(e)));
-landingPage.on("console", (m) => { if (m.type() === "error") landingConsoleErrors.push(m.text()); });
-landingPage.on("response", (r) => { if (r.status() >= 400) landingBadResponses.push(`${r.status()} ${r.url()}`); });
+watch(landingPage, landingConsoleErrors, landingBadResponses);
 
 await landingPage.goto(LANDING_URL);
 // landing.js fetches cases.json, so the counted numbers land after load.
@@ -819,9 +840,7 @@ const arabicConsoleErrors = [];
 const arabicBadResponses = [];
 const ctx5 = await browser.newContext({ viewport: { width: 360, height: 740 } });
 const arabicPage = await ctx5.newPage();
-arabicPage.on("pageerror", (e) => arabicConsoleErrors.push(String(e)));
-arabicPage.on("console", (m) => { if (m.type() === "error") arabicConsoleErrors.push(m.text()); });
-arabicPage.on("response", (r) => { if (r.status() >= 400) arabicBadResponses.push(`${r.status()} ${r.url()}`); });
+watch(arabicPage, arabicConsoleErrors, arabicBadResponses);
 
 await arabicPage.goto(ARABIC_URL);
 // Same as index.html: landing.js fetches cases.json, so the counted numbers
@@ -1023,23 +1042,110 @@ for (const scheme of ["light", "dark"]) {
   await c.close();
 }
 
-// --- the deploy workflow must not publish the mixed deck ---
-// The two link checks above only prove nothing on the site points at
-// play.html. A page copied into _site is still served, so anyone who guesses
-// the URL reaches it -- which is precisely what "in preparation" is supposed
-// to prevent. The assembly step is therefore the only place the policy is
-// actually enforced, and it is read from disk (same as cases.json above)
-// because no served page can reveal what the deploy job copies.
-const PAGES_WORKFLOW = readFileSync(
-  join(import.meta.dirname, "..", ".github", "workflows", "pages.yml"), "utf8");
-const copyLine = (PAGES_WORKFLOW.split("\n").find((l) =>
-  /^\s*cp\b[^\n]*\.html[^\n]*_site\//.test(l)) ?? "").trim();
+// --- what the deploy actually publishes ---
+// The link checks above only prove nothing on the site points at play.html or
+// at an unpublished case. Anything copied into _site is served to anyone who
+// guesses its URL, whether or not a page links to it -- so the assembly step
+// is the only place the policy is really enforced. It is no longer a cp line
+// in the workflow YAML to grep for: the workflow runs tools/build-site.mjs, so
+// the suite runs it too, into a temp directory, and reads what came out.
+const SITE = mkdtempSync(join(tmpdir(), "find-the-pivot-site-"));
+const built = buildSite(SITE);
+
+// Every file under _site, as a path/bytes pair -- the site as a visitor could
+// fetch it, which is what the leak checks below have to be asked about.
+function siteFiles(dir = SITE) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...siteFiles(path));
+    else out.push({ path: relative(SITE, path), text: readFileSync(path, "utf8") });
+  }
+  return out;
+}
+const SITE_FILES = siteFiles();
+const sitePaths = SITE_FILES.map((f) => f.path);
+
 check(
-  "the deploy workflow copies the open pages into _site but not play.html",
-  ["index.html", "ar.html", "angina.html", "diabetes.html"].every((f) => copyLine.includes(f)) &&
-    !copyLine.includes("play.html"),
-  copyLine || "no cp ... _site/ line for .html files"
+  "the build publishes the open pages and not play.html",
+  ["index.html", "ar.html", "angina.html", "diabetes.html"].every((f) =>
+    sitePaths.includes(f)) && !sitePaths.includes("play.html"),
+  sitePaths.filter((p) => p.endsWith(".html")).join(", ") || "no pages built"
 );
+
+// The mixed deck being unpublished means nothing while the data behind it is
+// served: src/cases.json carried all 48 cases, pivots and resolutions
+// included, at a URL as guessable as play.html's.
+check(
+  "the full deck is not published",
+  !sitePaths.includes(join("src", "cases.json")),
+  sitePaths.filter((p) => p.startsWith("src") && p.endsWith(".json")).join(", ")
+);
+
+// The batches the build publishes are read off the deck pages it copies, so
+// this is the same list the site itself is built from, not a second copy.
+const PUBLISHED = built.batches;
+const publishedCases = CASES.filter((c) => PUBLISHED.includes(c.batch));
+const unpublishedCases = CASES.filter((c) => !PUBLISHED.includes(c.batch));
+
+// The real check: not "is the file gone" but "is the content gone". An id is
+// the cheapest unique string per case, and one appearing anywhere in the bytes
+// of the site means that case shipped by some other route.
+const leaked = unpublishedCases
+  .map((c) => c.id)
+  .filter((id) => SITE_FILES.some((f) => f.text.includes(id)));
+check(
+  `no unpublished case appears anywhere in the built site (${unpublishedCases.length} withheld)`,
+  leaked.length === 0,
+  leaked.length ? `leaked: ${leaked.slice(0, 5).join(", ")}` : `${publishedCases.length} published`
+);
+
+// Each deck page's own file, and nothing more: the narrowing has to happen at
+// build time, because a file that carries the other batches has already served
+// them however the page then filters.
+for (const batch of PUBLISHED) {
+  const expected = CASES.filter((c) => c.batch === batch).map((c) => c.id);
+  const file = join("src", `cases.${batch}.json`);
+  const found = SITE_FILES.find((f) => f.path === file);
+  const deck = found ? JSON.parse(found.text) : { cases: [] };
+  const ids = deck.cases.map((c) => c.id);
+  check(
+    `src/cases.${batch}.json carries exactly its own ${expected.length} cases`,
+    found !== undefined &&
+      ids.length === expected.length &&
+      expected.every((id, i) => ids[i] === id) &&
+      deck.prompt === DECK.prompt,
+    found ? `${ids.length} cases` : `${file} was not built`
+  );
+}
+
+// The landing pages claim a total and a specialty count. Those claims have to
+// stay true without the cases that back them being downloadable, which is the
+// whole reason counts.json exists -- so it has to agree with cases.json.
+const counts = JSON.parse(
+  SITE_FILES.find((f) => f.path === join("src", "counts.json"))?.text ?? "{}");
+const expectedCounts = {
+  total: CASES.length,
+  topics: new Set(CASES.map((c) => c.topic)).size,
+  batches: Object.fromEntries(
+    PUBLISHED.map((b) => [b, CASES.filter((c) => c.batch === b).length])),
+};
+check(
+  "src/counts.json matches src/cases.json",
+  JSON.stringify(counts) === JSON.stringify(expectedCounts),
+  `${JSON.stringify(counts)} vs ${JSON.stringify(expectedCounts)}`
+);
+
+// Aggregate numbers only. A count file that grew a topic list or a case title
+// would be the same leak in a smaller package.
+check(
+  "src/counts.json carries no case text",
+  !/"(id|clauses|resolution|feedback|topic)"/.test(
+    SITE_FILES.find((f) => f.path === join("src", "counts.json"))?.text ?? ""),
+  `${(SITE_FILES.find((f) => f.path === join("src", "counts.json"))?.text ?? "").length} bytes`
+);
+
+rmSync(SITE, { recursive: true, force: true });
 
 await browser.close();
 

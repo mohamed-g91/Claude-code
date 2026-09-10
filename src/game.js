@@ -13,6 +13,12 @@
 // inside a later callback where it would already be null.
 const BATCH = document.currentScript?.dataset.batch ?? null;
 
+// Stamped with the deploy's commit by tools/build-site.mjs, which is also what
+// stamps the <script> and <link> tags. Empty in the repo, where files are read
+// straight off disk and there is no CDN cache to get past.
+const BUILD_VERSION = "";
+const versioned = (path) => (BUILD_VERSION ? `${path}?v=${BUILD_VERSION}` : path);
+
 // Same-origin pages share localStorage, so an unnamespaced key would let a
 // saved index from the full 33-case deck restore onto a 9-case filtered
 // deck and point past its end.
@@ -319,24 +325,54 @@ function showLoadError(err) {
   el.stem.replaceChildren(box);
 }
 
-fetch("src/cases.json")
-  .then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.json();
-  })
+// Two layouts serve this page, and both are real.
+//
+//   deployed: _site carries one src/cases.<batch>.json per published batch and
+//             no src/cases.json at all -- the unpublished cases, with their
+//             pivots and resolutions, never leave the repo. A deck page also
+//             downloads only its own cases rather than five times as many.
+//   repo:     src/cases.json is the only deck file. There is no build step
+//             locally, and play.html carries no batch and needs the full deck.
+//
+// So a batch page asks for its own file first and falls back to the full deck,
+// narrowing it here. The fallback is not a safety net for a broken deploy: it
+// is how local development and the browser suite run at all.
+async function loadDeck() {
+  if (BATCH) {
+    const narrow = await fetchDeckFile(versioned(`src/cases.${BATCH}.json`));
+    if (narrow) return narrow;
+  }
+
+  const full = await fetchDeckFile(versioned("src/cases.json"));
+  if (!full) throw new Error("HTTP 404");
+  if (!BATCH) return full;
+
+  return { ...full, cases: (full.cases ?? []).filter((c) => c.batch === BATCH) };
+}
+
+// Resolves to the parsed body, or null when the file simply is not there. A
+// 404 on the narrow file is the expected answer in the repo layout, so it must
+// not read as an error; every other failure -- a dead server, malformed JSON --
+// still rejects and reaches showLoadError.
+async function fetchDeckFile(url) {
+  const r = await fetch(url);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+loadDeck()
   .then((data) => {
     deck = data;
 
-    // A standalone-page filter, not a second data file -- cases.json stays
-    // the single source of truth and this page just narrows the deck.
-    if (BATCH) {
-      deck = { ...deck, cases: deck.cases.filter((c) => c.batch === BATCH) };
-      if (deck.cases.length === 0) {
-        // Wrong tag or an empty batch is a build-time mistake, not something
-        // to paper over with an empty deck -- surface it instead of leaving
-        // a blank page that looks merely slow to load.
-        throw new Error(`No cases found for batch "${BATCH}"`);
-      }
+    if (!Array.isArray(deck.cases) || deck.cases.length === 0) {
+      // Wrong tag, an empty batch, or a deck file that was built from the
+      // wrong data -- a build-time mistake, not something to paper over with
+      // an empty deck. Surface it instead of leaving a blank page that looks
+      // merely slow to load.
+      throw new Error(
+        BATCH ? `No cases found for batch "${BATCH}"` : "The deck is empty"
+      );
     }
 
     buildNav();
