@@ -134,9 +134,9 @@ says the case is *shown solved*, which stops being true the moment it plays.
 
 Showing a case solved spoils it, so the pick is constrained: it must come
 from the mixed deck and never from Batch 01, which is the set a new reader
-is actually pointed at. It is currently `resp_asthma_normal_co2` — a normal PaCO2 in
-acute asthma, which argues the site's whole premise better than an invented
-stem could: the reassuring number is the decisive one. Keep the
+is actually pointed at. It is currently `resp_asthma_normal_co2` — a normal
+PaCO2 in acute asthma, which argues the site's whole premise better than an
+invented stem could: the reassuring number is the decisive one. Keep the
 not-in-Batch-01 rule on any future swap.
 
 Two things deliberately stay left-to-right on that page: the demo panel,
@@ -340,10 +340,27 @@ no pointer, so the script injects a cursor into the page and flies it to each
 target with a press on landing — without it the taps look like the page
 operating itself. It is deliberately small (22px): the frame is only 540 CSS
 pixels wide, so a dot sized for a desktop sits on the stem like a thumbprint
-and hides the words it has just tapped. And `recordVideo.size` does not scale a small viewport up to
-fill the frame, it pads it into the corner, so the recording is taken at
+and hides the words it has just tapped. And `recordVideo.size` does not scale
+a small viewport up to fill the frame, it pads it into the corner, so the
+recording is taken at
 native resolution from a real 540×960 window at a device scale factor of 2
 rather than from an emulated phone viewport. 540 CSS pixels, not the 360 the
 deck's phone breakpoint targets, is the narrowest window Chromium will give:
 the trade is a slightly roomier layout in exchange for text that is sharp at
 1080 wide.
+
+## Case videos
+
+Longer than the clip and recorded by hand rather than by a script: one case
+worked through out loud, in Arabic, with burned-in English subtitles, about 90
+seconds. The clip argues that the exercise exists; a case video is the exercise
+being done. Scripts live in [docs/video-scripts/](docs/video-scripts/), one per
+case, written before recording so the subtitles need no transcription
+afterwards.
+
+A video spends its case the same way the demo card does, so the rule is the
+same: take it from the mixed deck, never from a published batch. The first is
+the asthma case the card and the clip already show, which is why it costs
+nothing new. Recording needs the site served locally — `play.html` and the full
+deck are withheld from the built site, so a mixed-deck case cannot be reached on
+the live URL at all.
