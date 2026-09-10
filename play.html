@@ -46,7 +46,16 @@
     <button class="none-option" id="noneOption" type="button"></button>
 
     <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-    <div class="resolution" id="resolution"></div>
+
+    <!-- Deliberately not a live region. Solving a case moves focus to the
+         heading game.js writes into this panel instead, so the explanation is
+         read under the reader's own control rather than fired at them as one
+         uninterruptible burst on top of the feedback announcement above.
+         role="region" makes the solved explanation a named landmark they can
+         jump back to; the name is the <h2>, so an empty panel has no name and
+         is not announced as a landmark at all. -->
+    <div class="resolution" id="resolution"
+         role="region" aria-labelledby="resolutionHeading"></div>
 
     <button class="next" id="next" type="button" hidden></button>
 

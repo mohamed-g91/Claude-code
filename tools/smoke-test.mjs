@@ -638,6 +638,213 @@ check(
   BATCH_PAGES.map((b) => `findthepivot.v1:${b.tag}`).join(", ")
 );
 
+// --- solving a case has to reach a screen reader, without moving the viewport ---
+// Two failures pulling against each other, so they are measured together.
+//
+// The first is what shipped: the resolution -- the rule sentence, its bullets
+// and the closing paragraph, which is the whole teaching payload of the site --
+// appeared with nothing announcing it. #feedback's role="status" read the
+// one-line pivot feedback, then silence, and the explanation had to be found by
+// hunting with reader navigation keys. game.js now moves focus to the
+// resolution's heading, so the reader lands at the top of the explanation and
+// reads it at their own pace instead of having it fired at them.
+//
+// The second is that fix going wrong, which it already did once: solving a case
+// used to focus the "Next case" button, and focusing an element scrolls it into
+// view -- a 1282px jump on a 360px phone, landing the reader below the very
+// explanation they had earned. Reported twice, removed in 2b29a16. The focus
+// call is therefore focus({ preventScroll: true }), and these are the numbers
+// that hold it there: scrollY recorded at a known offset, the pivot tapped,
+// then read again after any smooth scroll would have settled. Both deck pages
+// at both widths, because the jump was measured at both.
+const PIVOT_VIEWPORTS = [
+  { label: "360x740", width: 360, height: 740 },
+  { label: "1280x720", width: 1280, height: 720 },
+];
+const SCROLL_SETTLE_MS = 700;
+
+// Which case and which clause come from the data, never named -- retagging or
+// reordering a batch must not break the suite. The case picked is the first in
+// the batch whose pivot sits on a stem clause, so the tap under test is the
+// ordinary one rather than the None button.
+function pivotTargetIn(batchCases) {
+  const at = batchCases.findIndex((c) => c.clauses.some((x) => x.role === "pivot"));
+  if (at === -1) return null;
+  return { at, clause: batchCases[at].clauses.findIndex((x) => x.role === "pivot") };
+}
+
+for (const { file, tag } of BATCH_PAGES) {
+  const pageUrl = URL.replace(/play\.html$/, file);
+  const target = pivotTargetIn(CASES.filter((c) => c.batch === tag));
+  check(`${file} has a case whose pivot is a stem clause`, target !== null,
+    target ? `case ${target.at + 1}, clause ${target.clause + 1}` : "none found");
+  if (!target) continue;
+
+  for (const vp of PIVOT_VIEWPORTS) {
+    const c = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+    const pg = await c.newPage();
+    await pg.goto(pageUrl);
+    await pg.waitForSelector(".clause");
+    await pg.locator(".nav-item").nth(target.at).click();
+    await pg.waitForFunction(
+      (n) => document.getElementById("meta").textContent.includes(`${n} of `),
+      target.at + 1);
+
+    // jumpTo() scrolls the new stem to the top, smoothly -- let that finish
+    // before parking the viewport where the assertion needs it.
+    await pg.waitForTimeout(SCROLL_SETTLE_MS);
+    await pg.evaluate(() => window.scrollTo(0, 300));
+    await pg.waitForTimeout(SCROLL_SETTLE_MS);
+    const before = await pg.evaluate(() => window.scrollY);
+
+    await pg.locator(".clause").nth(target.clause).click();
+    await pg.waitForSelector("#resolution h2");
+    await pg.waitForTimeout(SCROLL_SETTLE_MS);
+    const after = await pg.evaluate(() => window.scrollY);
+
+    // A page parked at 0 would pass the comparison below without proving
+    // anything, so the offset itself is asserted first.
+    check(
+      `${file} at ${vp.label} is scrolled away from the top before the pivot tap`,
+      before > 0,
+      `scrollY ${before}`
+    );
+    check(
+      `${file} at ${vp.label}: solving a case does not move the viewport`,
+      after === before,
+      `scrollY ${before} -> ${after}`
+    );
+
+    // The mechanism that replaces the silence: focus lands on the resolution's
+    // own heading, inside the resolution panel, not on the button below it.
+    const landed = await pg.evaluate(() => {
+      const a = document.activeElement;
+      const box = document.getElementById("resolution");
+      return {
+        tag: a?.tagName,
+        inside: !!a && box.contains(a) && a !== box,
+        text: (a?.textContent ?? "").trim(),
+      };
+    });
+    check(
+      `${file} at ${vp.label}: focus lands on the resolution heading`,
+      landed.inside && landed.tag === "H2" &&
+        landed.text === "Why it turns on that finding",
+      `${landed.tag} "${landed.text}"`
+    );
+
+    await c.close();
+  }
+}
+
+// The focus move is programmatic and follows a tap, so it must announce the
+// explanation without painting a ring on a heading nobody focused. Chromium
+// decides :focus-visible from how the previous focus was reached, so this can
+// only be answered by clicking rather than by reading the stylesheet.
+{
+  const { file, tag } = BATCH_PAGES[0];
+  const pageUrl = URL.replace(/play\.html$/, file);
+  const target = pivotTargetIn(CASES.filter((c) => c.batch === tag));
+  const c = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  const pg = await c.newPage();
+  await pg.goto(pageUrl);
+  await pg.waitForSelector(".clause");
+  await pg.locator(".nav-item").nth(target.at).click();
+  await pg.waitForFunction(
+    (n) => document.getElementById("meta").textContent.includes(`${n} of `),
+    target.at + 1);
+  await pg.locator(".clause").nth(target.clause).click();
+  await pg.waitForSelector("#resolution h2");
+
+  const mouse = await pg.evaluate(() => {
+    const a = document.activeElement;
+    const s = getComputedStyle(a);
+    return {
+      focusVisible: a.matches(":focus-visible"),
+      outline: `${s.outlineStyle} ${s.outlineWidth}`,
+      drawn: s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0,
+    };
+  });
+  check(
+    "no focus ring on the resolution heading after a mouse tap",
+    mouse.focusVisible === false && mouse.drawn === false,
+    `:focus-visible ${mouse.focusVisible}, outline ${mouse.outline}`
+  );
+
+  // The panel is a named landmark as well, so a reader who has moved on can
+  // come back to the explanation in one keystroke. The name is the heading, so
+  // an empty panel between cases is not announced as a landmark at all.
+  const region = await pg.evaluate(() => {
+    const box = document.getElementById("resolution");
+    const labelledBy = box.getAttribute("aria-labelledby");
+    return {
+      role: box.getAttribute("role"),
+      name: (document.getElementById(labelledBy)?.textContent ?? "").trim(),
+    };
+  });
+  check(
+    "the resolution is a region named by its heading",
+    region.role === "region" && region.name === "Why it turns on that finding",
+    `role=${region.role}, name="${region.name}"`
+  );
+
+  await c.close();
+}
+
+// Same move from the keyboard: the ring has to come back, because a sighted
+// keyboard user needs to see where the caret went, and the viewport still must
+// not move under them.
+{
+  const { file, tag } = BATCH_PAGES[0];
+  const pageUrl = URL.replace(/play\.html$/, file);
+  const target = pivotTargetIn(CASES.filter((c) => c.batch === tag));
+  const c = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  const pg = await c.newPage();
+  await pg.goto(pageUrl);
+  await pg.waitForSelector(".clause");
+
+  // Tab in from the top of the document -- the navigator's buttons come before
+  // the clauses, so it takes a while to walk there, and programmatic focus
+  // would not tell Chromium the keyboard was used.
+  let reached = false;
+  for (let i = 0; i < 80 && !reached; i++) {
+    await pg.keyboard.press("Tab");
+    reached = await pg.evaluate(
+      (n) => [...document.querySelectorAll(".clause")].indexOf(document.activeElement) === n,
+      target.clause);
+  }
+  check(`Tab reaches the pivot clause on ${file}`, reached);
+
+  const beforeKb = await pg.evaluate(() => window.scrollY);
+  await pg.keyboard.press("Enter");
+  await pg.waitForSelector("#resolution h2");
+  await pg.waitForTimeout(SCROLL_SETTLE_MS);
+
+  const kb = await pg.evaluate(() => {
+    const a = document.activeElement;
+    const s = getComputedStyle(a);
+    return {
+      id: a.id,
+      focusVisible: a.matches(":focus-visible"),
+      drawn: s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0,
+      outline: `${s.outlineStyle} ${s.outlineWidth}`,
+      scrollY: window.scrollY,
+    };
+  });
+  check(
+    "focus ring visible on the resolution heading after keyboard activation",
+    kb.focusVisible === true && kb.drawn === true,
+    `:focus-visible ${kb.focusVisible}, outline ${kb.outline}`
+  );
+  check(
+    "keyboard activation does not move the viewport either",
+    kb.scrollY === beforeKb,
+    `scrollY ${beforeKb} -> ${kb.scrollY}`
+  );
+
+  await c.close();
+}
+
 // --- index.html: the landing page ---
 // index.html no longer carries a deck; it is the marketing page that sends
 // people to the two deck pages. It has its own failure modes (a broken CTA,

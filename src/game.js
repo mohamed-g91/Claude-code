@@ -34,6 +34,10 @@ const DEFAULT_NONE = {
   role: "noise",
   feedback: "Something in this stem does change what you do next.",
 };
+// The resolution's <h2> carries this id so #resolution's role="region" has an
+// accessible name, and so the heading can be focused when a case is solved.
+const RESOLUTION_HEADING_ID = "resolutionHeading";
+
 const ROLE_LABEL = {
   pivot: "Pivot",
   contributory: "Contributory",
@@ -211,6 +215,7 @@ function selectOption(target, option, c) {
     lockCase();
     showResolution(c);
     showNext();
+    focusResolutionHeading();
   }
 
   saveProgress();
@@ -227,6 +232,12 @@ function lockCase() {
 function showResolution(c) {
   el.resolution.replaceChildren();
   const h = document.createElement("h2");
+  // Named so #resolution's role="region" resolves to a landmark a reader can
+  // come back to, and focusable so focusResolutionHeading() below can put a
+  // screen-reader user at the top of the explanation. Neither is a tab stop:
+  // tabindex -1 is reachable by script, never by Tab.
+  h.id = RESOLUTION_HEADING_ID;
+  h.tabIndex = -1;
   h.textContent = "Why it turns on that finding";
   el.resolution.appendChild(h);
 
@@ -282,6 +293,31 @@ function resPara(className, text) {
   return p;
 }
 
+// Solving a case is the moment the whole exercise exists for, and until now a
+// screen-reader user was told nothing about it: the short pivot feedback fired
+// from #feedback's role="status", then silence, with the rule sentence, the
+// bullets and the closing paragraph sitting unannounced below.
+//
+// Focus moves to the resolution's heading rather than the panel being wired up
+// as a second live region. A live region would read the rule, every bullet and
+// the closing paragraph as one uninterruptible burst that cannot be paused or
+// re-read -- and it would fire in the same tick as the feedback's own live
+// region, where readers routinely drop one of the two. Landing on the heading
+// instead announces "Why it turns on that finding, heading level 2" and hands
+// the reader the explanation to read at their own pace, arrow key by arrow
+// key, which is how a sighted reader consumes it. Tab from there reaches
+// "Next case" directly instead of walking the rest of the stem.
+//
+// preventScroll is not optional here. Focusing an element scrolls it into
+// view, and that is exactly the jump commit 2b29a16 took out of showNext() --
+// 1282px on a 360px phone, past the resolution the reader had just earned.
+// See the comment in showNext(). tools/smoke-test.mjs measures window.scrollY
+// across the pivot tap on both deck pages, at phone and desktop width, so the
+// bug that shipped twice cannot come back a third time.
+function focusResolutionHeading() {
+  el.resolution.querySelector("h2")?.focus({ preventScroll: true });
+}
+
 function showNext() {
   const last = index >= deck.cases.length - 1;
   el.next.textContent = last ? "Start again from the top" : "Next case";
@@ -289,8 +325,8 @@ function showNext() {
   // Deliberately does not take focus. Focusing the button scrolled the
   // viewport down to it, which jumped the reader straight past the
   // resolution they had just earned -- the one thing the pivot is for.
-  // Focus stays on the clause they activated, and Tab still reaches the
-  // button from there.
+  // Focus goes to the top of that resolution instead, in
+  // focusResolutionHeading() above, and Tab reaches this button from there.
 }
 
 // Shared by the "Next case" button and the navigator -- both just move to

@@ -235,6 +235,20 @@
   text-transform: uppercase;
   color: var(--ink-faint);
 }
+/* Solving a case moves focus onto this heading so a screen reader lands at the
+   top of the explanation rather than being left in silence below the feedback
+   (see focusResolutionHeading in game.js). That focus is programmatic and, for
+   a tap or a mouse click, must paint nothing -- a ring appearing on a heading
+   nobody focused would read as a rendering fault. :focus-visible still matches
+   when the pivot was activated from the keyboard, so that reader keeps a ring
+   and can see where the caret went. Same accent and offset as every other
+   focus ring in the site, so it works in both schemes and in RTL unchanged. */
+.resolution h2:focus { outline: none; }
+.resolution h2:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 /* The structured resolution reads as three beats -- the rule, the criteria it
    turns on, then the trap -- because the complaint about the old single
