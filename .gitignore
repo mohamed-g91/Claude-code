@@ -6,3 +6,11 @@ _site/
 # as a 404 inside every chat app that scraped it.
 *.png
 !src/og-card.png
+
+# Recorded demo clips are an output, not a source: `npm run demo` rebuilds one
+# from cases.json and the live page in under a minute, and a binary that big
+# would sit in the history for good. The whole directory goes, and the
+# extensions go with it so a clip saved somewhere else cannot slip in either.
+demo/
+*.mp4
+*.webm

@@ -265,3 +265,47 @@ tools/smoke-test.mjs       browser suite
 
 Content is rendered with `textContent`, never `innerHTML` — the cases are data
 and stay data.
+
+## The share clip
+
+`tools/record-demo.mjs` records the clip that goes out on Telegram and
+WhatsApp: one case solved in about 27 seconds, wrong tap and all. Serve the
+site first, because it drives the real page rather than a mock-up:
+
+```
+npm run serve &
+npm run demo
+```
+
+It writes `demo/find-the-pivot-demo.mp4` — 1080×1920, H.264, a couple of
+megabytes — and prints the duration, dimensions, size and the container it
+actually verified. The `demo/` directory is ignored: the clip is an output,
+rebuildable in under a minute, and does not belong in the history.
+
+What it shows is the argument the site is making, so the shape is fixed: a
+pause on the unmarked stem long enough to read it, a **noise** tap that goes
+red and is answered, a **contributory** tap that goes amber and is told it is
+the right line of reasoning but not decisive, then the **pivot** going green
+and opening the resolution — and a final hold with all three marks and the
+explanation on screen together. The earlier marks are never cleared. A clip
+that showed only a right answer would be selling a quiz.
+
+The case is `resp_asthma_normal_co2`, and that is a constraint rather than a
+taste: a clip of a case being solved spoils it, so the pick has to come from
+the unpublished mixed deck and never from a published batch — and this one is
+already spent by the landing page's demo panel, so the clip costs nothing new.
+The same rule as the demo panel applies to any swap. It is reached through
+`play.html`, which serves the full deck; the script finds the case by `id` in
+`cases.json` and picks its taps by clause `role`, so reordering the deck
+cannot quietly point it at the wrong stem.
+
+Two details are load-bearing and easy to undo by accident. Playwright records
+no pointer, so the script injects a cursor into the page and flies it to each
+target with a press on landing — without it the taps look like the page
+operating itself. And `recordVideo.size` does not scale a small viewport up to
+fill the frame, it pads it into the corner, so the recording is taken at
+native resolution from a real 540×960 window at a device scale factor of 2
+rather than from an emulated phone viewport. 540 CSS pixels, not the 360 the
+deck's phone breakpoint targets, is the narrowest window Chromium will give:
+the trade is a slightly roomier layout in exchange for text that is sharp at
+1080 wide.
