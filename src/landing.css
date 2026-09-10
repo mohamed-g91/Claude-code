@@ -104,6 +104,8 @@ section + section { border-top: 1px solid var(--line); }
   /* Set dir="ltr" on the element too -- this only keeps the internal
      alignment honest if the flow direction is LTR as well. */
   text-align: start;
+  /* The animated pointer is positioned against this box. */
+  position: relative;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -167,6 +169,132 @@ section + section { border-top: 1px solid var(--line); }
   opacity: 0.8;
   margin-inline-end: 0.4rem;
 }
+/* ---------- the demo panel, playing ----------
+   The panel ships solved: all three marks, the pivot feedback. That is what a
+   reader with JavaScript blocked sees, and it is the honest still of the
+   product. src/landing.js then adds .is-animated and rewinds it, so the cycle
+   is an enhancement on top of a correct page rather than something the markup
+   depends on.
+
+   Nothing here is exposed to assistive tech: the panel is role="img" with a
+   fixed aria-label and its contents are aria-hidden, so a screen reader keeps
+   getting one static description no matter which beat is on screen. */
+
+.demo.is-animated .demo-stem mark {
+  background: transparent;
+  color: inherit;
+  font-weight: inherit;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+.demo.is-animated.show-noise .demo-stem mark.noise {
+  background: var(--noise-bg); color: var(--noise-ink);
+}
+.demo.is-animated.show-contributory .demo-stem mark.contributory {
+  background: var(--contrib-bg); color: var(--contrib-ink);
+}
+.demo.is-animated.show-pivot .demo-stem mark.pivot {
+  background: var(--pivot-bg); color: var(--pivot-ink); font-weight: 600;
+}
+
+/* Only one line shows at a time, but all three are laid into the same grid
+   cell, so the box is always as tall as the longest of them and the panel has
+   exactly one height for its whole life.
+
+   The stacking is unconditional, not something the animation switches on. When
+   it was conditional the box grew the moment the cycle started -- on a desktop
+   that is immediately after load, which is the worst possible time to move the
+   page. The cost is a little empty space under the shortest line in the static
+   panel, which is the cheaper of the two. */
+.demo-feedback { display: grid; }
+.demo-fb {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+}
+.demo-fb[data-role="pivot"] { opacity: 1; visibility: visible; }
+
+.demo.is-animated .demo-feedback { transition: background-color 0.35s ease, border-color 0.35s ease; }
+.demo.is-animated .demo-fb { transition: opacity 0.3s ease; }
+.demo.is-animated .demo-fb[data-role="pivot"] { opacity: 0; visibility: hidden; }
+.demo.is-animated .demo-fb.is-shown { opacity: 1; visibility: visible; }
+
+/* Before the first tap there is no feedback yet -- the box keeps its space so
+   nothing moves, but shows neither colour nor border. */
+.demo.is-animated .demo-feedback {
+  background: transparent; color: var(--ink); border-color: transparent;
+}
+.demo.is-animated.fb-noise .demo-feedback {
+  background: var(--noise-bg); color: var(--noise-ink); border-color: var(--noise-line);
+}
+.demo.is-animated.fb-contributory .demo-feedback {
+  background: var(--contrib-bg); color: var(--contrib-ink); border-color: var(--contrib-line);
+}
+.demo.is-animated.fb-pivot .demo-feedback {
+  background: var(--pivot-bg); color: var(--pivot-ink); border-color: var(--pivot-line);
+}
+
+/* ---------- the demo pointer ----------
+   A panel that only recolours itself is easy to scroll past without noticing
+   it is playing at all: the marks arrive with nothing visibly causing them.
+   This is the cause -- a small pointer that travels to a finding and taps it,
+   the same gesture the reader is being asked to make. It idles with a slow
+   pulse from the first frame, so the panel reads as live even in the glance
+   before the first move.
+
+   src/landing.js creates it, so a page with the script blocked keeps the
+   solved still and never shows a pointer with nothing to point at. Travel
+   duration is set by the script through --demo-travel, so the two cannot
+   drift apart. */
+
+.demo-cursor {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 20px;
+  height: 20px;
+  /* Logical, to match inset-inline-start: the panel is pinned LTR today, and
+     a physical margin here would put the pointer half its own width off its
+     target the day anything about that changes. */
+  margin-block-start: -10px;
+  margin-inline-start: -10px;
+  pointer-events: none;
+  z-index: 2;
+  transition: transform var(--demo-travel, 520ms) cubic-bezier(0.32, 0.06, 0.2, 1);
+  will-change: transform;
+}
+/* The dot is the pseudo-element rather than the box itself: the box owns the
+   travel transform, and a scale on the same property would fight it. */
+.demo-cursor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border: 2px solid var(--accent);
+  box-shadow: 0 2px 8px rgba(15, 29, 46, 0.25);
+  transition: transform 0.14s ease;
+}
+.demo-cursor::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  transform: scale(0.6);
+}
+.demo-cursor.is-idle::before { animation: demo-cursor-idle 1.7s ease-in-out infinite; }
+.demo-cursor.is-press::before { transform: scale(0.66); }
+.demo-cursor.is-press::after { animation: demo-cursor-ripple 500ms ease-out; }
+
+@keyframes demo-cursor-idle {
+  50% { transform: scale(1.18); }
+}
+@keyframes demo-cursor-ripple {
+  from { opacity: 0.8; transform: scale(0.6); }
+  to   { opacity: 0;   transform: scale(2.1); }
+}
+
 .demo-caption {
   font-size: 0.78rem;
   color: var(--ink-faint);

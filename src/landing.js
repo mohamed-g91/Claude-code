@@ -99,6 +99,205 @@ function countCases(cases) {
   };
 }
 
+/* ---------- the demo panel, playing ----------
+ *
+ * The panel in the markup is the case already solved, which is what a reader
+ * with this file blocked sees and is an honest still of the product. This
+ * rewinds it and plays the solve: noise, then contributory, then pivot, then a
+ * hold on all three at once.
+ *
+ * The hold is the point. Any drill can show a right answer; what this one does
+ * differently is answer a wrong tap rather than punish it, and the only way to
+ * see that is the amber beat followed by all three marks on screen together.
+ * The trail never clears between them.
+ *
+ * Two things here are about being *noticed*, which an earlier version was not.
+ * A pointer travels to each finding and taps it, so a mark always has a
+ * visible cause and the panel cannot be mistaken for a screenshot -- it idles
+ * with a pulse from the first frame, before it has moved at all. And the
+ * rewound opening beat is short: it is dead air, and a reader who arrives
+ * during it sees a still panel and scrolls on. Reading the stem is what the
+ * deck itself is for; this panel only has to show what tapping does.
+ */
+
+// Cumulative: each beat adds a mark without taking away the one before it.
+// `hold` runs from the moment the mark lands, so the pointer's travel and
+// press are on top of it.
+const DEMO_BEATS = [
+  { role: null, hold: 700 },            // rewound: nothing marked, pointer idle
+  { role: "noise", hold: 1800 },
+  { role: "contributory", hold: 2000 },
+  { role: "pivot", hold: 3400 },
+];
+const DEMO_TRAVEL = 520; // pointer flight; also written to CSS as --demo-travel
+const DEMO_PRESS = 130;  // finger down, before the mark lands
+const MARK_CLASSES = ["show-noise", "show-contributory", "show-pivot"];
+const FB_CLASSES = ["fb-noise", "fb-contributory", "fb-pivot"];
+
+function playDemo() {
+  const panel = document.querySelector(".demo");
+  if (!panel) return;
+
+  const lines = [...panel.querySelectorAll(".demo-fb")];
+  const stem = panel.querySelector(".demo-stem");
+  if (lines.length < 3 || !stem) return; // markup predates this
+
+  // Someone who asked for less motion gets the still they would have had
+  // anyway -- the solved panel -- not a faster version of the cycle.
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (still.matches) return;
+
+  const caption = document.querySelector(".demo-caption");
+  const captionSolved = caption?.textContent ?? "";
+
+  // Created here rather than shipped in the markup: a page with this file
+  // blocked shows the solved still, and a pointer resting on a panel that
+  // never moves would be a lie about it.
+  const cursor = document.createElement("span");
+  cursor.className = "demo-cursor is-idle";
+  cursor.setAttribute("aria-hidden", "true");
+  cursor.style.setProperty("--demo-travel", `${DEMO_TRAVEL}ms`);
+  panel.appendChild(cursor);
+
+  let beat = 0;
+  let timer = null;
+  let started = false;
+  let aim = null; // what the pointer is currently over, so a resize can re-aim
+
+  /* --- where the pointer goes --- */
+
+  // The centre of the mark's widest line box, not of its bounding box: a
+  // finding that wraps across lines has a bounding-box centre that can fall in
+  // the gap between them, and the pointer would tap visibly beside the text.
+  function pointAt(target) {
+    const box = panel.getBoundingClientRect();
+    const rects = [...target.getClientRects()];
+    if (!rects.length) return null;
+    const line = rects.reduce((a, b) => (b.width > a.width ? b : a));
+    return {
+      x: line.x - box.x + line.width / 2,
+      y: line.y - box.y + line.height / 2,
+    };
+  }
+
+  // Resting place between cycles: under the stem, centred, where a thumb sits.
+  function restPoint() {
+    const box = panel.getBoundingClientRect();
+    return { x: box.width / 2, y: stem.getBoundingClientRect().bottom - box.y + 12 };
+  }
+
+  function place(point, instant) {
+    if (!point) return;
+    if (instant) cursor.style.transition = "none";
+    cursor.style.transform = `translate(${point.x}px, ${point.y}px)`;
+    if (instant) {
+      void cursor.offsetWidth; // commit the jump before the transition returns
+      cursor.style.transition = "";
+    }
+  }
+
+  /* --- the panel's state at a given beat --- */
+
+  // Derived from the index alone, so entering a beat mid-cycle -- which is what
+  // scrolling back to the panel does -- restores the marks it should already
+  // be carrying instead of replaying from an empty stem.
+  function show(upto) {
+    panel.classList.remove(...MARK_CLASSES, ...FB_CLASSES);
+    for (let i = 1; i <= upto; i++) {
+      panel.classList.add(`show-${DEMO_BEATS[i].role}`);
+    }
+    const role = upto >= 1 ? DEMO_BEATS[upto].role : null;
+    if (role) panel.classList.add(`fb-${role}`);
+    for (const line of lines) {
+      line.classList.toggle("is-shown", line.dataset.role === role);
+    }
+  }
+
+  function enter(i) {
+    beat = i;
+    const { role, hold } = DEMO_BEATS[i];
+    show(i - 1); // whatever the earlier beats already marked stays marked
+
+    if (!role) {
+      cursor.classList.add("is-idle");
+      cursor.classList.remove("is-press");
+      place(restPoint());
+      timer = setTimeout(() => enter((i + 1) % DEMO_BEATS.length), hold);
+      return;
+    }
+
+    const target = stem.querySelector(`mark.${role}`);
+    aim = target;
+    cursor.classList.remove("is-idle", "is-press");
+    place(pointAt(target));
+
+    timer = setTimeout(() => {
+      cursor.classList.add("is-press");
+      timer = setTimeout(() => {
+        show(i);
+        cursor.classList.remove("is-press");
+        timer = setTimeout(() => enter((i + 1) % DEMO_BEATS.length), hold);
+      }, DEMO_PRESS);
+    }, DEMO_TRAVEL);
+  }
+
+  // Deferred to the first time the panel is actually on screen. Blanking it up
+  // front looked fine on a desktop, where the panel is fully in view on load --
+  // but on a phone it sits below the hero, so until it is worth playing the
+  // panel stays the solved still the markup ships, which is the same thing a
+  // blocked script leaves behind.
+  function start() {
+    if (!started) {
+      started = true;
+      panel.classList.add("is-animated");
+      place(restPoint(), true); // no flight in from the corner on the first frame
+      // The shipped caption says the case is shown solved. Once it is playing
+      // that is no longer true, and the replacement doubles as the plainest
+      // possible signal that the panel is moving. Both strings live in the
+      // markup, so each language carries its own.
+      if (caption?.dataset.playing) caption.textContent = caption.dataset.playing;
+    }
+    if (timer === null) enter(beat);
+  }
+
+  function stop() {
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  // A panel scrolled past should not keep the tab busy. The threshold is low
+  // on purpose: a phone shows this panel a sliver at a time under the hero, and
+  // a reader who can see it moving is the whole point of it moving.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.15 }
+    ).observe(panel);
+  } else {
+    start();
+  }
+
+  // Rotating a phone rewraps the stem, which moves the finding the pointer is
+  // sitting on. Re-aim without a flight, so it stays on its target rather than
+  // sliding across the panel to catch up.
+  addEventListener("resize", () => {
+    if (!started) return;
+    place(aim && !cursor.classList.contains("is-idle") ? pointAt(aim) : restPoint(), true);
+  });
+
+  // A reader who turns motion off mid-visit gets the solved panel back.
+  still.addEventListener?.("change", (e) => {
+    if (!e.matches) return;
+    stop();
+    cursor.remove();
+    panel.classList.remove("is-animated", ...MARK_CLASSES, ...FB_CLASSES);
+    for (const line of lines) line.classList.remove("is-shown");
+    if (caption) caption.textContent = captionSolved;
+  });
+}
+
+playDemo();
+
 loadCounts()
   .then((counts) => {
     if (!counts) return;

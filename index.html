@@ -94,7 +94,7 @@
            frightening one. -->
       <div>
         <div class="demo" role="img"
-             aria-label="A case from the bank: the stem is split into findings; the presenting complaint is marked red as not decisive, a peak flow of 32% amber as contributory, and a normal arterial PaCO2 green as the pivot, with a green panel explaining why.">
+             aria-label="A case from the bank: the stem is split into findings; the presenting complaint is marked red as not decisive, a peak flow of 40% amber as contributory, and a normal arterial PaCO2 green as the pivot, with a green panel explaining why.">
           <div class="demo-head">
             <span>Respiratory</span>
             <span>2 of 48</span>
@@ -103,15 +103,22 @@
           <p class="demo-stem" aria-hidden="true">
             <mark class="noise">A 24-year-old woman with known asthma has been wheezy and breathless since the morning.</mark>
             She cannot complete a sentence in one breath.
-            <mark class="contributory">Peak flow is 32% of her predicted best.</mark>
-            Oxygen saturation is 94% on high-flow oxygen.
+            <mark class="contributory">Peak flow is 40% of her predicted best.</mark>
+            Oxygen saturation is 94% on room air.
             <mark class="pivot">Arterial blood gas shows a PaCO2 of 5.4 kPa.</mark>
           </p>
           <p class="demo-feedback" aria-hidden="true">
-            <span class="tag">Pivot</span>A normal number that should frighten you.
+            <span class="demo-fb" data-role="noise"><span class="tag">Not decisive</span>Background. It tells you which illness you are in, not how severe this episode is.</span>
+            <span class="demo-fb" data-role="contributory"><span class="tag">Contributory</span>A real severity marker &mdash; but it still lands in &lsquo;acute severe&rsquo;. Something here escalates her further.</span>
+            <span class="demo-fb" data-role="pivot"><span class="tag">Pivot</span>A normal number that should frighten you.</span>
           </p>
         </div>
-        <p class="demo-caption">A real case, shown solved &mdash; both batches work exactly like this.</p>
+        <!-- Two captions, because the panel has two truthful states. The markup
+             ships solved, so that is what the text says; src/landing.js swaps in
+             data-playing once it starts the cycle, which is both accurate and the
+             plainest signal that the panel is moving rather than a screenshot. -->
+        <p class="demo-caption"
+           data-playing="A real case being solved &mdash; a wrong tap, a near miss, then the pivot.">A real case, shown solved &mdash; both batches work exactly like this.</p>
       </div>
     </div>
   </section>

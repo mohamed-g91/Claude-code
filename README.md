@@ -120,12 +120,23 @@ does the mirroring on its own. Arabic swaps the type stack and loosens the
 line height through `:root:lang(ar)` in `brand.css`, and that is the whole
 difference.
 
-The demo panel on both landing pages shows a **real case, solved**. That
-spoils that one case, so the pick is constrained: it must come from the mixed
-deck and never from Batch 01, which is the set a new reader is actually
-pointed at. It is currently `resp_asthma_normal_co2` — a normal PaCO2 in
-acute asthma, which argues the site's whole premise better than an invented
-stem could: the reassuring number is the decisive one. Keep the
+The demo panel on both landing pages plays a **real case being solved** —
+noise, then contributory, then pivot, then a hold on all three at once. It
+ships solved in the markup, which is what a reader with the script blocked
+gets, and `landing.js` rewinds it. A pointer travels to each finding and taps
+it: a mark that appears with nothing causing it reads as a screenshot being
+swapped, and the panel's whole job on a marketing page is to be recognised as
+the interaction. It idles with a pulse from the first frame and marks its
+first finding inside a second and a half, because a reader who arrives during
+a long rewound pause sees a still panel and scrolls past an animation they
+never saw start. The caption is swapped at the same time — the shipped one
+says the case is *shown solved*, which stops being true the moment it plays.
+
+Showing a case solved spoils it, so the pick is constrained: it must come
+from the mixed deck and never from Batch 01, which is the set a new reader
+is actually pointed at. It is currently `resp_asthma_normal_co2` — a normal
+PaCO2 in acute asthma, which argues the site's whole premise better than an
+invented stem could: the reassuring number is the decisive one. Keep the
 not-in-Batch-01 rule on any future swap.
 
 Two things deliberately stay left-to-right on that page: the demo panel,
@@ -265,3 +276,106 @@ tools/smoke-test.mjs       browser suite
 
 Content is rendered with `textContent`, never `innerHTML` — the cases are data
 and stay data.
+
+## The share clip
+
+`tools/record-demo.mjs` records the clip that goes out on Telegram and
+WhatsApp: one case solved in about 26 seconds, wrong tap and all. Serve the
+site first, because it drives the real page rather than a mock-up:
+
+```
+npm run serve &
+npm run demo
+```
+
+It writes `demo/find-the-pivot-demo.mp4` — 1080×1920, H.264, a couple of
+megabytes — and prints the duration, dimensions, size and the container it
+actually verified, along with whether the capture came out clean.
+
+That last one is not a formality. Chromium's screencast can hand back a frame
+whose contents predate the paint it is timestamped after, and the pivot tap is
+where it happens: the page grows 445px and becomes scrollable in a single
+commit, which is the largest relayout in the clip. On screen it reads as the
+case going solved, unsolved, then solved again, one frame each. The DOM does no
+such thing — `selectOption` is synchronous and only ever adds — so there is
+nothing to fix in the page, and it lands on a different beat each run.
+
+So the script checks the file it produced and records again if it flickered, up
+to three takes, and fails rather than shipping a bad one. A flicker is one frame
+that differs from both its neighbours while those neighbours agree with each
+other; motion changes every frame too, but there the frame before and the frame
+after do not match. Measured: a real flicker moves 7.6 grey levels per pixel,
+x264 re-quantising a static screen moves under 1.3, and the threshold is 3.0. The `demo/` directory is ignored: the clip is an output,
+rebuildable in under a minute, and does not belong in the history.
+
+What it shows is the argument the site is making, so the shape is fixed: a
+pause on the unmarked stem long enough to read it, a **noise** tap that goes
+red and is answered, a **contributory** tap that goes amber and is told it is
+the right line of reasoning but not decisive, then the **pivot** going green
+and opening the resolution — and a final hold with all three marks and the
+explanation on screen together. The earlier marks are never cleared. A clip
+that showed only a right answer would be selling a quiz.
+
+The clip also has to **say what it is**, because it travels without the site
+around it. A viewer meets it in a status feed with no page, no heading and no
+sound, and taps alone do not tell a stranger what the colours mean or where
+any of this lives. So three things are burned into the frame, all of them
+injected into the page rather than drawn by ffmpeg — the page already has the
+typefaces and the state colours, and a card built from them cannot drift from
+the site it is advertising:
+
+- an **opening card** carrying the landing page's own argument and the
+  instruction (*tap the one finding that changes what you do next*), painted
+  with the very first frame because it goes in through `addInitScript`;
+- a **caption** at the top edge as each tap is answered, naming that state in
+  words — a lower third would cover the resolution the last beats scroll into
+  view;
+- a **closing card** with the wordmark, the deck's size counted from
+  `cases.json` rather than typed, and the URL. It is the only frame that says
+  where to find any of this.
+
+The copy all sits in one `COPY` object at the top of the script. The holds are
+shorter than they were to pay for the six seconds those cards cost, because
+20–30s is not negotiable: it is the longest a WhatsApp status carries without
+being cut in two. What was given up is the tail of each pause, after a viewer
+has taken the screen in — the stem is not there to be studied, the deck is for
+that.
+
+The case is `resp_asthma_normal_co2`, and that is a constraint rather than a
+taste: a clip of a case being solved spoils it, so the pick has to come from
+the unpublished mixed deck and never from a published batch — and this one is
+already spent by the landing page's demo panel, so the clip costs nothing new.
+The same rule as the demo panel applies to any swap. It is reached through
+`play.html`, which serves the full deck; the script finds the case by `id` in
+`cases.json` and picks its taps by clause `role`, so reordering the deck
+cannot quietly point it at the wrong stem.
+
+Two details are load-bearing and easy to undo by accident. Playwright records
+no pointer, so the script injects a cursor into the page and flies it to each
+target with a press on landing — without it the taps look like the page
+operating itself. It is deliberately small (22px): the frame is only 540 CSS
+pixels wide, so a dot sized for a desktop sits on the stem like a thumbprint
+and hides the words it has just tapped. And `recordVideo.size` does not scale
+a small viewport up to fill the frame, it pads it into the corner, so the
+recording is taken at
+native resolution from a real 540×960 window at a device scale factor of 2
+rather than from an emulated phone viewport. 540 CSS pixels, not the 360 the
+deck's phone breakpoint targets, is the narrowest window Chromium will give:
+the trade is a slightly roomier layout in exchange for text that is sharp at
+1080 wide.
+
+## Case videos
+
+Longer than the clip and recorded by hand rather than by a script: one case
+worked through out loud, in Arabic, with burned-in English subtitles, about 90
+seconds. The clip argues that the exercise exists; a case video is the exercise
+being done. Scripts live in [docs/video-scripts/](docs/video-scripts/), one per
+case, written before recording so the subtitles need no transcription
+afterwards.
+
+A video spends its case the same way the demo card does, so the rule is the
+same: take it from the mixed deck, never from a published batch. The first is
+the asthma case the card and the clip already show, which is why it costs
+nothing new. Recording needs the site served locally — `play.html` and the full
+deck are withheld from the built site, so a mixed-deck case cannot be reached on
+the live URL at all.
