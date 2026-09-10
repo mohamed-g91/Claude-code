@@ -120,10 +120,21 @@ does the mirroring on its own. Arabic swaps the type stack and loosens the
 line height through `:root:lang(ar)` in `brand.css`, and that is the whole
 difference.
 
-The demo panel on both landing pages shows a **real case, solved**. That
-spoils that one case, so the pick is constrained: it must come from the mixed
-deck and never from Batch 01, which is the set a new reader is actually
-pointed at. It is currently `resp_asthma_normal_co2` — a normal PaCO2 in
+The demo panel on both landing pages plays a **real case being solved** —
+noise, then contributory, then pivot, then a hold on all three at once. It
+ships solved in the markup, which is what a reader with the script blocked
+gets, and `landing.js` rewinds it. A pointer travels to each finding and taps
+it: a mark that appears with nothing causing it reads as a screenshot being
+swapped, and the panel's whole job on a marketing page is to be recognised as
+the interaction. It idles with a pulse from the first frame and marks its
+first finding inside a second and a half, because a reader who arrives during
+a long rewound pause sees a still panel and scrolls past an animation they
+never saw start. The caption is swapped at the same time — the shipped one
+says the case is *shown solved*, which stops being true the moment it plays.
+
+Showing a case solved spoils it, so the pick is constrained: it must come
+from the mixed deck and never from Batch 01, which is the set a new reader
+is actually pointed at. It is currently `resp_asthma_normal_co2` — a normal PaCO2 in
 acute asthma, which argues the site's whole premise better than an invented
 stem could: the reassuring number is the decisive one. Keep the
 not-in-Batch-01 rule on any future swap.
@@ -269,7 +280,7 @@ and stay data.
 ## The share clip
 
 `tools/record-demo.mjs` records the clip that goes out on Telegram and
-WhatsApp: one case solved in about 27 seconds, wrong tap and all. Serve the
+WhatsApp: one case solved in about 26 seconds, wrong tap and all. Serve the
 site first, because it drives the real page rather than a mock-up:
 
 ```
@@ -290,6 +301,31 @@ and opening the resolution — and a final hold with all three marks and the
 explanation on screen together. The earlier marks are never cleared. A clip
 that showed only a right answer would be selling a quiz.
 
+The clip also has to **say what it is**, because it travels without the site
+around it. A viewer meets it in a status feed with no page, no heading and no
+sound, and taps alone do not tell a stranger what the colours mean or where
+any of this lives. So three things are burned into the frame, all of them
+injected into the page rather than drawn by ffmpeg — the page already has the
+typefaces and the state colours, and a card built from them cannot drift from
+the site it is advertising:
+
+- an **opening card** carrying the landing page's own argument and the
+  instruction (*tap the one finding that changes what you do next*), painted
+  with the very first frame because it goes in through `addInitScript`;
+- a **caption** at the top edge as each tap is answered, naming that state in
+  words — a lower third would cover the resolution the last beats scroll into
+  view;
+- a **closing card** with the wordmark, the deck's size counted from
+  `cases.json` rather than typed, and the URL. It is the only frame that says
+  where to find any of this.
+
+The copy all sits in one `COPY` object at the top of the script. The holds are
+shorter than they were to pay for the six seconds those cards cost, because
+20–30s is not negotiable: it is the longest a WhatsApp status carries without
+being cut in two. What was given up is the tail of each pause, after a viewer
+has taken the screen in — the stem is not there to be studied, the deck is for
+that.
+
 The case is `resp_asthma_normal_co2`, and that is a constraint rather than a
 taste: a clip of a case being solved spoils it, so the pick has to come from
 the unpublished mixed deck and never from a published batch — and this one is
@@ -302,7 +338,9 @@ cannot quietly point it at the wrong stem.
 Two details are load-bearing and easy to undo by accident. Playwright records
 no pointer, so the script injects a cursor into the page and flies it to each
 target with a press on landing — without it the taps look like the page
-operating itself. And `recordVideo.size` does not scale a small viewport up to
+operating itself. It is deliberately small (22px): the frame is only 540 CSS
+pixels wide, so a dot sized for a desktop sits on the stem like a thumbprint
+and hides the words it has just tapped. And `recordVideo.size` does not scale a small viewport up to
 fill the frame, it pads it into the corner, so the recording is taken at
 native resolution from a real 540×960 window at a device scale factor of 2
 rather than from an emulated phone viewport. 540 CSS pixels, not the 360 the

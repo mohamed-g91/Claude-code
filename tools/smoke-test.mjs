@@ -1382,6 +1382,66 @@ for (const [label, url] of [["index.html", LANDING_URL], ["ar.html", ARABIC_URL]
   await demoPage.goto(url);
   await demoPage.locator(".demo").scrollIntoViewIfNeeded();
 
+  // How long a reader has to be watching before the panel does anything at
+  // all. It used to hold the rewound stem for 2.2 seconds before the first
+  // mark, which is longer than a glance: the panel a reader met was a still
+  // one, and they scrolled past an animation they never saw start.
+  const firstMark = await demoPage.evaluate(() => {
+    const panel = document.querySelector(".demo");
+    const t0 = performance.now();
+    const marked = () => panel.classList.contains("show-noise");
+    return new Promise((resolve) => {
+      if (marked()) return resolve(0);
+      const obs = new MutationObserver(() => {
+        if (!marked()) return;
+        obs.disconnect();
+        resolve(Math.round(performance.now() - t0));
+      });
+      obs.observe(panel, { attributes: true, attributeFilter: ["class"] });
+      setTimeout(() => { obs.disconnect(); resolve(-1); }, 4000);
+    });
+  });
+  check(
+    `${label} demo panel marks its first finding within 2s of coming into view`,
+    firstMark >= 0 && firstMark < 2000,
+    firstMark < 0 ? "never marked" : `${firstMark}ms`
+  );
+
+  // A mark that appears with nothing visibly causing it reads as a screenshot
+  // being swapped. The pointer is what makes it read as someone tapping, so
+  // it has to exist, have the stylesheet's size (a missing rule leaves an
+  // empty span 0px wide, which is invisible and would pass a bare existence
+  // check), and actually travel between beats.
+  const pointer = await demoPage.evaluate(async () => {
+    const dot = document.querySelector(".demo-cursor");
+    if (!dot) return null;
+    const first = dot.style.transform;
+    await new Promise((r) => setTimeout(r, 2600));
+    return {
+      first,
+      later: dot.style.transform,
+      width: parseFloat(getComputedStyle(dot).width),
+    };
+  });
+  check(
+    `${label} demo panel is tapped by a visible pointer`,
+    pointer !== null && pointer.width > 0 && pointer.first !== pointer.later,
+    pointer ? `${pointer.width}px, ${pointer.first} -> ${pointer.later}` : "no .demo-cursor",
+  );
+
+  // The shipped caption says the case is shown solved, which is true of the
+  // markup and false the moment the cycle starts. The replacement lives in
+  // the markup so each language carries its own.
+  const caption = await demoPage.$eval(".demo-caption", (p) => ({
+    playing: p.dataset.playing ?? "",
+    shown: p.textContent.trim(),
+  }));
+  check(
+    `${label} demo caption stops calling the panel a still once it plays`,
+    caption.playing.length > 0 && caption.shown === caption.playing,
+    caption.shown.slice(0, 46)
+  );
+
   const beats = new Set();
   const heights = new Set();
   // Long enough to cover the ~11s loop with margin, sampled fast enough that

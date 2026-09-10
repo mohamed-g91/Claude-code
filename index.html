@@ -113,7 +113,12 @@
             <span class="demo-fb" data-role="pivot"><span class="tag">Pivot</span>A normal number that should frighten you.</span>
           </p>
         </div>
-        <p class="demo-caption">A real case, shown solved &mdash; both batches work exactly like this.</p>
+        <!-- Two captions, because the panel has two truthful states. The markup
+             ships solved, so that is what the text says; src/landing.js swaps in
+             data-playing once it starts the cycle, which is both accurate and the
+             plainest signal that the panel is moving rather than a screenshot. -->
+        <p class="demo-caption"
+           data-playing="A real case being solved &mdash; a wrong tap, a near miss, then the pivot.">A real case, shown solved &mdash; both batches work exactly like this.</p>
       </div>
     </div>
   </section>

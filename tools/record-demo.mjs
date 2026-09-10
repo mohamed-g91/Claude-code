@@ -18,7 +18,16 @@
 //                     panel rule in README.md before swapping it.
 //   the cursor        Playwright records no pointer, so an un-augmented tap
 //                     video looks like the page operating itself. A cursor is
-//                     injected into the page and travelled to each target.
+//                     injected into the page and travelled to each target. It
+//                     is kept small: at 540 CSS px wide, a dot big enough to
+//                     see on a desktop reads as a beach ball on a phone and
+//                     covers the words it is pointing at.
+//   the instruction   The clip goes out into a status feed, where it is the
+//                     whole pitch and the first thing anyone sees of this
+//                     site. Unlabelled, it is a stranger watching sentences
+//                     change colour for no stated reason: it has to open by
+//                     saying what the exercise is and close by saying where
+//                     to find it. Those cards are injected too.
 //   the framing       recordVideo.size does not scale a small viewport up --
 //                     it pads it into the corner. See sizing note below.
 //
@@ -38,6 +47,40 @@ const URL = process.env.DEMO_URL ?? "http://127.0.0.1:8000/play.html";
 
 // Constrained, not preferred -- see the header note and README's demo panel rule.
 const CASE_ID = "resp_asthma_normal_co2";
+
+// --- what the clip says ------------------------------------------------
+//
+// Every word burned into the frame, in one place. The opening card is the
+// instruction: someone who scrolls past this in a status feed has no idea what
+// the colours mean or what they are watching, and the taps on their own do not
+// tell them. The captions name each of the three states as it is answered, and
+// the closing card is the only thing in the clip that says where the site is.
+//
+// The copy is the landing page's own, not a second pitch written for video:
+// the hero argues "exam stems are mostly noise" and this has to arrive at the
+// same site the viewer was promised. The end card's numbers are counted from
+// the deck below rather than typed, for the same reason the taps are.
+const COPY = {
+  intro: {
+    eyebrow: "mrcp_gafar \u00b7 Find the Pivot",
+    headline: "Exam stems are mostly noise.",
+    line: "One finding changes what you do next. Tap it.",
+  },
+  captions: {
+    noise: "A wrong tap is answered, not punished",
+    contributory: "Right line of reasoning \u2014 still not decisive",
+    pivot: "The pivot \u2014 and why it decides",
+  },
+  end: {
+    // The closing card carries the wordmark too. It is the frame a viewer is
+    // looking at when they decide whether to type the address in, and a URL
+    // with no name over it is a string of characters to mistype.
+    eyebrow: "mrcp_gafar \u00b7 Find the Pivot",
+    headline: (cases, topics) => `${cases} cases \u00b7 ${topics} specialties`,
+    line: "Free, no signup. Runs in your browser, on your phone.",
+    url: "mohamed-g91.github.io/find-the-pivot",
+  },
+};
 
 const OUT_DIR = join(ROOT, "demo");
 const OUT_FILE = join(OUT_DIR, "find-the-pivot-demo.mp4");
@@ -65,18 +108,28 @@ const CSS_H = 1920 / DPR;
 
 // --- pacing ------------------------------------------------------------
 //
-// This is a clinical stem, not a UI demo. A viewer has to actually read it,
-// so every hold errs slow; the whole clip lands in the 20-30s band.
+// This is a clinical stem, not a UI demo. A viewer has to actually read it, so
+// every hold errs slow; the whole clip lands in the 20-30s band, which is also
+// the longest a WhatsApp status will carry without being cut in two.
+//
+// The reading holds are shorter than they were, because the clip now spends
+// six seconds on the two cards and the band did not move. What was given up is
+// the tail of each pause -- the seconds after a viewer has taken the screen in
+// and is waiting for something to happen, which in a status feed is where they
+// swipe. The stem is not there to be studied; the deck is for that.
 const T = {
-  settle: 700,        // after load, before anything moves
-  readStem: 6000,     // the unmarked stem, long enough to take in
+  intro: 2700,        // the opening card, before the page is uncovered
+  introFade: 420,     // matches the overlay's CSS transition
+  settle: 600,        // after the card lifts, before anything moves
+  readStem: 4200,     // the unmarked stem, long enough to take the shape in
   travel: 900,        // cursor flight between targets
   land: 260,          // hover before the finger goes down
   press: 190,         // finger down, before the click lands
   release: 260,       // finger up
-  readFeedback: 3800, // each of the two answered taps
+  readFeedback: 3000, // each of the two answered taps
   scroll: 800,        // easing the resolution into frame
-  readEnd: 6200,      // final state: three marks and the resolution together
+  readEnd: 2400,      // three marks and the resolution together, uncovered
+  endCard: 3400,      // where to find it
 };
 
 const executablePath =
@@ -119,6 +172,12 @@ function planFromDeck() {
   return {
     caseIndex,
     topic: kase.topic,
+    // The closing card's claim, counted the same way the landing page counts
+    // it, so the clip cannot go out promising a deck size the site does not
+    // have. Every case in the file, not only the published batches: that is
+    // what "cases written" means on the site too.
+    deckSize: deck.cases.length,
+    topicCount: new Set(deck.cases.map((c) => c.topic)).size,
     steps: [
       // The *last* noise clause, not the first: a stem's opening sentence is
       // usually the background line ("a 24-year-old woman with known asthma"),
@@ -139,23 +198,32 @@ function planFromDeck() {
 // in a 25fps screencast), squashes on press, and throws a ripple. The real
 // mouse is moved to the same coordinates when it lands, so hover styling
 // happens at the moment the cursor arrives rather than before it sets off.
+//
+// Size is the one number here worth arguing about. The frame is 540 CSS px
+// wide, so the dot is a far larger share of it than the same dot on a desktop:
+// at 34px it sat on the stem like a thumbprint and hid the words it had just
+// tapped. 22px still reads clearly at 1080x1920 on a phone held at arm's
+// length, and the ripple carries the tap rather than the dot's own bulk.
+const CURSOR_PX = 22;
+
 const CURSOR_SETUP = `
   const dot = document.createElement("div");
   dot.id = "__demo_cursor";
   const css = document.createElement("style");
   css.textContent = \`
     #__demo_cursor {
-      position: fixed; left: 0; top: 0; width: 34px; height: 34px;
-      margin: -17px 0 0 -17px; border-radius: 50%;
+      position: fixed; left: 0; top: 0;
+      width: ${CURSOR_PX}px; height: ${CURSOR_PX}px;
+      margin: ${-CURSOR_PX / 2}px 0 0 ${-CURSOR_PX / 2}px; border-radius: 50%;
       background: rgba(13, 92, 112, 0.26);
       border: 2px solid rgba(13, 92, 112, 0.9);
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
-      z-index: 2147483647; pointer-events: none;
+      box-shadow: 0 2px 9px rgba(0, 0, 0, 0.26);
+      z-index: 2147483000; pointer-events: none;
       transition: transform var(--dur, 900ms) cubic-bezier(0.32, 0.06, 0.2, 1);
       will-change: transform;
     }
     #__demo_cursor::after {
-      content: ""; position: absolute; inset: -6px; border-radius: 50%;
+      content: ""; position: absolute; inset: -5px; border-radius: 50%;
       border: 2px solid rgba(13, 92, 112, 0.55); opacity: 0; transform: scale(0.6);
     }
     #__demo_cursor.press::after { animation: __demo_ripple 480ms ease-out; }
@@ -188,6 +256,123 @@ const CURSOR_SETUP = `
         "translate(" + this.at.x + "px, " + this.at.y + "px) scale(1)";
     },
   };
+`;
+
+/* ---------- the burned-in instruction ---------- */
+
+// The cards and captions are DOM in the page rather than an ffmpeg text
+// filter: drawtext needs a font file on the machine and knows nothing about
+// line breaking, while the page already carries the site's typography and
+// colours in brand.css. What is on screen is therefore the real wordmark
+// typeface and the real accent, and it cannot drift from the site the clip is
+// advertising.
+//
+// This one goes in through addInitScript, not evaluate: the screencast starts
+// when the context is created, so anything added after load shows up a beat
+// late, on top of a page the viewer has already started reading. Built at
+// DOMContentLoaded with the opening card already up, the clip's first painted
+// frame is the card.
+//
+// Text is written with textContent and the copy is authored here, so no case
+// data reaches the frame except by way of the page itself.
+const OVERLAY_SETUP = (copy) => `
+  const COPY = ${JSON.stringify(copy)};
+
+  function build() {
+    const style = document.createElement("style");
+    style.textContent = \`
+      #__demo_overlay {
+        position: fixed; inset: 0; z-index: 2147483646;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: 0 46px; box-sizing: border-box;
+        background: var(--bg, #f2f6f9);
+        font-family: var(--font-ui, sans-serif);
+        transition: opacity ${T.introFade}ms ease;
+        /* A faded-out overlay is still a full-screen box in front of the page:
+           without this the first tap of the clip lands on the card instead of
+           the stem, and the recording times out waiting for an answer that was
+           never given. Nothing here is ever meant to be clicked. */
+        pointer-events: none;
+      }
+      #__demo_overlay.is-off { opacity: 0; }
+      .__demo_eyebrow {
+        margin: 0 0 14px; font-size: 20px; font-weight: 700;
+        letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--accent, #0d5c70);
+      }
+      .__demo_headline {
+        margin: 0; font-family: var(--font-display, Georgia, serif);
+        font-size: 46px; line-height: 1.15; letter-spacing: -0.01em;
+        color: var(--brand, #10344f);
+      }
+      .__demo_line {
+        margin: 14px 0 0; font-size: 25px; line-height: 1.45;
+        color: var(--ink-soft, #475569);
+      }
+      .__demo_url {
+        margin: 30px 0 0; padding-top: 22px;
+        border-top: 1px solid var(--line, #dbe4ec);
+        font-size: 24px; font-weight: 700; color: var(--accent, #0d5c70);
+      }
+      /* Top edge, not a lower third: the last beats scroll the resolution up
+         to the bottom of the frame, and a caption down there would cover the
+         explanation the whole clip is working towards. */
+      #__demo_caption {
+        position: fixed; left: 0; right: 0; top: 0; z-index: 2147483645;
+        padding: 15px 24px; box-sizing: border-box; text-align: center;
+        background: var(--brand, #10344f); color: var(--on-brand, #ffffff);
+        font-family: var(--font-ui, sans-serif);
+        font-size: 21px; font-weight: 600; line-height: 1.3;
+        transform: translateY(-101%);
+        transition: transform 340ms cubic-bezier(0.32, 0.06, 0.2, 1);
+        pointer-events: none;
+      }
+      #__demo_caption.is-on { transform: translateY(0); }
+    \`;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement("div");
+    overlay.id = "__demo_overlay";
+    const parts = {};
+    for (const name of ["eyebrow", "headline", "line", "url"]) {
+      const node = document.createElement("p");
+      node.className = "__demo_" + name;
+      parts[name] = node;
+      overlay.appendChild(node);
+    }
+
+    const caption = document.createElement("div");
+    caption.id = "__demo_caption";
+
+    document.body.append(overlay, caption);
+
+    const card = (text) => {
+      for (const name of Object.keys(parts)) {
+        parts[name].textContent = text[name] ?? "";
+        parts[name].hidden = !text[name];
+      }
+      overlay.classList.remove("is-off");
+    };
+
+    window.__demoOverlay = {
+      intro: () => card(COPY.intro),
+      end: () => card(COPY.end),
+      hide: () => overlay.classList.add("is-off"),
+      caption(role) {
+        caption.textContent = COPY.captions[role] ?? "";
+        caption.classList.add("is-on");
+      },
+      clearCaption: () => caption.classList.remove("is-on"),
+    };
+
+    window.__demoOverlay.intro();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", build, { once: true });
+  } else {
+    build();
+  }
 `;
 
 /* ---------- helpers ---------- */
@@ -293,6 +478,17 @@ async function record(plan, windowSize) {
     } catch {}
   `);
 
+  await ctx.addInitScript(OVERLAY_SETUP({
+    intro: COPY.intro,
+    captions: COPY.captions,
+    end: {
+      eyebrow: COPY.end.eyebrow,
+      headline: COPY.end.headline(plan.deckSize, plan.topicCount),
+      line: COPY.end.line,
+      url: COPY.end.url,
+    },
+  }));
+
   const page = await ctx.newPage();
   const failures = [];
   page.on("pageerror", (e) => failures.push(String(e)));
@@ -305,6 +501,13 @@ async function record(plan, windowSize) {
     throw new Error(`opened on "${shown}", expected the ${plan.topic} case`);
   }
 
+  // A clip that shipped without its cards would be exactly the silent,
+  // unexplained one this script was changed to stop sending out, and nothing
+  // downstream would notice: the file would still be a valid 1080x1920 MP4.
+  if (!(await page.evaluate(() => Boolean(window.__demoOverlay)))) {
+    throw new Error("the overlay init script did not run -- the clip would carry no instruction");
+  }
+
   await page.evaluate(CURSOR_SETUP);
   // The pointer starts low and central, where a thumb rests, so its first
   // move is a journey rather than a materialisation.
@@ -313,18 +516,35 @@ async function record(plan, windowSize) {
     [CSS_W / 2, CSS_H - 90]
   );
 
+  // The opening card is already up -- it was painted with the first frame --
+  // so this is the hold on it, then the page underneath is uncovered.
+  await sleep(T.intro);
+  await page.evaluate(() => window.__demoOverlay.hide());
+  await sleep(T.introFade);
+
   await sleep(T.settle);
   await sleep(T.readStem);
 
   for (const step of plan.steps) {
+    // Each caption belongs to the answer that earned it, so the previous one
+    // leaves as the pointer sets off rather than hanging over the next tap.
+    await page.evaluate(() => window.__demoOverlay.clearCaption());
     const point = await clausePoint(page, step.i);
     await tap(page, point);
     await waitForAnswer(page, step);
+    await page.evaluate((role) => window.__demoOverlay.caption(role), step.role);
     if (step.hold) await sleep(step.hold);
   }
 
   await frameEnding(page);
   await sleep(T.readEnd);
+
+  // Last: the only frame that says where any of this lives.
+  await page.evaluate(() => {
+    window.__demoOverlay.clearCaption();
+    window.__demoOverlay.end();
+  });
+  await sleep(T.endCard);
 
   if (failures.length) throw new Error(`page errors: ${failures.join("; ")}`);
 
