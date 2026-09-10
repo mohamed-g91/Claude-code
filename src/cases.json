@@ -58,9 +58,9 @@
           "feedback": "Again a real severity marker, and again it lands in 'acute severe' — the 33 to 50% band. Something here escalates her further."
         },
         {
-          "text": "Oxygen saturation is 94% on high-flow oxygen.",
+          "text": "Oxygen saturation is 94% on room air.",
           "role": "noise",
-          "feedback": "Falsely reassuring, and a common trap. Saturations are maintained by supplemental oxygen until very late in acute asthma. A number that looks acceptable is not evidence that she is safe."
+          "feedback": "Falsely reassuring, and a common trap. Saturation is preserved until late in acute asthma; a normal number says nothing about how hard she is working."
         },
         {
           "text": "Arterial blood gas shows a PaCO2 of 5.4 kPa.",

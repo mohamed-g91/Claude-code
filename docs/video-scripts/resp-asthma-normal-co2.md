@@ -62,9 +62,9 @@ sentence in the script that is not carrying the argument.
 
 **On screen:** the unmarked stem. Nothing tapped yet, no movement.
 
-> **AR** — في هذه الحالة، الرقم الوحيد الطبيعي هو أخطر رقم في السؤال.
+> **AR** — في هذه الحالة، الرقم الذي يبدو طبيعيًا هو أخطر ما في السؤال.
 
-**EN** — In this case, the only normal number is the most dangerous one.
+**EN** — In this case, the number that looks normal is the most dangerous thing in it.
 
 ## 2 · 0:07–0:20 — the case
 
@@ -93,16 +93,17 @@ second feedback panel.
 
 ## 4 · 0:40–0:52 — the trap
 
-**On screen:** tap *"Oxygen saturation is 94% on high-flow oxygen"* → red. Talk
-over the feedback.
+**On screen:** tap *"Oxygen saturation is 94% on room air"* → red. Talk over
+the feedback.
 
-> **AR** — ثم يأتي الـ oxygen saturation: 94%. لكن انتبه — هي على high-flow
-> oxygen. في الربو الحاد يبقى التشبع محفوظًا بالأكسجين حتى مرحلة متأخرة جدًا.
-> رقم يبدو مقبولًا ليس دليلًا على أنها بأمان.
+> **AR** — ثم يأتي الـ oxygen saturation: 94% على هواء الغرفة — رقم يبدو
+> مطمئنًا. لكن في الربو الحاد يبقى التشبع محفوظًا حتى مرحلة متأخرة جدًا؛
+> المشكلة في التهوية، لا في الأكسجة. رقم مقبول لا يخبرك بمقدار المجهود الذي
+> تبذله.
 
-**EN** — Then the saturation: 94%. But look again — she is on high-flow oxygen.
-**EN** — In acute asthma, saturations are held up by oxygen until very late.
-**EN** — A number that looks acceptable is not evidence that she is safe.
+**EN** — Then the saturation: 94% — on room air. A number that looks completely reassuring.
+**EN** — But in acute asthma the saturation is preserved until very late. The problem is ventilation, not oxygenation.
+**EN** — An acceptable number tells you nothing about how hard she is working.
 
 ## 5 · 0:52–1:14 — the pivot
 
