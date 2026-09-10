@@ -280,7 +280,7 @@ and stay data.
 ## The share clip
 
 `tools/record-demo.mjs` records the clip that goes out on Telegram and
-WhatsApp: one case solved in about 26 seconds, wrong tap and all. Serve the
+WhatsApp: one case solved in about 28 seconds, wrong tap and all. Serve the
 site first, because it drives the real page rather than a mock-up:
 
 ```
@@ -316,6 +316,15 @@ and opening the resolution — and a final hold with all three marks and the
 explanation on screen together. The earlier marks are never cleared. A clip
 that showed only a right answer would be selling a quiz.
 
+Then, over that same frame, **the plan**: what the pivot means you do about
+her. The clip spends its whole length asking which finding most changes
+immediate management, and for a while it never legibly answered — the
+management is in the resolution, in the smallest type in the frame, nine lines
+into a paragraph that was on screen for two seconds. It is now stated in the
+largest words in the clip, in the deck's own decisive green, laid over the shot
+that already carries the marks and the explanation. That composite is the
+strongest frame in the clip and the one a viewer should leave with.
+
 The clip also has to **say what it is**, because it travels without the site
 around it. A viewer meets it in a status feed with no page, no heading and no
 sound, and taps alone do not tell a stranger what the colours mean or where
@@ -330,6 +339,8 @@ the site it is advertising:
 - a **caption** at the top edge as each tap is answered, naming that state in
   words — a lower third would cover the resolution the last beats scroll into
   view;
+- the **plan**, in green, over the solved case — checked against the case's own
+  resolution, so a clip cannot state a plan for a patient it is not showing;
 - a **closing card** with the wordmark, the deck's size counted from
   `cases.json` rather than typed, and the URL. It is the only frame that says
   where to find any of this.

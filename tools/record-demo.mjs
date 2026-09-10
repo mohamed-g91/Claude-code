@@ -79,6 +79,21 @@ const COPY = {
     contributory: "Right line of reasoning \u2014 still not decisive",
     pivot: "The pivot \u2014 and why it decides",
   },
+  // The answer to the question the clip has been asking. The prompt on screen
+  // says "the finding that most changes immediate management", and until this
+  // beat existed the clip never legibly said what the management becomes: the
+  // resolution does carry it, in the smallest type in the frame, nine lines
+  // into a grey paragraph that is on screen for two seconds. Nobody reads
+  // that. This states it in the largest words in the clip, over the frame that
+  // already shows the marks and the explanation.
+  plan: {
+    line: "Life-threatening asthma \u2014 immediate ITU referral, possible ventilation",
+    // A plan is the one caption that would still look right while describing
+    // the wrong patient. Swapping CASE_ID without rewriting the line above is
+    // exactly the silent failure the deck-driven taps exist to prevent, so
+    // every one of these has to appear in the case's own resolution.
+    evidence: ["life-threatening", "ITU", "ventilation"],
+  },
   end: {
     // The closing card carries the wordmark too. It is the frame a viewer is
     // looking at when they decide whether to type the address in, and a URL
@@ -136,7 +151,8 @@ const T = {
   release: 260,       // finger up
   readFeedback: 3000, // each of the two answered taps
   scroll: 800,        // easing the resolution into frame
-  readEnd: 2400,      // three marks and the resolution together, uncovered
+  readEnd: 1800,      // three marks and the resolution together, uncovered
+  plan: 2800,         // and what the pivot means you do about her
   endCard: 3400,      // where to find it
 };
 
@@ -166,6 +182,28 @@ function planFromDeck() {
     kase.clauses
       .map((clause, i) => ({ ...clause, i }))
       .filter((clause) => clause.role === role);
+
+  // A resolution is a plain string in the mixed deck and an object in the
+  // batches written since; both have to be readable here, because the plan
+  // caption is checked against it.
+  const resolution = typeof kase.resolution === "string"
+    ? kase.resolution
+    : [
+        kase.resolution?.lead,
+        ...(kase.resolution?.points ?? []).map((pt) => (typeof pt === "string" ? pt : pt?.text)),
+        kase.resolution?.trap,
+      ].filter(Boolean).join(" ");
+
+  const unsupported = COPY.plan.evidence.filter(
+    (term) => !resolution.toLowerCase().includes(term.toLowerCase())
+  );
+  if (unsupported.length) {
+    throw new Error(
+      `the plan caption is not supported by case "${CASE_ID}": ` +
+      `its resolution never mentions ${unsupported.join(", ")}. ` +
+      `Rewrite COPY.plan for this case rather than stating a plan for another one.`
+    );
+  }
 
   const noise = withRole("noise");
   const contributory = withRole("contributory");
@@ -336,6 +374,14 @@ const OVERLAY_SETUP = (copy) => `
         pointer-events: none;
       }
       #__demo_caption.is-on { transform: translateY(0); }
+      /* The plan is not another label, so it does not look like one. Dark
+         green is the deck's own decisive colour, and white on it clears
+         contrast at this size where the mid-green line colour would not. */
+      #__demo_caption.is-plan {
+        background: var(--pivot-ink, #1c4532);
+        font-size: 24px;
+        padding: 19px 24px;
+      }
     \`;
     document.head.appendChild(style);
 
@@ -368,9 +414,14 @@ const OVERLAY_SETUP = (copy) => `
       hide: () => overlay.classList.add("is-off"),
       caption(role) {
         caption.textContent = COPY.captions[role] ?? "";
+        caption.classList.remove("is-plan");
         caption.classList.add("is-on");
       },
-      clearCaption: () => caption.classList.remove("is-on"),
+      plan() {
+        caption.textContent = COPY.plan;
+        caption.classList.add("is-plan", "is-on");
+      },
+      clearCaption: () => caption.classList.remove("is-on", "is-plan"),
     };
 
     window.__demoOverlay.intro();
@@ -489,6 +540,7 @@ async function record(plan, windowSize) {
   await ctx.addInitScript(OVERLAY_SETUP({
     intro: COPY.intro,
     captions: COPY.captions,
+    plan: COPY.plan.line,
     end: {
       eyebrow: COPY.end.eyebrow,
       headline: COPY.end.headline(plan.deckSize, plan.topicCount),
@@ -546,6 +598,12 @@ async function record(plan, windowSize) {
 
   await frameEnding(page);
   await sleep(T.readEnd);
+
+  // The answer, laid over the frame that already carries the marks and the
+  // explanation. All three at once is the strongest shot in the clip, and it
+  // is the only place a viewer is told what the pivot means they should do.
+  await page.evaluate(() => window.__demoOverlay.plan());
+  await sleep(T.plan);
 
   // Last: the only frame that says where any of this lives.
   await page.evaluate(() => {
