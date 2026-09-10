@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Share card source</title>
+<!--
+  Source for src/og-card.png -- the image chat apps show when someone pastes a
+  link to this site. Rendered to PNG by tools/make-og-card.mjs.
+
+  It is HTML rather than a drawing because the card has to say
+  "mrcp_gafar . Find the Pivot" spelled correctly, and because the three state
+  colours have to be the site's own. Both come from src/brand.css here, so the
+  card cannot drift from the interface it depicts.
+
+  What it depicts: a paragraph of clinical prose with one sentence lit up. That
+  is the whole product in one picture, and it is why there is no stethoscope on
+  it -- an illustration of a doctor would say "some medical app" and waste the
+  only glance this image gets.
+
+  Design direction approved from a generated comp; this build tightens three
+  things about it. The marker is one thing (a fill and an underline, as in the
+  real interface) rather than a fill plus a border plus a separate rule. The
+  state pills carry their real labels, which a drawing could not spell. And the
+  wordmark occupies space the comp had left empty, because a share card nobody
+  can attribute is a card nobody clicks.
+-->
+<link rel="stylesheet" href="../src/brand.css">
+<style>
+  /* Fixed pixel box: this document exists to be photographed at exactly
+     1200x630, the size Open Graph consumers expect. Nothing here is
+     responsive on purpose. */
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1200px;
+    height: 630px;
+    background: var(--bg);
+    /* Liberation Sans is metric-compatible with Arial, which is what most
+       readers of the live site actually get from its system stack. Named
+       explicitly so the render is the same wherever this is run. */
+    font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 64px;
+    /* Every client crops a share card differently and each crops from a
+       different edge, so the content sits well inside the frame. */
+    padding: 0 76px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .lockup { display: flex; flex-direction: column; }
+
+  .company {
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--brand);
+    line-height: 1;
+  }
+  .product {
+    font-size: 50px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+  .tagline {
+    font-size: 28px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    margin-top: 28px;
+    max-width: 17.5em;
+  }
+
+  /* The three states, with the names the interface uses. An unlabelled swatch
+     reads as decoration; labelled, it tells a stranger what the exercise is. */
+  .states { display: flex; gap: 12px; margin-top: 40px; flex-wrap: wrap; }
+  .state {
+    font-size: 20px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .state.pivot { background: var(--pivot-bg); color: var(--pivot-ink); border-color: var(--pivot-line); }
+  .state.contributory { background: var(--contrib-bg); color: var(--contrib-ink); border-color: var(--contrib-line); }
+  .state.noise { background: var(--noise-bg); color: var(--noise-ink); border-color: var(--noise-line); }
+
+  /* The stem, abstracted to bars. Real sentences at this size would be too
+     small to read and would spoil a case for anyone who could. */
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 54px 46px;
+    box-shadow: 0 18px 44px -16px rgba(15, 29, 46, 0.28);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .bar { height: 20px; border-radius: 9px; background: var(--line); }
+  .bar.w95 { width: 95%; } .bar.w78 { width: 78%; }
+  .bar.w88 { width: 88%; } .bar.w72 { width: 72%; }
+  .bar.w84 { width: 84%; }
+
+  /* One finding, marked. Fill plus an underline is exactly how a tapped pivot
+     looks in the deck -- not a third border on top of both. */
+  .bar.marked {
+    width: 100%;
+    background: var(--pivot-bg);
+    border-bottom: 3px solid var(--pivot-line);
+    height: 28px;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="lockup">
+    <span class="company">mrcp_gafar</span>
+    <span class="product">Find the Pivot</span>
+    <p class="tagline">Exam stems are mostly noise. Train the one finding that commits you.</p>
+    <div class="states">
+      <span class="state pivot">Pivot</span>
+      <span class="state contributory">Contributory</span>
+      <span class="state noise">Not decisive</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="bar w95"></div>
+    <div class="bar w78"></div>
+    <div class="bar w88"></div>
+    <div class="bar marked"></div>
+    <div class="bar w72"></div>
+    <div class="bar w84"></div>
+  </div>
+
+</body>
+</html>
